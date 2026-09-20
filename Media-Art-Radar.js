@@ -3,8 +3,8 @@
 // 小号：最近截止；中号：最近三项；大号：五项精选，兼顾各分类。
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
 
-const DATA_URL = "https://media-art-weekly-radar.orangec0831.chatgpt.site/latest.json"
-const SITE_URL = "https://media-art-weekly-radar.orangec0831.chatgpt.site/"
+const DATA_URL = "https://zijianchenart.github.io/media-art-reader/latest.json"
+const SITE_URL = "https://zijianchenart.github.io/media-art-reader/"
 const CACHE_NAME = "media-art-radar-latest.json"
 const REFRESH_MINUTES = 60
 // 在 Scriptable 内预览时改为 small / medium / large；桌面会自动识别尺寸。
