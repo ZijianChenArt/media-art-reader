@@ -235,7 +235,7 @@
       <header class="page-head">
         <h1><span>小组件</span><em>Widgets.</em></h1>
         <div class="page-meta"><span>03 / Widgets · iPhone 17 Pro Max · Mac</span><span>${esc(data.issue_id || '')}</span></div>
-      <div class="pill-row"><a class="pill solid" href="Media-Art-Radar.js" download>下载脚本 ↓</a><a class="pill" href="install.html">安装说明 ↗</a></div>
+      <div class="pill-row"><a class="pill solid" href="Media-Art-Radar.js?v=7" download>下载脚本 ↓</a><a class="pill" href="install.html">安装说明 ↗</a></div>
       </header>
       <div class="wg-list">
         ${fig('wg-s', '小号', '170 × 170', '下一个截止', small)}

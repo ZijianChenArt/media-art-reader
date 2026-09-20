@@ -1,4 +1,4 @@
-// MEDIA ART RADAR · Edition 06
+// MEDIA ART RADAR · Edition 07
 // 与主页同一套视觉：纸白底 · 异形圆角卡 · 巨型斜体日期 · 分类色只用在一处
 // Scriptable Home Screen widgets：small / medium / large
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
@@ -15,7 +15,7 @@ const C = {
   paper: "#FFFFFF", card: "#FFFFFF", ink: "#050505",
   dim: "#717176", faint: "#9A9AA0", hair: "#D5D5D7", mute: "#B9B9BF",
   exhibition: "#1479E8", residency: "#FFB314", prize: "#FF5B22", conference: "#0BB64A",
-  soon: "#050505"
+  soon: "#DE2410"
 }
 const SOON_DAYS = 14       // 与 status.js 的阈值一致
 
@@ -257,7 +257,7 @@ function indexRow(parent, item, size) {
 }
 
 // ============================================================
-// SMALL · 一个巨大的日期，其余全部让路
+// SMALL · 与网页预览一致：只回答“下一个截止”
 // ============================================================
 function buildSmall(data, state) {
   const w = baseWidget(13)
@@ -272,225 +272,141 @@ function buildSmall(data, state) {
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
 
   const item = calls[0]
+  const ms = widgetMetrics().small.w
+  const dateSize = ms >= 165 ? 50 : 46
+
   w.addSpacer()
-  const cat = w.addStack()
-  cat.centerAlignContent()
-  const dot = cat.addStack()
-  dot.size = new Size(5, 5)
-  dot.cornerRadius = 2.5
-  dot.backgroundColor = new Color(categoryColor(item))
-  cat.addSpacer(5)
-  text(cat, categoryLabel(item, false), 7.5, C.ink, "monob")
-  w.addSpacer(6)
-  text(w, deadlineLabel(item), 46, C.ink, "didot")
+  text(w, deadlineLabel(item), dateSize, dateColor(item), "didot")
   w.addSpacer(2)
-  text(w, daysLabel(item), 8.5, C.ink, "monob")
-  w.addSpacer(7)
-  text(w, splitTitle(item.title).title, 11.5, C.ink, "bold", 2)
-  w.addSpacer()
-  rule(w)
-  w.addSpacer(6)
-  const foot = w.addStack()
-  text(foot, "DEADLINE", 7.5, C.dim, "mono")
-  foot.addSpacer()
-  text(foot, "↗", 8, C.ink, "monob")
-  return w
-}
-
-// ============================================================
-// MEDIUM · 四个机会：首项是一张异形卡，其余三项排成索引
-// ============================================================
-function addMediumEqualRow(parent, item) {
-  const row = parent.addStack()
-  row.centerAlignContent()
-  row.url = item.url || SITE_URL
-
-  text(row, deadlineLabel(item), 21, C.ink, "didot")
-  row.addSpacer(8)
-
-  const middle = row.addStack()
-  middle.layoutVertically()
-  const meta = middle.addStack()
-  meta.centerAlignContent()
-  const dot = meta.addStack()
-  dot.size = new Size(4, 4)
-  dot.cornerRadius = 2
-  dot.backgroundColor = new Color(categoryColor(item))
-  meta.addSpacer(4)
-  text(meta, categoryLabel(item, true), 7, C.ink, "monob")
-  middle.addSpacer(1)
-  text(middle, splitTitle(item.title).title, 10, C.ink, "semi", 1)
-
-  row.addSpacer()
-  const d = daysRemaining(item)
-  text(row, d === null ? "—" : `T-${d}`, 7.5, C.dim, "monob")
-}
-
-function buildMedium(data, state) {
-  const w = baseWidget(11)
-  const calls = activeCalls(data.open_calls || [], "deadline")
-
-  const top = w.addStack()
-  top.centerAlignContent()
-  text(top, "MEDIA ART RADAR", 8, C.ink, "monob")
-  top.addSpacer()
-  text(top, compactIssue(data.issue_id) || "—", 8, C.dim, "mono")
-  w.addSpacer(4)
-  rule(w)
+  text(w, splitTitle(item.title).title, 11.5, C.ink, "bold", 1)
   w.addSpacer(3)
-
-  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
-
-  const shown = calls.slice(0, widgetMetrics().medium.h >= 155 ? 3 : 2)
-  shown.forEach((item, i) => {
-    addMediumEqualRow(w, item)
-    if (i < shown.length - 1) { w.addSpacer(2); rule(w); w.addSpacer(2) }
-  })
+  text(w, daysLabel(item), 8.5, isSoon(item) ? C.soon : C.dim, "monob")
   w.addSpacer()
   return w
 }
 
 // ============================================================
-// 大号的三块：刊头 / 头条卡 / 索引
+// WEB-PREVIEW ROW · 日期 / 标题 / 关键数字 + 分类 / 地点 / 倒计时
 // ============================================================
-// 刊头：与主页 MEDIA ART / Radar 同构
-function addMasthead(parent, data, calls) {
-  const top = parent.addStack()
-  top.bottomAlignContent()
-  const name = top.addStack()
-  name.layoutVertically()
-  text(name, "MEDIA ART", 10, C.ink, "bold")
-  text(name, "Radar ↗", 21, C.ink, "didot")
-  top.addSpacer()
-  const meta = top.addStack()
-  meta.layoutVertically()
-  text(meta, compactIssue(data.issue_id) || "—", 9.5, C.ink, "monob").rightAlignText()
-  meta.addSpacer(2)
-  text(meta, `${two(calls.length)} 项机会`, 8.5, C.dim, "mono").rightAlignText()
-  parent.addSpacer(9)
-  rule(parent, C.ink)
-  parent.addSpacer(10)
-}
+function addPreviewRow(parent, item, spec) {
+  const block = parent.addStack()
+  block.layoutVertically()
+  block.url = item.url || SITE_URL
 
-// 头条卡：分类色标签 · 地点 · 项目时间胶囊 / 完整标题 / 巨型日期 + 关键数字
-function addHeroCard(parent, item, cw) {
-  const card = makeCard(parent, cw, 136, 26, 5)
-  card.url = item.url || SITE_URL
-  card.setPadding(10, 14, 10, 14)
+  const r1 = block.addStack()
+  r1.centerAlignContent()
 
-  const hMeta = card.addStack()
-  hMeta.centerAlignContent()
-  text(hMeta, categoryLabel(item, false), 8, categoryColor(item), "monob")
-  hMeta.addSpacer(6)
-  text(hMeta, compactPlace(item.location), 8, C.dim, "mono", 1)
-  hMeta.addSpacer()
-  if (item.project_when) {
-    // 右上角小胶囊：项目时间，与主页卡片一致
-    const chip = hMeta.addStack()
-    chip.setPadding(2, 7, 2, 7)
-    chip.cornerRadius = 8
-    chip.borderWidth = 0.5
-    chip.borderColor = new Color(C.hair)
-    text(chip, `项目 ${item.project_when}`, 7.5, C.ink, "mono")
-  }
+  const dbox = r1.addStack()
+  dbox.size = new Size(spec.dateW, 0)
+  text(dbox, deadlineLabel(item), spec.date, dateColor(item), "didot")
 
-  card.addSpacer(5)
-  text(card, item.title || "Untitled", 14.5, C.ink, "bold", 2)
-  card.addSpacer()
+  r1.addSpacer(5)
+  text(r1, splitTitle(item.title).title, spec.title, C.ink, "bold", 1)
+  r1.addSpacer()
+  addHighlight(r1, item, spec.hl, false)
 
-  const hFig = card.addStack()
-  hFig.bottomAlignContent()
-  const left = hFig.addStack()
-  left.layoutVertically()
-  text(left, deadlineLabel(item), 34, dateColor(item), "didot")
-  left.addSpacer(1)
-  daysLine(left, item, 8)
-  hFig.addSpacer()
-  addHighlight(hFig, item, 30)
-}
+  block.addSpacer(1)
 
-// 索引：头条之后的若干项，行间一条细线
-function addIndex(parent, calls, restCount) {
-  const rest = calls.slice(1, 1 + restCount)
-  rest.forEach((next, i) => {
-    indexRow(parent, next, 10.5)
-    if (i < rest.length - 1) { parent.addSpacer(5); rule(parent); parent.addSpacer(5) }
-  })
-}
+  const r2 = block.addStack()
+  r2.centerAlignContent()
 
-// ============================================================
-// LARGE · 头条一张完整的异形卡，下面四行索引
-// ============================================================
-function addEqualWidgetCard(parent, item, cw, ch, compact = false) {
-  const card = parent.addStack()
-  card.layoutVertically()
-  card.size = new Size(cw, ch)
-  card.backgroundColor = new Color(C.card)
-  card.borderWidth = 1
-  card.borderColor = new Color(C.ink)
-  card.cornerRadius = compact ? 12 : 16
-  card.setPadding(compact ? 7 : 8, compact ? 8 : 9, compact ? 7 : 8, compact ? 8 : 9)
-  card.url = item.url || SITE_URL
+  const blank = r2.addStack()
+  blank.size = new Size(spec.dateW, 0)
+  r2.addSpacer(5)
 
-  const meta = card.addStack()
-  meta.centerAlignContent()
-  const dot = meta.addStack()
-  dot.size = new Size(compact ? 4 : 5, compact ? 4 : 5)
-  dot.cornerRadius = compact ? 2 : 2.5
-  dot.backgroundColor = new Color(categoryColor(item))
-  meta.addSpacer(4)
-  text(meta, categoryLabel(item, false), compact ? 6.3 : 7, C.ink, "monob")
-  meta.addSpacer()
-  text(meta, compactPlace(item.location), compact ? 6 : 6.5, C.dim, "mono", 1)
+  text(r2, categoryLabel(item, true), spec.meta, categoryColor(item), "monob")
+  r2.addSpacer(5)
+  text(r2, compactPlace(item.location), spec.meta, C.dim, "mono", 1)
+  r2.addSpacer()
 
-  card.addSpacer(compact ? 3 : 4)
-  text(card, splitTitle(item.title).title, compact ? 9 : 10, C.ink, "bold", 1)
-  card.addSpacer()
-  text(card, deadlineLabel(item), compact ? 25 : 28, C.ink, "didot")
-  card.addSpacer(1)
-
-  const foot = card.addStack()
-  foot.centerAlignContent()
   const d = daysRemaining(item)
-  text(foot, d === null ? "—" : `T-${d}`, compact ? 6.5 : 7, C.ink, "monob")
-  foot.addSpacer()
-  if (item.highlight) text(foot, String(item.highlight), compact ? 6.2 : 6.8, C.dim, "mono", 1)
+  text(r2, d === null ? "—" : `T-${d}`, spec.meta, isSoon(item) ? C.soon : C.ink, "monob")
+  if (item.highlight_label) {
+    r2.addSpacer(5)
+    text(r2, item.highlight_label, spec.meta, C.dim, "mono", 1)
+  }
 }
 
-function buildLarge(data, state) {
-  const pad = 13, gap = 7
-  const m = widgetMetrics().large
-  const w = baseWidget(pad)
+// ============================================================
+// MEDIUM · 四个机会，每个机会完全同权
+// ============================================================
+function buildMedium(data, state) {
+  const w = baseWidget(12)
   const calls = activeCalls(data.open_calls || [], "deadline")
+  const m = widgetMetrics().medium
 
   const top = w.addStack()
   top.centerAlignContent()
-  text(top, "MEDIA ART RADAR", 8, C.ink, "monob")
+  text(top, "MEDIA ART RADAR", 8.5, C.ink, "monob")
   top.addSpacer()
-  text(top, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} OPEN`, 7.5, C.dim, "mono")
+  const fresh = state === "LIVE" && !isStale(data)
+  text(top, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8, fresh ? C.dim : C.soon, "mono")
   w.addSpacer(5)
 
-  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
+  if (!calls.length) { rule(w, C.ink); w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
 
-  const cw = Math.floor((m.w - pad * 2 - gap) / 2)
-  const ch = Math.floor((m.h - pad * 2 - 25 - gap) / 2)
+  const tight = m.h < 165
+  const spec = tight
+    ? { dateW: 34, date: 12, title: 9, hl: 10.5, meta: 6.3 }
+    : { dateW: 36, date: 13.5, title: 10, hl: 12, meta: 7 }
+
   const shown = calls.slice(0, 4)
+  shown.forEach((item, i) => {
+    addPreviewRow(w, item, spec)
+    if (i < shown.length - 1) w.addSpacer(tight ? 2 : 3)
+  })
 
-  for (let r = 0; r < 2; r++) {
-    const row = w.addStack()
-    for (let c = 0; c < 2; c++) {
-      if (c > 0) row.addSpacer(gap)
-      const item = shown[r * 2 + c]
-      if (item) addEqualWidgetCard(row, item, cw, ch)
-      else { const blank = row.addStack(); blank.size = new Size(cw, ch) }
-    }
-    if (r === 0) w.addSpacer(gap)
+  w.addSpacer()
+  const foot = w.addStack()
+  const hidden = calls.length - shown.length
+  if (hidden > 0) {
+    text(foot, `另有 ${hidden} 项`, 7, C.dim, "mono")
   }
+  foot.addSpacer()
+  text(foot, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 7, C.dim, "mono")
   return w
 }
 
 // ============================================================
-// EXTRA LARGE · 5 个机会完全等权 + 1 个品牌格
+// LARGE · 刊头 + 五张等权信息卡
+// ============================================================
+function buildLarge(data, state) {
+  const pad = 14
+  const w = baseWidget(pad)
+  const calls = activeCalls(data.open_calls || [], "deadline")
+  const m = widgetMetrics().large
+  const cw = m.w - pad * 2
+
+  const mast = w.addStack()
+  mast.bottomAlignContent()
+  text(mast, "MEDIA ART", 10, C.ink, "bold")
+  mast.addSpacer(6)
+  text(mast, "Radar ↗", 18, C.ink, "didot")
+  mast.addSpacer()
+  text(mast, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} 项机会`, 8.5, C.dim, "mono")
+  w.addSpacer(8)
+
+  if (!calls.length) { addEmptyState(w, state); return w }
+
+  const cardH = m.h >= 350 ? 54 : 47
+  const tight = cardH < 50
+  const spec = tight
+    ? { dateW: 45, date: 16, title: 10, hl: 13, meta: 6.6 }
+    : { dateW: 50, date: 19, title: 12, hl: 16, meta: 7.5 }
+
+  calls.slice(0, 5).forEach((item, i) => {
+    const card = makeCard(w, cw, cardH, 16, 4)
+    card.setPadding(tight ? 6 : 8, tight ? 11 : 14, tight ? 6 : 8, tight ? 11 : 14)
+    addPreviewRow(card, item, spec)
+    if (i < Math.min(calls.length, 5) - 1) w.addSpacer(tight ? 3 : 5)
+  })
+
+  w.addSpacer()
+  return w
+}
+
+// ============================================================
+// EXTRA LARGE · 3×2：五个机会 + 最后一格刊头
 // ============================================================
 function extraLargeArea() {
   let longest = 0
@@ -498,24 +414,52 @@ function extraLargeArea() {
   return longest >= 1180 ? { w: 700, h: 340 } : { w: 640, h: 304 }
 }
 
-function addBrandCell(parent, data, calls, cw, ch) {
+function addPreviewGridCell(parent, item, cw, ch) {
+  const card = cardStack(parent, cw, ch, 20, 4)
+  card.setPadding(9, 12, 9, 12)
+  card.url = item.url || SITE_URL
+
+  const meta = card.addStack()
+  meta.centerAlignContent()
+  text(meta, categoryLabel(item, false), 7.5, categoryColor(item), "monob")
+  meta.addSpacer()
+  const d = daysRemaining(item)
+  text(meta, d === null ? "—" : `T-${d}`, 7.5, isSoon(item) ? C.soon : C.ink, "monob")
+
+  card.addSpacer()
+
+  text(card, deadlineLabel(item), 30, dateColor(item), "didot")
+  card.addSpacer(5)
+  text(card, splitTitle(item.title).title, 11, C.ink, "bold", 1)
+  card.addSpacer(3)
+
+  const foot = card.addStack()
+  addHighlight(foot, item, 13, false)
+  foot.addSpacer()
+  text(foot, compactPlace(item.location), 7.5, C.dim, "mono", 1)
+}
+
+function addPreviewMastheadCell(parent, data, state, calls, cw, ch) {
   const cell = parent.addStack()
   cell.layoutVertically()
   cell.size = new Size(cw, ch)
-  cell.backgroundColor = new Color(C.ink)
-  cell.cornerRadius = 14
-  cell.setPadding(10, 10, 10, 10)
-  text(cell, "MEDIA ART RADAR", 7.5, C.card, "monob")
+  cell.setPadding(0, 4, 4, 4)
+
+  rule(cell, C.ink)
+  cell.addSpacer(9)
+  text(cell, "MEDIA ART", 11, C.ink, "bold")
+  text(cell, "Radar ↗", 26, C.ink, "didot")
   cell.addSpacer()
-  text(cell, "MAR ↗", 21, C.card, "bold")
-  text(cell, "Open calls.", 19, C.card, "didot")
-  cell.addSpacer(4)
-  text(cell, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} OPEN`, 7.5, C.faint, "mono")
+  text(cell, compactIssue(data.issue_id) || "—", 10, C.ink, "monob")
+  cell.addSpacer(2)
+  text(cell, `${two(calls.length)} 项机会`, 8.5, C.dim, "mono")
+  cell.addSpacer(2)
+  text(cell, `${statusText(state, data)}`, 8, C.faint, "mono")
 }
 
 function buildExtraLarge(data, state) {
   const area = extraLargeArea()
-  const pad = 14, gap = 9
+  const pad = 14, gap = 10
   const cw = Math.floor((area.w - pad * 2 - gap * 2) / 3)
   const ch = Math.floor((area.h - pad * 2 - gap) / 2)
   const w = baseWidget(pad)
@@ -530,13 +474,21 @@ function buildExtraLarge(data, state) {
     const wrap = w.addStack()
     wrap.addSpacer()
     const line = wrap.addStack()
+
     for (let c = 0; c < 3; c++) {
       if (c > 0) line.addSpacer(gap)
       const idx = r * 3 + c
-      if (idx < 5 && shown[idx]) addEqualWidgetCard(line, shown[idx], cw, ch, true)
-      else if (idx === 5) addBrandCell(line, data, calls, cw, ch)
-      else { const blank = line.addStack(); blank.size = new Size(cw, ch) }
+
+      if (idx < 5 && shown[idx]) {
+        addPreviewGridCell(line, shown[idx], cw, ch)
+      } else if (idx === 5) {
+        addPreviewMastheadCell(line, data, state, calls, cw, ch)
+      } else {
+        const blank = line.addStack()
+        blank.size = new Size(cw, ch)
+      }
     }
+
     wrap.addSpacer()
     if (r === 0) w.addSpacer(gap)
   }
