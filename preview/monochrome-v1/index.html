@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="Media Art Radar — 全球媒体艺术机会与创作现场。黑白电脑端设计预览。">
+<title>Media Art Radar — An open field / B&W 01</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='24'/%3E%3Cpath d='M13 31V17h7l4 7 4-7h7v14' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preload" href="../../assets/fonts/space-grotesk-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../assets/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* A fresh, standalone design. No CSS or layout inherited from older previews.
+   Reference: units.gr/en/community/ — chapter-based narrative and image-led pacing.
+   All interface, artwork and photographs intentionally remain monochrome. */
+@font-face{font-family:Grotesk;src:url('../../assets/fonts/space-grotesk-var.woff2') format('woff2');font-weight:400 700;font-display:swap}
+@font-face{font-family:Editorial;src:url('../../assets/fonts/instrument-serif-italic.woff2') format('woff2');font-style:italic;font-display:swap}
+@font-face{font-family:DateFace;src:url('../../assets/fonts/bodoni-moda-italic-var.woff2') format('woff2');font-weight:400 900;font-style:italic;font-display:swap}
+@font-face{font-family:Data;src:url('../../assets/fonts/space-mono-400.woff2') format('woff2');font-display:swap}
+:root{--paper:#fff;--ink:#141414;--muted:#666;--line:#dedede;--sans:Grotesk,'PingFang SC','Microsoft YaHei',sans-serif;--serif:Editorial,Georgia,serif;--mono:Data,monospace;--gutter:clamp(32px,4.4vw,84px)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;color:var(--ink);background:var(--paper);font-family:var(--sans);font-size:16px;line-height:1.6}button,select{font:inherit;color:inherit}button,a,summary,select{-webkit-tap-highlight-color:transparent}a{color:inherit;text-decoration:none}button{cursor:pointer}button:disabled{cursor:default}::selection{color:#fff;background:#111}[hidden]{display:none!important}a:focus-visible,button:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid currentColor;outline-offset:5px}h1,h2,h3,p,figure{margin:0}em{font-family:var(--serif);font-style:italic;font-weight:400}img{display:block;width:100%;height:auto;filter:grayscale(1)}.site{min-width:1120px}.wrap{width:calc(100% - var(--gutter)*2);max-width:1600px;margin-inline:auto}.eyebrow{font:11px/1.5 var(--mono);letter-spacing:.09em;text-transform:uppercase}.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.skip{position:fixed;left:24px;top:-80px;z-index:100;background:#111;color:#fff;padding:12px 20px}.skip:focus{top:10px}.skip:not(:focus){width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0}.fit-note{display:none;text-align:center;padding:8px;font:12px/1.4 var(--sans);background:#eee;color:#444}
+/* The only persistent rail. */
+.header{height:92px;display:flex;align-items:center;justify-content:space-between;gap:32px;border-bottom:1px solid var(--line)}.logo{display:flex;align-items:center;gap:18px}.wordmark{font-size:50px;font-weight:700;letter-spacing:-.09em;line-height:1}.brand-caption{font:10px/1.45 var(--mono);letter-spacing:.05em;padding-top:7px}.nav{display:flex;align-items:center;gap:34px;font-size:14px}.nav>a:not(.pill){padding:10px 0;border-bottom:1px solid transparent}.nav>a:hover{border-bottom-color:#111}.pill{display:inline-flex;align-items:center;justify-content:space-between;gap:30px;min-height:48px;padding:10px 22px;border:1px solid #111;border-radius:999px;background:#111;color:#fff;font-size:14px;font-weight:500;transition:background .2s,color .2s}.pill:hover{background:#fff;color:#111}.pill .arrow{font-size:23px;line-height:1}.pill.light{background:#fff;color:#111;border-color:#fff}.pill.light:hover{background:#151515;color:#fff}
+/* Hero as a single composition, rather than a dashboard. */
+.hero{position:relative;min-height:690px;height:calc(100svh - 92px);max-height:860px;display:flex;align-items:center;padding-block:60px 96px}.hero-copy{position:relative;z-index:2;width:68%;pointer-events:none}.hero-copy a{pointer-events:auto}.hero .eyebrow{margin-bottom:27px}.hero h1{font-size:clamp(98px,9.6vw,158px);font-weight:600;line-height:.89;letter-spacing:-.075em}.hero h1 em{display:block;font-size:1.16em;letter-spacing:-.047em;margin-top:.045em;white-space:nowrap}.hero-description{font-size:18px;line-height:1.8;margin-top:35px;max-width:430px}.hero-cta{margin-top:28px;min-width:190px}.art{position:absolute;right:-15px;top:50%;transform:translateY(-55%);width:47%;height:540px}.art canvas{display:block;width:100%;height:100%;cursor:crosshair}.art-caption{position:absolute;right:15px;bottom:0;display:flex;gap:20px;align-items:center;color:#6c6c6c;font:10px var(--mono)}.motion-button{display:flex;align-items:center;justify-content:center;background:transparent;color:#111;border:1px solid #ccc;border-radius:50%;width:32px;height:32px;font:12px var(--sans)}.hero-foot{position:absolute;bottom:28px;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:24px;font:11px/1.5 var(--mono);color:#666}.hero-foot .intro-meta{display:flex;gap:30px}.hero-foot b{font-weight:400;color:#111}.scroll-cue{display:flex;align-items:center;gap:12px}.scroll-cue span:last-child{display:inline-grid;place-items:center;width:34px;height:34px;border:1px solid #bcbcbc;border-radius:50%;font-size:20px;color:#111}
+/* A typographic bridge: spacious and quiet. */
+.manifesto{border-top:1px solid #191919;padding:94px 0 104px;display:flex;align-items:center;gap:8%;justify-content:space-between}.manifesto .eyebrow{align-self:flex-start;min-width:155px;margin-top:8px}.manifesto h2{font-size:clamp(38px,4.1vw,66px);font-weight:500;letter-spacing:-.04em;line-height:1.27;flex:1}.manifesto h2 em{font-size:1.2em}.manifesto p:last-child{max-width:290px;font-size:14px;line-height:1.9;color:#666;align-self:flex-end}
+/* The opportunities are readable editorial entries, not floating UI windows. */
+.calls{padding:0 0 105px;scroll-margin-top:26px}.chapter-head{display:flex;align-items:flex-end;justify-content:space-between;gap:45px;margin-bottom:45px}.chapter-head .eyebrow{margin-bottom:22px}.chapter-head h2{font-weight:500;font-size:clamp(62px,6.5vw,104px);line-height:.95;letter-spacing:-.06em}.chapter-head h2 em{font-size:1.15em;letter-spacing:-.035em}.chapter-note{max-width:260px;padding-bottom:6px;color:#555;font-size:14px;line-height:1.8}.chapter-note strong{display:block;font-weight:500;font-size:19px;color:#111;margin-bottom:7px}.tools{display:flex;justify-content:space-between;align-items:center;gap:30px;padding:19px 0 20px;border-top:1px solid #111;border-bottom:1px solid var(--line)}.filters{display:flex;align-items:center;gap:6px}.filter{border:0;background:none;min-height:44px;padding:8px 16px;border-radius:999px;font-size:13px;white-space:nowrap}.filter[aria-pressed=true]{background:#151515;color:#fff}.filter small{font:10px var(--mono);opacity:.6;margin-left:7px}.filter:not([aria-pressed=true]):hover{background:#eee}.sort{display:flex;align-items:center;gap:12px;color:#666;font-size:12px}.sort select{background:transparent;padding:7px 20px 7px 5px;border:0;font-size:13px;max-width:180px}.status-line{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 0 10px;font-size:11px;color:#777}.data-warning{padding:14px 18px;border:1px solid #888;background:#f4f4f4;margin:0 0 20px;font-size:13px}.loading,.empty{padding:50px 0;color:#666;font-size:16px}.empty button{background:#111;color:#fff;border:0;border-radius:25px;padding:11px 18px;margin-top:15px;font-size:13px}
+.call{padding:38px 0 25px;border-bottom:1px solid #cfcfcf;scroll-margin-top:30px}.call-header{display:grid;grid-template-columns:165px minmax(0,1fr) 200px;gap:40px;align-items:start}.date-block{padding-top:3px}.date-label{font:10px/1.5 var(--mono);color:#666;letter-spacing:.04em}.deadline{display:block;font-family:DateFace,Georgia,serif;font-style:italic;font-size:82px;font-weight:500;line-height:1.06;letter-spacing:-.07em;margin-left:-5px;margin-top:7px;white-space:nowrap}.remaining{display:inline-flex;align-items:center;gap:7px;font:11px var(--mono);margin-top:9px;color:#666}.call.soon .remaining{background:#191919;color:#fff;padding:5px 10px;border-radius:20px}.call.closed .remaining{border-bottom:1px solid #666}.call.closed .deadline{color:#777}.entry-meta{display:flex;align-items:center;gap:13px;flex-wrap:wrap;font:11px/1.5 var(--mono);color:#646464}.entry-meta span:first-child{color:#111}.entry-meta .dot{width:3px;height:3px;background:#9a9a9a;border-radius:50%}.call-title{font-size:clamp(27px,2.55vw,42px);line-height:1.1;letter-spacing:-.043em;font-weight:600;margin:12px 0 0}.call-subtitle{font-family:var(--serif);font-style:italic;font-size:25px;line-height:1.17;letter-spacing:-.01em;color:#4b4b4b;margin-top:5px}.entry-type{font-size:12px;color:#666;margin-top:14px}.call-actions{padding-top:5px;text-align:right}.official{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:54px;border:1px solid #111;border-radius:999px;background:#111;color:#fff;padding:10px 13px 10px 22px;text-align:left;font-size:14px;font-weight:500;transition:background .2s,color .2s}.official span:last-child{border-radius:50%;background:#fff;color:#111;width:31px;height:31px;display:grid;place-items:center;font-size:23px;line-height:1;flex-shrink:0;transition:transform .2s}.official:hover{background:#fff;color:#111}.official:hover span:last-child{transform:rotate(45deg);background:#111;color:#fff}.domain{display:block;font:10px/1.5 var(--mono);color:#777;margin-top:9px;overflow-wrap:anywhere}.project-when{display:block;margin-top:22px;font-size:12px;color:#666}.project-when b{font-weight:500;color:#111;margin-left:6px}.call-body{margin:23px 240px 0 205px}.facts{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px;margin:0}.facts>div{display:flex;align-items:baseline;gap:12px;min-width:0}.facts dt{color:#777;font-size:11px;flex-shrink:0;width:28px}.facts dd{font-size:13px;line-height:1.8;margin:0;overflow-wrap:anywhere}.facts .support{grid-column:1/-1}.facts .support dd{max-width:640px}.call-details{margin-top:17px}.call-details summary{list-style:none;min-height:42px;display:flex;align-items:center;gap:12px;font-size:12px;cursor:pointer;width:max-content}.call-details summary::-webkit-details-marker{display:none}.call-details summary::before{content:'+';font-size:20px;font-weight:400;display:inline-grid;place-items:center;width:23px;height:23px;border:1px solid #aaa;border-radius:50%}.call-details[open] summary::before{content:'−'}.call-details summary:hover{text-decoration:underline;text-underline-offset:4px}.detail-sheet{padding:26px 30px;margin-top:13px;background:#f5f5f5;border-radius:0 32px 0 0}.detail-sheet h4{font-size:15px;margin:0 0 12px;font-weight:600}.detail-sheet dl{margin:0}.detail-sheet dl>div{display:grid;grid-template-columns:72px 1fr;gap:15px;padding:12px 0;border-bottom:1px solid #ddd}.detail-sheet dt{font-size:12px;color:#666}.detail-sheet dd{margin:0;font-size:13px;line-height:1.8}.detail-sheet .why{margin-top:24px;font-size:14px;line-height:1.8}.detail-sheet .why span{display:block;font:10px var(--mono);color:#777;margin-bottom:8px}.verified{margin-top:18px;font-size:11px;line-height:1.7;color:#666}.verified a{text-decoration:underline;text-underline-offset:3px}.no-js{border:1px solid #111;padding:24px;margin:30px 0}.no-js a{text-decoration:underline}
+/* In focus becomes its own exhibition-like chapter. */
+.focus{background:#111;color:#fff;padding:90px 0 94px;border-radius:52px 52px 0 0}.focus .chapter-head{align-items:flex-start;margin-bottom:64px}.focus .chapter-head h2{font-size:clamp(76px,8vw,125px)}.focus .chapter-note{color:#bbb;padding-top:58px}.focus .chapter-note strong{color:#fff}.focus-wall{display:flex;align-items:flex-start;justify-content:space-between;gap:9%}.focus-item{width:56%}.focus-item:nth-child(2){width:35%;margin-top:155px}.focus-photo{display:block;overflow:hidden;background:#242424;border-radius:2px 36px 2px 2px;aspect-ratio:1.16;position:relative}.focus-item:nth-child(2) .focus-photo{aspect-ratio:.91;border-radius:2px 2px 36px 2px}.focus-photo img{width:100%;height:100%;object-fit:cover;transition:transform .6s;filter:grayscale(1)}.focus-photo:hover img{transform:scale(1.035)}.focus-image-note{font:9px/1.5 var(--mono);letter-spacing:.03em;color:#999;margin-top:10px}.focus-meta{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:24px;font-size:11px;color:#aaa}.focus-item h3{font-weight:400;font-family:var(--serif);font-style:italic;font-size:clamp(33px,3.5vw,54px);letter-spacing:-.02em;line-height:1.07;margin-top:13px}.focus-item .author{font-size:13px;color:#ccc;margin-top:12px}.focus-item .description{font-size:14px;line-height:1.85;color:#bbb;max-width:570px;margin-top:16px}.read-source{display:inline-flex;align-items:center;gap:30px;font-size:13px;min-height:48px;margin-top:18px;border-bottom:1px solid #999}.read-source span{font-size:23px}.read-source:hover{border-color:#fff}.report{margin-top:60px;border-top:1px solid #454545;padding-top:18px}.report summary{cursor:pointer;font-size:12px;color:#ccc;width:max-content;padding:12px 0}.report p{font-size:13px;line-height:1.9;color:#aaa;max-width:780px;margin-top:14px}
+/* Quiet closing chapter, useful rather than a fake sign-up. */
+.about{padding:106px 0 80px}.about-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10%}.about h2{font-size:clamp(80px,8.5vw,142px);font-weight:500;letter-spacing:-.065em;line-height:.91}.about h2 em{display:block;font-size:1.16em;line-height:1}.about-copy{width:37%;max-width:440px;padding-top:13px}.about-copy h3{font-size:25px;font-weight:500;line-height:1.6;margin-top:25px}.about-copy p{font-size:14px;line-height:1.9;color:#666;margin-top:15px}.about-copy .pill{margin-top:26px;min-width:235px}.footer{display:flex;align-items:center;justify-content:space-between;gap:40px;padding:25px 0 30px;border-top:1px solid #bcbcbc;font:10px/1.5 var(--mono);color:#666}.footer div{display:flex;gap:25px}.footer a:hover{color:#111;text-decoration:underline}.footer .mini{font:700 28px/1 var(--sans);letter-spacing:-.08em;color:#111}
+@media(min-width:1700px){.hero h1{font-size:162px}.art{right:12px;width:47%;height:600px}.hero-description{margin-top:45px}.call-header{grid-template-columns:190px 1fr 205px;gap:50px}.call-body{margin-left:240px;margin-right:255px}.deadline{font-size:97px}}
+@media(max-width:1250px){.hero h1{font-size:104px}.hero-description{font-size:16px}.art{width:47%;right:0;height:490px}.manifesto{gap:4%}.manifesto .eyebrow{min-width:115px}.manifesto p:last-child{max-width:255px}.call-header{grid-template-columns:145px 1fr 185px;gap:27px}.call-body{margin-left:172px;margin-right:212px}.deadline{font-size:73px}.call-title{font-size:31px}.nav{gap:26px}.chapter-note{max-width:245px}}
+/* This is a desktop design preview: a narrow chat pane fits the desktop canvas,
+   instead of silently switching back to a phone layout. */
+@media(max-width:1119px){.fit-note{display:block}.site{width:1280px;zoom:var(--preview-fit,1)}:root{--gutter:56px}.hero{height:724px}.hero h1{font-size:120px}.art{height:510px}.chapter-head h2{font-size:80px}.manifesto h2{font-size:50px}.focus .chapter-head h2{font-size:96px}.about h2{font-size:106px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+@media print{.site{width:auto;min-width:0;zoom:1}.header,.hero,.manifesto,.tools,.focus,.about,.footer,.fit-note{display:none}.calls{padding:0}.call-header{grid-template-columns:130px 1fr 180px}.call-body{margin-left:160px;margin-right:0}.call{break-inside:avoid}.call-details .detail-sheet{display:block}}
+</style>
+</head>
+<body>
+<a class="skip" href="#calls">跳至国际机会</a>
+<p class="fit-note">电脑端设计预览 · 当前已缩放适应窗口</p>
+<div class="site" id="top">
+<header class="header wrap">
+<a class="logo" href="#top" aria-label="Media Art Radar 首页"><span class="wordmark">mar.</span><span class="brand-caption">MEDIA ART<br>RADAR</span></a>
+<nav class="nav" aria-label="主导航"><a href="#calls">国际机会</a><a href="#focus">本周关注</a><a href="#about">关于 Radar</a><a class="pill" href="../../install.html">桌面小组件 <span class="arrow" aria-hidden="true">↗</span></a></nav>
+</header>
+<main>
+<section class="hero wrap" aria-labelledby="hero-title">
+<div class="hero-copy"><p class="eyebrow">Independent perspectives. Open possibilities.</p><h1 id="hero-title">Art beyond<br><em>the medium.</em></h1><p class="hero-description">全球媒体艺术机会与创作现场。<br>为下一个实验，找到发生的地方。</p><a class="pill hero-cta" href="#calls">探索国际机会 <span class="arrow" aria-hidden="true">↘</span></a></div>
+<figure class="art"><canvas id="interference" width="660" height="540" role="img" aria-label="黑白线条组成的缓慢旋转的环形交互作品"></canvas><figcaption class="art-caption"><span>FORM STUDY 001 / 移动光标探索</span><button class="motion-button" id="motion" type="button" aria-label="暂停形态动画" title="暂停形态动画">Ⅱ</button></figcaption></figure>
+<div class="hero-foot"><div class="intro-meta"><span><b id="call-count">—</b> 个国际机会</span><span><b id="focus-count">—</b> 个本周关注</span><span>核验 <time id="updated">—</time></span></div><a class="scroll-cue" href="#calls"><span>向下探索</span><span aria-hidden="true">↓</span></a></div>
+</section>
+<section class="manifesto wrap" aria-label="我们关注什么"><p class="eyebrow">An open field.</p><h2>不同媒介。<br>同一种<em>好奇心。</em></h2><p>声音、影像、代码与空间。<br>不把创作放进固定的盒子，<br>而是让值得尝试的可能，在这里相遇。</p></section>
+<section id="calls" class="calls wrap" aria-labelledby="calls-title">
+<div class="chapter-head"><div><p class="eyebrow">01 / Opportunities</p><h2 id="calls-title">Find your<br><em>next possibility.</em></h2></div><p class="chapter-note"><strong>国际机会精选</strong>从展览征集到制作驻留。<br>先看截止日期，再找到适合你的方向。</p></div>
+<div class="tools"><div class="filters" id="filters" role="group" aria-label="按机会类别筛选"></div><label class="sort">排列方式<select id="sort"><option value="deadline">截止：近到远</option><option value="priority">编辑推荐顺序</option><option value="reverse">截止：远到近</option></select></label></div>
+<div class="status-line"><span id="result-status" role="status" aria-live="polite">正在读取项目</span><span>截止时区、资格与提前关闭条件，以官方页面为准。</span></div>
+<p id="data-warning" class="data-warning" hidden></p>
+<div id="opportunities"><p class="loading">正在读取媒体艺术机会…</p></div>
+<noscript><p class="no-js">请启用 JavaScript 查看可筛选的机会列表，也可<a href="../../index.html">打开原站的完整文字版</a>。</p></noscript>
+</section>
+<section id="focus" class="focus" aria-labelledby="focus-title"><div class="wrap"><div class="chapter-head"><div><p class="eyebrow">02 / Perspectives</p><h2 id="focus-title">Ways of<br><em>seeing.</em></h2></div><p class="chapter-note"><strong>本周关注</strong>不只寻找下一个机会。<br>也看看，创作正在把我们带向哪里。</p></div><div class="focus-wall" id="focus-wall"></div><details class="report"><summary>内容范围与核验说明</summary><p>本页面读取本站的 latest.json，不另外生成机会事实。内容核验日期与页面刷新时间是两回事；日期会随当前时间计算，官方修改仍须重新核验。仅给出日期的征集不虚构精确截止时刻。下方作品图像沿用原站来源，为保持本版黑白视觉进行灰度显示；原始色彩与完整内容请查看原文。</p></details></div></section>
+<section class="about wrap" id="about"><div class="about-top"><h2>Stay<br><em>curious.</em></h2><div class="about-copy"><p class="eyebrow">A radar, not a ranking.</p><h3>让值得关注的事，<br>保持在视野里。</h3><p>Media Art Radar 是一个关注全球媒体艺术的独立信息入口。整理机会，也留意新的实践；不代替官方信息，也不替你定义创作方向。</p><a class="pill" href="../../install.html">把 Radar 放到桌面 <span class="arrow" aria-hidden="true">↗</span></a></div></div></section>
+</main>
+<footer class="footer wrap"><div><a class="mini" href="#top" aria-label="回到顶部">mar.</a><span>MEDIA ART RADAR · B/W 01<br>电脑端独立设计预览</span></div><div><a href="../../index.html">原站 ↗</a><a href="#top">回到顶部 ↑</a></div></footer>
+</div>
+<script>
+/* Content and interaction are deliberately independent of the visual experiment. */
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const categories = {all:'全部',exhibition:'展览征集',residency:'驻留',prize:'奖项',conference:'学术会议'};
+let data = null, active = 'all', order = 'deadline';
+const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeURL = value => {try {const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:'#';}catch{return '#';}};
+const plainDate = value => String(value || '').slice(0,10).replaceAll('-','.');
+const clean = value => String(value || '').replace(/\s+/g,' ').trim();
+const firstSentence = value => clean(value).split('。')[0];
+const two = n => String(n).padStart(2,'0');
+function fitDesktop(){document.documentElement.style.setProperty('--preview-fit',String(Math.min(1,innerWidth/1280)));}
+fitDesktop();addEventListener('resize',fitDesktop,{passive:true});
+function deadlineState(item){
+ const raw=item.deadline_date || String(item.deadline_at || '').slice(0,10), t=Date.parse(item.deadline_at);
+ if (!/^\d{4}-\d{2}-\d{2}$/.test(raw) || !Number.isFinite(t)) return {date:'待定',year:'',note:'截止日期待公布',soon:false,closed:false};
+ let diff, label;
+ if(item.deadline_precision==='date'){
+  const m=String(item.deadline_at).match(/([+-])(\d\d):(\d\d)$/);const off=m?(m[1]==='-'?-1:1)*(Number(m[2])*60+Number(m[3])):0;
+  const local=new Date(Date.now()+off*60000).toISOString().slice(0,10);diff=Math.round((Date.parse(raw)-Date.parse(local))/86400000);
+  label=diff<0?'截止日已过 · 查官网':diff===0?'今天截止 · 查官网':`还有 ${diff} 天`;
+ } else {diff=Math.ceil((t-Date.now())/86400000);label=t<=Date.now()?'已过截止时间':diff<=1?'24 小时内截止':`还有 ${diff} 天`;}
+ return {date:raw.slice(5).replace('-','.'),year:raw.slice(0,4),note:label,soon:diff>=0&&diff<=14,closed:diff<0||(item.deadline_precision!=='date'&&t<=Date.now())};
+}
+function fact(label,value,cls=''){return value?`<div class="${cls}"><dt>${escape(label)}</dt><dd>${escape(value)}</dd></div>`:'';}
+function locationShort(item){return clean(item.location).split(/[；，;]/)[0].replace(/。$/,'');}
+function renderCall(item,index){
+ const d=deadlineState(item), parts=clean(item.title).split(' / '), name=parts.shift() || '未命名项目';
+ const url=safeURL(item.url), host=url==='#'?'':new URL(url).hostname.replace(/^www\./,'');
+ const fee=/免费/.test(item.application_fee || '')&&!/不推定免费/.test(item.application_fee || '')?'免费':/未说明|未明确/.test(item.application_fee || '')?'官方未说明':clean(item.application_fee);
+ const rows=[['截止',item.deadline_display],['项目时间',item.program_dates],['资助与支持',item.funding],['交通',item.travel],['住宿',item.accommodation],['申请费',item.application_fee],['申请资格',item.eligibility],['适合方向',item.fit]];
+ const details=rows.filter(x=>x[1]).map(([k,v])=>`<div><dt>${escape(k)}</dt><dd>${escape(v)}</dd></div>`).join('');
+ return `<article class="call${d.soon?' soon':''}${d.closed?' closed':''}" id="call-${escape(item.id || index)}">
+ <div class="call-header"><div class="date-block"><p class="date-label">${escape(d.year)} / 申请截止</p><time class="deadline" datetime="${escape(item.deadline_date || item.deadline_at || '')}">${escape(d.date)}</time><p class="remaining">${escape(d.note)}</p></div>
+ <div><p class="entry-meta"><span>${escape(categories[item.category] || '其他机会')}</span><i class="dot" aria-hidden="true"></i><span>${escape(locationShort(item))}</span></p><h3 class="call-title">${escape(name)}</h3>${parts.length?`<p class="call-subtitle">${escape(parts.join(' / '))}</p>`:''}<p class="entry-type">${escape(item.type)}</p></div>
+ <div class="call-actions"><a class="official" href="${escape(url)}" target="_blank" rel="noopener noreferrer" aria-label="打开 ${escape(name)} 的官方页面（新标签页）"><span>官方页面</span><span aria-hidden="true">↗</span></a><span class="domain">${escape(host)}</span><span class="project-when">项目 <b>${escape(item.project_when || '见详情')}</b></span></div></div>
+ <div class="call-body"><dl class="facts">${fact('支持',firstSentence(item.funding),'support')}${fact('住宿',firstSentence(item.accommodation))}${fact('费用',fee)}</dl>
+ <details class="call-details"><summary>查看完整条件与申请资格</summary><div class="detail-sheet"><h4>${escape(name)}</h4><dl>${details}</dl>${item.why?`<p class="why"><span>编辑推荐理由 / EDITOR'S NOTE</span>${escape(item.why)}</p>`:''}<p class="verified">资料核验 ${escape(plainDate(item.verified_at || data.generated_at))}${item.deadline_cutoff_note?' · '+escape(item.deadline_cutoff_note):''}</p></div></details></div></article>`;
+}
+function renderCalls(){
+ const calls=data.open_calls.map((item,rank)=>({...item,_rank:rank}));
+ let list=calls.filter(i=>active==='all'||i.category===active);
+ const time=i=>{const t=Date.parse(i.deadline_at);return Number.isFinite(t)?t:Infinity;};
+ if(order!=='priority')list.sort((a,b)=>{const ta=time(a),tb=time(b);if(!Number.isFinite(ta))return Number.isFinite(tb)?1:a._rank-b._rank;if(!Number.isFinite(tb))return -1;return (order==='reverse'?tb-ta:ta-tb)||a._rank-b._rank;});
+ $('#opportunities').innerHTML=list.length?list.map(renderCall).join(''):'<div class="empty"><p>本期暂无这一类机会。</p><button type="button" id="reset-filter">查看全部机会 ↗</button></div>';
+ $('#result-status').textContent=`显示 ${two(list.length)} / ${two(calls.length)} 个机会`;
+ $('#filters').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===active)));
+ $('#reset-filter')?.addEventListener('click',()=>{active='all';renderCalls();});
+}
+function renderFocus(){
+ const known={ 'entangled-others-diatomic-garden-neural-20260914':'../../assets/diatomic-garden.jpg','bramanti-conspiratorial-design-neural-20260911':'../../assets/conspiratorial-design.jpg'};
+ $('#focus-wall').innerHTML=(data.radar || []).map((item,i)=>{const url=safeURL(item.url),image=known[item.id],title=String(item.title || '').split(',')[0];return `<article class="focus-item">${image?`<a class="focus-photo" href="${escape(url)}" target="_blank" rel="noopener noreferrer"><img src="${image}" alt="${escape(item.title)}" loading="lazy" width="600" height="917"></a><p class="focus-image-note">IMAGE VIA NEURAL / 灰度呈现，原色请查看原文</p>`:''}<div class="focus-meta"><span>${escape(item.type || '媒体艺术')}</span><span>${two(i+1)}</span></div><h3>${escape(title)}</h3><p class="author">${escape(item.author)}</p><p class="description">${escape(item.summary)}</p><a class="read-source" href="${escape(url)}" target="_blank" rel="noopener noreferrer">阅读原文 <span aria-hidden="true">↗</span></a></article>`;}).join('');
+}
+function accept(payload){
+ if(!payload || !Array.isArray(payload.open_calls))throw new Error('Invalid data');
+ data=payload;$('#call-count').textContent=two(data.open_calls.length);$('#focus-count').textContent=two((data.radar || []).length);$('#updated').textContent=plainDate(data.generated_at)||'未提供';if(data.generated_at)$('#updated').dateTime=data.generated_at;
+ $('#filters').innerHTML=Object.entries(categories).map(([key,label])=>`<button type="button" class="filter" data-filter="${key}" aria-pressed="${key===active}">${label}<small>${two(data.open_calls.filter(i=>key==='all'||i.category===key).length)}</small></button>`).join('');
+ $('#filters').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{active=b.dataset.filter;renderCalls();}));
+ renderCalls();renderFocus();
+ if(Date.now()-Date.parse(data.generated_at)>8*86400000){$('#data-warning').textContent='本期资料核验已超过 8 天。倒计时会更新，但机会内容与官方变更仍需重新核验。';$('#data-warning').hidden=false;}
+}
+$('#sort').addEventListener('change',e=>{order=e.target.value;if(data)renderCalls();});
+async function load(){
+ $('#data-warning').hidden=true;
+ try{const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);let response;try{response=await fetch('../../latest.json',{cache:'no-cache',signal:controller.signal});}finally{clearTimeout(timeout);}if(!response.ok)throw new Error('HTTP '+response.status);accept(await response.json());}
+ catch(error){$('#result-status').textContent='数据读取失败';$('#opportunities').innerHTML='<div class="empty"><p>暂时没有读到本站数据，不代表没有机会。</p><button type="button" id="retry">重新读取</button> <a href="../../index.html">或查看原站 ↗</a></div>';$('#retry').addEventListener('click',load);}
+}
+load();
+// Recompute dates after returning to an old tab, without collapsing open details.
+let dayKey=new Date().toISOString().slice(0,10);
+document.addEventListener('visibilitychange',()=>{const next=new Date().toISOString().slice(0,10);if(!document.hidden&&data&&dayKey!==next){dayKey=next;document.querySelectorAll('.call').forEach(card=>{const item=data.open_calls.find(x=>'call-'+x.id===card.id);if(!item)return;const state=deadlineState(item);card.querySelector('.remaining').textContent=state.note;card.classList.toggle('soon',state.soon);card.classList.toggle('closed',state.closed);});}});
+// Original generative line study. No image library, remote tracker or audio.
+const canvas=$('#interference'), ctx=canvas.getContext('2d'), motion=$('#motion');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+let paused=reduced.matches, visible=true, pointerX=0,pointerY=0,px=0,py=0,phase=.7,last=0,raf=0;
+const ringCount=96, segments=120;
+function motionLabel(){motion.textContent=paused?'▶':'Ⅱ';motion.setAttribute('aria-label',paused?'播放形态动画':'暂停形态动画');motion.title=motion.getAttribute('aria-label');motion.setAttribute('aria-pressed',String(!paused));}
+function draw(){
+ if(!ctx)return;
+ const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
+ if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const scale=Math.min(w,h)*.285,tilt=1.08+py*.22,turn=-.32+px*.22+Math.sin(phase*.6)*.13,ca=Math.cos(tilt),sa=Math.sin(tilt),cb=Math.cos(turn),sb=Math.sin(turn);
+ const paths=[];
+ for(let i=0;i<ringCount;i++){
+  const u=i/ringCount*Math.PI*2, pts=[];let zavg=0;
+  for(let j=0;j<=segments;j++){
+   const v=j/segments*Math.PI*2,r=.43+.06*Math.sin(3*u+phase),rr=1+r*Math.cos(v);
+   let x=rr*Math.cos(u),y=rr*Math.sin(u),z=r*Math.sin(v)+.12*Math.cos(2*u+phase);
+   const yy=y*ca-z*sa,zz=y*sa+z*ca,xx=x*cb+zz*sb,zzz=-x*sb+zz*cb,proj=3.8/(3.8-zzz);
+   pts.push([w*.53+xx*scale*proj,h*.48+yy*scale*proj]);zavg+=zzz;
+  }
+  paths.push({pts,z:zavg/(segments+1)});
+ }
+ paths.sort((a,b)=>a.z-b.z);
+ for(const path of paths){ctx.beginPath();path.pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle=`rgba(15,15,15,${.13+.7*(path.z+1.4)/2.8})`;ctx.lineWidth=.78;ctx.stroke();}
+}
+function loop(time){raf=0;if(!visible||document.hidden||paused)return;if(time-last>40){px+=(pointerX-px)*.04;py+=(pointerY-py)*.04;phase+=.0025;draw();last=time;}raf=requestAnimationFrame(loop);}
+function start(){if(!paused&&visible&&!document.hidden&&!raf)raf=requestAnimationFrame(loop);}
+function stop(){cancelAnimationFrame(raf);raf=0;}
+motion.addEventListener('click',()=>{paused=!paused;motionLabel();if(paused){stop();draw();}else start();});
+canvas.addEventListener('pointermove',e=>{const b=canvas.getBoundingClientRect();pointerX=(e.clientX-b.left)/b.width-.5;pointerY=(e.clientY-b.top)/b.height-.5;if(paused&&!reduced.matches){px=pointerX;py=pointerY;draw();}});
+canvas.addEventListener('pointerleave',()=>{pointerX=pointerY=0;});
+new ResizeObserver(draw).observe(canvas);
+new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)start();else stop();},{threshold:0}).observe(canvas);
+document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+reduced.addEventListener('change',e=>{paused=e.matches;motionLabel();if(paused){stop();draw();}else start();});
+motionLabel();draw();start();
+})();
+</script>
+</body>
+</html>
