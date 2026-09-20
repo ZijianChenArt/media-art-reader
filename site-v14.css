@@ -65,7 +65,7 @@ img{display:block;max-width:100%}
 .tile i{font-style:normal;font-size:.85rem;line-height:1}
 .tile strong{grid-column:1/-1;align-self:end;font-size:.92rem;line-height:1.1;letter-spacing:-.01em}
 .tile-label{grid-column:1/-1;align-self:end;display:flex;flex-direction:column;gap:3px}
-.tile-label strong{font-size:.98rem}
+.tile-label strong{align-self:auto;font-size:.98rem}
 .tile-label em{font-family:var(--serif);font-size:1.12rem;line-height:1;opacity:.78}
 .tile-exhibition{background:var(--blue)}
 .tile-residency{background:var(--yellow)}
@@ -210,30 +210,52 @@ img{display:block;max-width:100%}
 .focus-copy .sum{margin:10px 0 0;max-width:46ch;font-size:.9rem;line-height:1.65;opacity:.88}
 .focus-copy .pill{margin-top:18px;background:#fff;color:var(--ink);border-color:#fff}
 
-/* ============ 小组件 ============ */
+/* ============ 小组件页 ============ */
+.sec-h{display:flex;align-items:baseline;gap:.4em;margin:56px 0 18px;scroll-margin-top:96px}
+.sec-h h2{margin:0;font-size:clamp(1.7rem,2.6vw,2.2rem);letter-spacing:-.05em;line-height:1}
+.sec-h em{font-family:var(--display);font-weight:500;font-size:clamp(1.9rem,2.9vw,2.5rem);letter-spacing:-.04em;line-height:1}
+.note{margin:14px 0 0;font-size:.9rem;color:var(--muted)}
+.panel{margin:34px 0 0;padding:26px 28px;border:1.5px solid var(--ink);border-radius:28px 6px 28px 6px;font-size:.9rem;line-height:1.85;max-width:860px}
+.panel p{margin:0}
+.panel p + p{margin-top:12px}
+.panel code{font-family:var(--mono);font-size:.82em;background:var(--hair);padding:1px 6px;border-radius:6px}
+.panel a{text-decoration:underline;text-underline-offset:3px}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;max-width:860px}
+.steps li{counter-increment:s;position:relative;padding:16px 0 16px 56px;border-bottom:1px solid var(--hair);font-size:.95rem;line-height:1.75}
+.steps li::before{content:counter(s);position:absolute;left:0;top:10px;font-family:var(--display);font-style:italic;font-weight:500;font-size:2rem;line-height:1.2}
+
 .wg-list{display:flex;flex-wrap:wrap;gap:28px 24px;align-items:flex-start}
 .wg-item{max-width:100%}
 .wg-cap{display:flex;align-items:baseline;gap:12px;margin:0 0 10px}
 .wg-cap b{font-size:1rem}
 .wg-cap span{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
-.wg-scroll{max-width:100%;overflow-x:auto;padding:2px 2px 6px}
-.wg{display:flex;flex-direction:column;background:#fff;border:1.5px solid var(--ink);border-radius:26px;line-height:1.2;overflow:hidden;color:var(--ink)}
-.wg-s{width:170px;height:170px;padding:14px}
+.wg-scroll{max-width:100%;overflow-x:auto;padding:4px 4px 16px}
+/* 预览：镜像 Media-Art-Radar.js —— 组件本身是白底，外面一层淡阴影像放在壁纸上 */
+.wg{display:flex;flex-direction:column;background:#fff;border-radius:24px;line-height:1.2;overflow:hidden;color:var(--ink);box-shadow:0 0 0 1px rgba(0,0,0,.14)}
+.wg *{box-sizing:border-box}
+.wg-s{width:170px;height:170px;padding:10px}
 .wg-m{width:364px;height:170px;padding:12px}
 .wg-l{width:364px;height:382px;padding:14px}
-.wg-xl{width:715px;height:342px;padding:12px}
+.wg-xl{width:715px;height:342px;padding:14px}
 .wg .row{display:flex;align-items:center;min-width:0}
-.wg .grow{flex:1}
+.wg .grow{flex:1;min-width:0}
 .wg .mono{font-family:var(--mono)}
 .wg .it{font-family:var(--display);font-weight:500;letter-spacing:-.03em}
 .wg .clip{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
 .wg .dim{color:var(--muted)}
-.wg .soon{color:#de2410}
-.wg-row{display:flex;flex-direction:column;min-width:0}
+.wg .faint{color:#a3a3a3}
+.wg .hair{height:1px;background:var(--hair);flex:0 0 auto}
+.wg .pnl{display:flex;flex-direction:column;flex:0 0 auto}
+.wg .chipb{display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.wg .pl{display:inline-flex;align-items:center;padding:0 7px;border:1px solid var(--ink);font-family:var(--mono);font-weight:700;line-height:1;white-space:nowrap}
+.wg .pl-ink{background:var(--ink);color:#fff}
+.wg-row{display:flex;align-items:center;min-width:0}
+.wg-row .col{display:flex;flex-direction:column;min-width:0}
 .wg-row .r1,.wg-row .r2{display:flex;align-items:center;min-width:0}
-.wg-card{border:1px solid var(--hair);background:#fff;flex:0 0 auto;box-sizing:border-box}
-.wg-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:8px;flex:1}
-.wg-cell{border:1px solid var(--hair);border-radius:20px 4px 20px 4px;padding:12px 14px;display:flex;flex-direction:column;min-width:0}
+.wg-row .r2{margin-top:2px}
+.wg-card{border:1.2px solid var(--ink);background:#fff;flex:0 0 auto;display:flex;flex-direction:column}
+.wg-l .wg-card{flex-direction:row;align-items:center}
+.wg-grid{display:grid;grid-template-columns:repeat(3,217px);grid-template-rows:repeat(2,151px);gap:10px;margin:auto}
 
 /* ============ 窄一点的桌面 ============ */
 @media(max-width:1250px){
@@ -248,37 +270,50 @@ img{display:block;max-width:100%}
 }
 
 /* ============ 手机与竖屏平板：不再有固定左栏 ============ */
+/* 顶部固定三个胶囊：国际机会精选 / 本周关注 / 小组件——第一次用就能看到全部入口，不需要向右滑。
+   机会的细项（全部 / 展览 / 驻留 / 奖项 / 会议）放在内容里，就在标题下面。 */
+.mobile-filters{display:none}
 @media(max-width:860px){
   html{overflow:auto}
   html,body{height:auto}
   .app{display:block;width:auto;height:auto;padding:0}
   .rail{
     position:sticky;top:0;z-index:20;width:auto;height:auto;
-    display:block;padding:12px 16px 10px;background:rgba(255,255,255,.94);
+    display:block;padding:12px 16px 12px;background:rgba(255,255,255,.95);
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--hair);
   }
   .wordmark{flex:none;flex-direction:row;align-items:baseline;justify-content:space-between;gap:6px;padding:0}
   .mar{font-size:1.9rem;margin-left:0}
   .wordmark-sub{gap:5px;font-size:.58rem}
-  .rail-nav{
-    display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none;
-    padding:2px 16px 2px 0;margin-right:-16px;
-  }
-  .rail-nav::-webkit-scrollbar{display:none}
+  .rail-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:42px;gap:8px;margin-top:10px}
   .group{display:contents}
-  .tile,.mini,.group .tile + .tile{
-    flex:0 0 auto;display:flex;align-items:center;gap:8px;height:40px;padding:0 15px;border:1.5px solid var(--ink);border-radius:999px;
+  .group .tile:not(.tile-all){display:none}
+  .tile,.mini{
+    display:flex;align-items:center;justify-content:center;height:42px;padding:0 6px;
+    border:1.5px solid var(--ink);border-radius:999px;background:#fff;
   }
+  .mini.mini-status{display:none}
+  .tile-all.in-section{background:var(--ink);color:#fff}
+  .mini-focus{background:var(--purple)}
   .tile:hover,.mini:hover{transform:none}
-  .tile i,.tile-label em,.mini-status{display:none}
-  .tile-label{flex-direction:row;align-self:center}
-  .tile strong,.tile-label strong{grid-column:auto;align-self:center;font-size:.85rem;white-space:nowrap}
-  .tile-n{font-size:.7rem}
+  .tile i,.tile-n{display:none}
+  .tile strong,.mini strong{grid-column:auto;align-self:center;font-size:.8rem;white-space:nowrap;letter-spacing:-.02em}
   .stage{height:auto;overflow:visible;padding:26px 16px 56px}
   .view{padding-bottom:0}
   .page-head{min-height:0;padding-bottom:18px;flex-direction:column;gap:12px}
   .page-head h1{font-size:clamp(2.4rem,11vw,3.3rem);padding-top:0}
   .page-meta{flex-direction:row;align-items:baseline;gap:12px;text-align:left}
+
+  .mobile-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .mobile-filter{
+    display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;
+    border:1.5px solid var(--ink);border-radius:999px;background:#fff;font-size:.84rem;font-weight:700;cursor:pointer;
+  }
+  .mobile-filter span{font-family:var(--mono);font-size:.68rem;font-weight:400;opacity:.65}
+  .mobile-filter.is-active{background:var(--ink);color:#fff}
+  .mobile-filter.is-empty{opacity:.4}
+  .toolbar{display:none}
+
   .cards{grid-template-columns:1fr;gap:16px}
   .call-card,.call-card:nth-child(n),.call-card:last-child:nth-child(odd){grid-column:1/-1}
   .call-card{border-radius:30px}
@@ -289,7 +324,10 @@ img{display:block;max-width:100%}
   .focus-layout{grid-template-columns:1fr}
   .focus-card{min-height:440px}
   .wg-list{gap:26px}
+  .sec-h{margin-top:44px}
+  .panel{padding:22px 20px}
 }
+.foot-note{margin:36px 0 0;max-width:62ch;font-family:var(--mono);font-size:.7rem;line-height:1.8;color:var(--muted)}
 @media(prefers-reduced-motion:reduce){
   .ticker{overflow-x:auto}
   .ticker-track{animation:none}

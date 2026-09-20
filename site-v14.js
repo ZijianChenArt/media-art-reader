@@ -52,6 +52,8 @@
       el.textContent = two(counts[k] || 0);
       el.closest('.tile').classList.toggle('is-empty', k !== 'all' && !counts[k]);
     });
+    document.body.dataset.route = route;
+    $('.tile-all').classList.toggle('in-section', route === 'opportunities');
     $$('.tile').forEach(t => {
       const on = route === 'opportunities'
         ? t.dataset.route === 'opportunities' && (t.dataset.filter || 'all') === filter
@@ -59,7 +61,7 @@
       t.classList.toggle('is-active', on);
       if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
     });
-    $('#status-issue').textContent = (data.issue_id || '—');
+    $('#status-issue').textContent = String(data.issue_id || '—').replace(/^\d{4}-/, '');
     const ver = (calls.map(c => c.verified_at).filter(Boolean).sort().pop() || '').slice(5, 10).replace('-', '.');
     $('#status-verified').textContent = ver ? '核验 ' + ver : '';
     // 手机上横向胶囊导航：把当前项滚到可见处
@@ -71,7 +73,7 @@
   // 用 canvas 量真实墨迹（含负字距），再反推字号，并把左侧字形留白削掉。
   function fitWordmark() {
     const mar = $('#mar'), rail = $('.rail');
-    if (!mar || !rail || matchMedia('(max-width:860px)').matches) { document.documentElement.style.removeProperty('--mar-size'); mar && mar.style.removeProperty('margin-left'); return; }
+    if (!mar || !rail || matchMedia('(max-width:860px)').matches) { if (mar) { mar.style.removeProperty('font-size'); mar.style.removeProperty('margin-left'); } return; }
     const ctx = document.createElement('canvas').getContext('2d');
     if (!('letterSpacing' in ctx)) return;
     ctx.font = '700 100px Grotesk';
@@ -142,6 +144,16 @@
     </article>`;
   }
 
+  // 手机：机会细项（全部 / 展览 / 驻留 / 奖项 / 会议）放在标题下面，一眼看得全，不用横向滑动
+  function mobileFilters(active) {
+    const calls = data.open_calls || [];
+    const items = [['all', '全部'], ...Object.keys(labels).map(k => [k, labels[k]])];
+    return `<div class="mobile-filters" role="group" aria-label="机会分类">${items.map(([k, t]) => {
+      const n = k === 'all' ? calls.length : calls.filter(c => c.category === k).length;
+      return `<button class="mobile-filter ${active === k ? 'is-active' : ''} ${k !== 'all' && !n ? 'is-empty' : ''}" type="button" data-filter="${k}" aria-pressed="${active === k}">${t}<span>${two(n)}</span></button>`;
+    }).join('')}</div>`;
+  }
+
   function opportunitiesView(filter) {
     const calls = sorted();
     const shown = filter === 'all' ? calls : calls.filter(x => x.category === filter);
@@ -152,12 +164,14 @@
         <h1><span>国际机会精选</span><em>Open calls.</em><sup>${two((data.open_calls || []).length)}</sup></h1>
         <div class="page-meta"><span>01 / Opportunities</span><span>${esc(data.issue_id || '')}</span></div>
       </header>
+      ${mobileFilters(filter)}
       ${tickerHtml(calls)}
       <div class="toolbar">
         <div class="filter-status">${esc(label)}<span>${two(shown.length)}</span></div>
         <button class="reset-filter ${filter !== 'all' ? 'show' : ''}" type="button">全部机会</button>
       </div>
       <div class="cards ${filter !== 'all' ? 'filtered' : ''}">${cards}</div>
+      <p class="foot-note">按截止日期排列，摘要与推荐理由为编辑判断，不是官方排名。信息核验自各机构官方页面，投稿前请再次确认截止时区与条件。</p>
     </section>`;
   }
 
@@ -184,7 +198,9 @@
     </section>`;
   }
 
-  // ---------- 小组件：与 Media-Art-Radar.js 同一套规则（每个机会两行，一视同仁） ----------
+  // ---------- 小组件页：预览镜像 Media-Art-Radar.js 的新样式（黑描边白卡 + 类别色日期块 + 胶囊） ----------
+  // 预览里的日期用网页的 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。
+  const fillOf = item => catColor[item.category] || '#e6e6e8';
   function hlHtml(item, base) {
     const v = item.highlight;
     if (!v) return '';
@@ -192,12 +208,22 @@
     const size = v.length >= 5 ? Math.max(base * .68, 9) : base;
     return `<span class="it" style="font-size:${size}px">${esc(v)}</span>`;
   }
+  // 倒计时胶囊：14 天内黑底反白，其余描边（与网站一致）
+  const daysPill = (item, label, fs, h) =>
+    `<span class="pl ${isSoon(item) ? 'pl-ink' : ''}" style="font-size:${fs}px;height:${h}px;border-radius:${h / 2}px">${esc(label)}</span>`;
+  const catPill = (item, fs, h) =>
+    `<span class="pl" style="font-size:${fs}px;height:${h}px;border-radius:${h / 2}px;font-weight:700">${esc(labels[item.category] || '')}</span>`;
+  const tnOf = item => { const d = daysLeft(item); return d === null ? 'TBA' : 'T-' + d; };
+
+  // 中号 / 大号共用的一行：类别色日期块 + 标题与关键数字 + 分类 · 地点 · 倒计时
   function wgRow(item, s) {
-    const soon = isSoon(item), d = daysLeft(item);
+    const soon = isSoon(item);
     return `<div class="wg-row">
-      <div class="r1"><span class="it ${soon ? 'soon' : ''}" style="font-size:${s.date}px;width:${s.dateW}px;flex:0 0 ${s.dateW}px">${esc(fmtDate(item))}</span><b class="clip" style="font-size:${s.title}px">${esc(titleParts(item.title)[0] || item.title)}</b><span class="grow"></span>${hlHtml(item, s.hl)}</div>
-      <div class="r2 mono" style="font-size:${s.meta}px;margin-top:1px"><span style="width:${s.dateW}px;flex:0 0 ${s.dateW}px"></span><b style="color:${catColor[item.category] || '#050505'}">${esc(labels[item.category] || '')}</b><span class="dim clip" style="margin-left:5px">${esc(place(item))}</span><span class="grow"></span><b class="${soon ? 'soon' : ''}">${d === null ? '—' : 'T-' + d}</b><span class="dim" style="margin-left:5px">${esc(item.highlight_label || '')}</span></div>
-    </div>`;
+      <div class="chipb" style="width:${s.chipW}px;height:${s.chipH}px;border-radius:${s.r};background:${fillOf(item)}"><span class="it" style="font-size:${s.date}px">${esc(fmtDate(item))}</span></div>
+      <div class="col" style="width:${s.colW}px;margin-left:${s.gap}px">
+        <div class="r1"><b class="clip" style="font-size:${s.title}px">${esc(titleParts(item.title)[0] || item.title)}</b><span class="grow"></span>${hlHtml(item, s.hl)}</div>
+        <div class="r2 mono" style="font-size:${s.meta}px"><b>${esc(labels[item.category] || '')}</b><span class="dim clip" style="margin-left:5px">${esc(place(item))}</span><span class="grow"></span>${soon ? daysPill(item, tnOf(item), s.meta, s.meta + 4) : `<b class="dim">${tnOf(item)}</b>`}<span class="faint" style="margin-left:5px">${esc(item.highlight_label || '')}</span></div>
+      </div></div>`;
   }
   const restLine = (calls, n) => calls.length > n
     ? `另有 ${calls.length - n} 项 · ` + calls.slice(n, n + 2).map(c => `${fmtDate(c)} ${titleParts(c.title)[0]}`).join(' · ') : '';
@@ -210,38 +236,80 @@
       <figcaption class="wg-cap"><b>${name}</b><span>${size}</span></figcaption>
       <div class="wg-scroll"><div class="wg ${cls}" role="img" aria-label="${name}小组件预览：${esc(note)}">${inner}</div></div></figure>`;
 
-    const small = first ? `<div class="row mono" style="font-size:9px"><b>MAR ↗</b><span class="grow"></span><span class="dim">${issue}</span></div>
-      <div class="grow"></div>
-      <div class="it ${isSoon(first) ? 'soon' : ''}" style="font-size:58px;line-height:.8;letter-spacing:-.05em">${esc(fmtDate(first))}</div>
-      <b style="font-size:11px;margin-top:8px" class="clip">${esc(titleParts(first.title)[0])}</b>
-      <div class="mono dim" style="font-size:8px;margin-top:3px">${esc(daysText(first))}</div>` : '';
+    // 小号：类别色日期块（分类标签 · 巨型日期 · 倒计时）+ 标题与关键数字
+    const small = first ? `<div class="pnl" style="width:150px;height:100px;background:${fillOf(first)};border-radius:20px 20px 20px 5px;padding:9px 10px">
+        <div class="row">${catPill(first, 7.5, 15)}<span class="grow"></span><span class="mono" style="font-size:7.5px;color:#2b2b2b">${issue}</span></div>
+        <div class="grow"></div>
+        <div class="row" style="align-items:flex-end"><span class="it" style="font-size:44px;line-height:.9">${esc(fmtDate(first))}</span><span class="grow"></span>${daysPill(first, tnOf(first), 8, 14)}</div>
+      </div>
+      <div style="height:7px"></div>
+      <div style="padding:0 4px"><b class="clip" style="font-size:12px;display:block">${esc(titleParts(first.title)[0])}</b>
+        <div class="row" style="margin-top:3px"><span class="mono dim" style="font-size:8px">申请截止</span><span class="grow"></span>${hlHtml(first, 13)}</div></div>` : '';
 
-    const med = calls.slice(0, 4).map(c => wgRow(c, { dateW: 36, date: 13.5, title: 10, hl: 12, meta: 7 })).join('<div style="height:3px;flex:0 0 auto"></div>')
-      + `<div class="grow"></div><div class="row mono" style="font-size:7px"><span class="dim clip">${esc(restLine(calls, 4))}</span><span class="grow"></span><span class="dim">${issue} · 已同步</span></div>`;
+    const mS = { chipW: 46, chipH: 26, r: '9px 9px 9px 3px', gap: 8, colW: 340 - 46 - 8, date: 14, title: 10.5, hl: 12, meta: 7 };
+    const med = calls.slice(0, 4).map(c => wgRow(c, mS)).join('<div style="height:3px;flex:0 0 auto"></div>')
+      + `<div class="grow"></div><div class="row mono" style="font-size:7px"><span class="faint clip">${esc(restLine(calls, 4))}</span><span class="grow"></span><span class="faint">${issue} · 已同步</span></div>`;
 
+    const lS = { chipW: 78, chipH: 42, r: '14px 14px 14px 4px', gap: 10, colW: 336 - 18 - 78 - 10 - 2, date: 22, title: 12.5, hl: 16, meta: 7.5 };
     const lg = `<div class="row" style="align-items:flex-end"><b style="font-size:10px">MEDIA ART</b><span class="it" style="margin-left:6px;font-size:18px">Radar ↗</span><span class="grow"></span><span class="mono dim" style="font-size:8.5px">${issue} · ${two(calls.length)} 项机会</span></div><div style="height:8px"></div>`
-      + calls.slice(0, 5).map(c => `<div class="wg-card" style="width:100%;height:54px;border-radius:16px 4px 16px 4px;padding:8px 14px;margin-bottom:5px">${wgRow(c, { dateW: 50, date: 19, title: 12, hl: 16, meta: 7.5 })}</div>`).join('')
-      + `<div class="grow"></div>`;
+      + calls.slice(0, 5).map(c => `<div class="wg-card" style="width:336px;height:54px;border-radius:18px 5px 18px 5px;padding:0 12px 0 6px;margin-bottom:5px">${wgRow(c, lS)}</div>`).join('')
+      + `<div class="grow"></div><div class="hair"></div><div class="row mono faint" style="font-size:8px;margin-top:6px"><span>核验 ${esc(String(first && first.verified_at || '').slice(5, 10).replace('-', '.'))}</span><span class="grow"></span><span>已同步</span></div>`;
 
-    const cell = c => `<div class="wg-cell">
-      <div class="row mono" style="font-size:8px"><b style="color:${catColor[c.category] || '#050505'}">${esc(labels[c.category] || '')}</b><span class="grow"></span><b class="${isSoon(c) ? 'soon' : ''}">T-${daysLeft(c)}</b></div>
-      <div class="grow"></div>
-      <div class="it ${isSoon(c) ? 'soon' : ''}" style="font-size:38px;line-height:.85;letter-spacing:-.05em">${esc(fmtDate(c))}</div>
-      <b class="clip" style="font-size:11px;margin-top:8px">${esc(titleParts(c.title)[0])}</b>
-      <div class="row" style="margin-top:3px">${hlHtml(c, 13)}<span class="grow"></span><span class="mono dim clip" style="font-size:7.5px">${esc(place(c))}</span></div></div>`;
-    const xl = `<div class="wg-grid">${calls.slice(0, 5).map(cell).join('')}<div class="wg-cell" style="border-color:transparent;justify-content:flex-end;padding:12px 6px"><b style="font-size:10px">MEDIA ART</b><span class="it" style="font-size:26px;line-height:1">Radar ↗</span><span class="mono dim" style="font-size:8.5px;margin-top:6px">${issue} · ${two(calls.length)} 项机会</span></div></div>`;
+    const cell = c => `<div class="wg-card" style="width:217px;height:151px;border-radius:26px 6px 26px 6px;padding:8px">
+      <div class="pnl" style="width:201px;height:84px;background:${fillOf(c)};border-radius:19px 19px 19px 5px;padding:8px 10px">
+        <div class="row">${catPill(c, 7, 14)}<span class="mono clip" style="font-size:7px;margin-left:5px;color:#2b2b2b">${esc(place(c))}</span></div>
+        <div class="grow"></div>
+        <div class="row" style="align-items:flex-end"><span class="it" style="font-size:38px;line-height:.9">${esc(fmtDate(c))}</span><span class="grow"></span>${daysPill(c, tnOf(c) + ' DAYS', 7, 13)}</div>
+      </div>
+      <div style="height:6px"></div>
+      <div style="padding:0 4px"><b class="clip" style="font-size:12px;display:block">${esc(titleParts(c.title)[0])}</b>
+        <div class="row" style="margin-top:2px">${hlHtml(c, 14)}<span class="mono dim clip" style="font-size:7px;margin-left:5px">${esc(c.highlight_label || '')}</span><span class="grow"></span><span class="mono faint" style="font-size:7px">申请截止</span></div></div></div>`;
+    const xl = `<div class="wg-grid">
+      <div class="wg-card" style="width:217px;height:151px;border-radius:26px 6px 26px 6px;background:#040404;border-color:#040404;color:#fff;padding:14px 16px 12px 14px">
+        <b style="font-size:10px">MEDIA ART</b><span class="it" style="font-size:28px;line-height:1.1">Radar ↗</span><div class="grow"></div>
+        <b class="mono" style="font-size:10px">${issue}</b><span class="mono" style="font-size:8.5px;color:#b9b9bf;margin-top:2px">${two(calls.length)} 项机会</span></div>
+      ${calls.slice(0, 5).map(cell).join('')}</div>`;
 
     return `<section class="view">
       <header class="page-head">
         <h1><span>小组件</span><em>Widgets.</em></h1>
-        <div class="page-meta"><span>03 / Widgets · iPhone 17 Pro Max · Mac</span><span>${esc(data.issue_id || '')}</span></div>
-      <div class="pill-row"><a class="pill solid" href="Media-Art-Radar.js?v=7" download>下载脚本 ↓</a><a class="pill" href="install.html">安装说明 ↗</a></div>
+        <div class="page-meta"><span>03 / Widgets · iPhone · Mac</span><span>${esc(data.issue_id || '')}</span></div>
       </header>
+
+      <div class="sec-h"><h2>安装</h2><em>Install.</em></div>
+      <div class="pill-row">
+        <a class="pill solid" href="Media-Art-Radar.js?v=8" download>下载组件脚本 ↓</a>
+        <a class="pill" href="#steps" data-scroll="steps">安装步骤 ↓</a>
+      </div>
+      <p class="note">Scriptable 脚本 · 已装过旧版？整份替换原脚本，保存并运行一次即可。</p>
+
+      <div class="sec-h"><h2>四个尺寸</h2><em>Four sizes.</em></div>
       <div class="wg-list">
         ${fig('wg-s', '小号', '170 × 170', '下一个截止', small)}
         ${fig('wg-m', '中号', '364 × 170', '四个机会', med)}
         ${fig('wg-l', '大号', '364 × 382', '五个机会', lg)}
-        ${fig('wg-xl', '超大号', 'Mac / iPad · 3 × 2', '五个机会加刊头', xl)}
+        ${fig('wg-xl', '超大号', 'Mac / iPad · 3 × 2 · 约 715 × 342', '五个机会加刊头', xl)}
+      </div>
+
+      <div class="panel">
+        <p><b>与网站同一套语言。</b>白底、黑描边的异形圆角卡，类别色整块铺在日期块上（展览蓝 / 驻留黄 / 奖项橙 / 会议绿），文字始终墨黑；14 天内截止的倒计时黑底反白。</p>
+        <p><b>不主推任何一个机会。</b>中号与大号里每个机会都是同样的一块：左边日期块，右边标题、关键数字、分类、地点和倒计时。尽量多放；放不下的压成最底下的一行小字，写明还有几项。小屏机型会少放一个，而不是溢出。</p>
+        <p><b>关于尺寸。</b>预览按 iPhone 17 Pro Max 的组件点数绘制。其他机型点数略有差异，脚本会按机型取最接近的一档。超大号只有 Mac 与 iPad 才有：五个机会各占一格，第六格是刊头；我没能核实 Mac 超大组件的官方点数，脚本按保守面积排版（大屏 700×340，小 iPad 640×304），真实面积更大时网格居中、多出来的是留白。</p>
+        <p><b>关于形状。</b>iOS 组件不支持四角不等圆，所以脚本用 <code>DrawContext</code> 把卡片和日期块画成固定尺寸的背景图；画图失败会退回等圆角，组件不会空白。</p>
+        <p><b>关于字体。</b>日期与英文在 iPhone 上用系统自带的 Didot 斜体，网页用 Bodoni Moda 斜体，形态接近但不完全相同——预览显示的是 Bodoni，真机是 Didot。</p>
+      </div>
+
+      <div class="sec-h" id="steps"><h2>步骤</h2><em>Steps.</em></div>
+      <ol class="steps">
+        <li>在 Scriptable 中新建脚本，把下载文件里的代码完整粘贴进去，运行一次确认能取到数据。</li>
+        <li>长按 iPhone 主屏幕 → 加号 → 选择 Scriptable → 挑尺寸（小 / 中 / 大）添加。在 Mac 或 iPad 上添加 Scriptable 小组件时可以选「超大」，脚本相同。</li>
+        <li>长按刚添加的组件 → 编辑小组件 → Script 选择刚保存的那个脚本。</li>
+        <li>中号、大号和超大号点击每个机会会打开对应的官方页面；小号点击打开本站。</li>
+      </ol>
+      <div class="panel">
+        <p><b>已经装过旧版？</b>把新代码完整替换进原来的 Scriptable 脚本，保留脚本名称，保存并运行一次即可。四个尺寸共用同一份脚本，不需要分别替换。</p>
+        <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换（这次就是一次改版）。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
+        <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>
       </div>
     </section>`;
   }
@@ -272,6 +340,15 @@
   $('#view').addEventListener('click', e => {
     const reset = e.target.closest('.reset-filter');
     if (reset) { render('opportunities', 'all', true); return; }
+    const mf = e.target.closest('.mobile-filter');
+    if (mf) { render('opportunities', mf.dataset.filter, true); return; }
+    const jump = e.target.closest('[data-scroll]');
+    if (jump) {
+      e.preventDefault();
+      const el = document.getElementById(jump.dataset.scroll);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     const btn = e.target.closest('.btn-ghost');
     if (!btn) return;
     const card = btn.closest('.call-card');
