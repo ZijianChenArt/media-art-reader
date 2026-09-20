@@ -3,308 +3,308 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Media Art Radar 的 iPhone 主屏幕小组件：小、中、大三个尺寸。">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23040404'/%3E%3Cpath d='M8 10h16M8 16h16M8 22h10' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
 <title>小组件 · Media Art Radar</title>
 <link rel="preload" href="assets/fonts/space-grotesk-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/bodoni-moda-italic-var.woff2" as="font" type="font/woff2" crossorigin>
+<!-- 页头、字体、点阵、页脚全部来自主页的 style.css，这一页不再自带一份分叉的样式 -->
+<link rel="stylesheet" href="style.css">
 <style>
-/* 自托管字体，不依赖 fonts.googleapis.com；许可见 assets/fonts/OFL-NOTICE.md */
-@font-face{font-family:"Space Grotesk";src:url("assets/fonts/space-grotesk-var.woff2") format("woff2");
-  font-weight:400 700;font-style:normal;font-display:swap}
-@font-face{font-family:"Space Mono";src:url("assets/fonts/space-mono-400.woff2") format("woff2");
-  font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Space Mono";src:url("assets/fonts/space-mono-700.woff2") format("woff2");
-  font-weight:700;font-style:normal;font-display:swap}
-@font-face{font-family:"Bodoni Moda";src:url("assets/fonts/bodoni-moda-italic-var.woff2") format("woff2");
-  font-weight:400 900;font-style:italic;font-display:swap}
-@font-face{font-family:"Instrument Serif";src:url("assets/fonts/instrument-serif-italic.woff2") format("woff2");
-  font-weight:400;font-style:italic;font-display:swap}
+  body{padding-bottom:0}
 
-:root{
-  --page:#f4f4f4; --card:#fff; --ink:#040404; --dim:#5f5f5f; --faint:#9a9aa0; --hair:#dcdce0;
-  --c-ex:#de2410; --c-re:#1b3fd8; --c-pz:#7a3fd8; --c-cf:#0d7a52;
-  --f1:"Space Grotesk","PingFang SC","Microsoft YaHei",sans-serif;
-  --f2:"Bodoni Moda",Didot,Georgia,serif;
-  --f4:"Space Mono","SFMono-Regular",Consolas,monospace;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--page);color:var(--ink);font-family:var(--f1);line-height:1.66;position:relative}
-/* 点阵：固定在视口、位于内容之下。点很小、间距很大。
-   有实底色的卡片与条会自然盖住它；正文无底色，点从字缝里透出来 */
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:radial-gradient(circle,#04040445 .85px,rgba(0,0,0,0) 1.25px);
-  background-size:96px 96px;background-position:26px 34px}
-/* 套准十字：同样在内容之下，只有四个 */
-.reg{position:fixed;z-index:0;width:9px;height:9px;pointer-events:none;opacity:.32}
-.reg::before,.reg::after{content:"";position:absolute;background:var(--ink)}
-.reg::before{left:4px;top:0;width:1px;height:9px}
-.reg::after{top:4px;left:0;height:1px;width:9px}
-.reg.tl{left:20px;top:78px}.reg.tr{right:20px;top:78px}
-.reg.bl{left:20px;bottom:26px}.reg.br{right:20px;bottom:26px}
-a{color:inherit;text-decoration:none}
-.shell{width:min(980px,calc(100% - 56px));margin:auto;position:relative;z-index:1}
+  /* ---------- 三个尺寸的 1:1 预览 ----------
+     尺寸是 iPhone 15 / 16 的真实点数；布局镜像 Media-Art-Radar.js。
+     预览里的日期用网页的 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。 */
+  .previews{display:flex;flex-wrap:wrap;gap:34px 30px;align-items:flex-start;margin:22px 0 0}
+  .pv{margin:0;min-width:0}
+  .pv figcaption{margin:0 0 12px}
+  .pv .nm{display:block;font-size:.95rem;font-weight:700;letter-spacing:-.02em}
+  .pv .sz{display:block;font-family:var(--f-mono);font-size:.6rem;color:var(--faint);margin-top:2px}
+  .pv .wh{display:block;font-size:.76rem;color:var(--dim);margin-top:5px;max-width:34ch}
 
-.site-header{position:sticky;top:0;z-index:10;background:#f4f4f4f2;backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--hair)}
-.masthead{display:flex;align-items:center;gap:12px;min-height:60px}
-.brand-mark{font-size:1.02rem;line-height:1;letter-spacing:-.08em;font-weight:700;
-  border:1.5px solid var(--ink);border-radius:50%;padding:7px 8px;transform:rotate(-9deg)}
-.brand-mark span{font-size:.66rem;vertical-align:top;margin-left:1px}
-.brand-name{font-family:var(--f4);font-size:.68rem;font-weight:700;letter-spacing:.05em}
-.masthead .back{margin-left:auto;font-family:var(--f4);font-size:.65rem;color:var(--dim);
-  border:1px solid #c8c8ce;border-radius:9999px;padding:6px 13px}
-.masthead .back::before{content:"← "}
+  .wg{
+    position:relative;background:var(--page);border-radius:22px;overflow:hidden;color:var(--ink);
+    box-shadow:0 10px 30px #00000018,0 0 0 1px #0000000d;
+    display:flex;flex-direction:column;
+    line-height:1.2;   /* iOS 组件里文字的行高约 1.2，不继承主页 body 的 1.62 */
+  }
+  .wg *{box-sizing:border-box}
+  .wg .row{display:flex;align-items:center}
+  .wg .grow{flex:1;min-width:0}
+  .wg .mono{font-family:var(--f-mono)}
+  .wg .mb{font-family:var(--f-mono);font-weight:700}
+  .wg .dt{font-family:var(--f-display);font-style:italic;font-weight:600;line-height:1.02;letter-spacing:-.03em}
+  .wg .hair{height:1px;background:var(--hair);flex:0 0 auto}
+  .wg .inkrule{height:1px;background:var(--ink);flex:0 0 auto}
+  .wg .dim{color:var(--dim)}
+  .wg .faint{color:var(--faint)}
+  .k-exhibition{color:var(--c-exhibition)}
+  .k-residency{color:var(--c-residency)}
+  .k-conference{color:var(--c-conference)}
+  .soon{color:var(--c-exhibition)}
+  .wg .sans{font-family:var(--f-sans)}
+  .wg .clip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.top{padding:44px 0 6px}
-.top h1{margin:0;font-size:clamp(2.2rem,5.4vw,3.5rem);line-height:.96;letter-spacing:-.06em;font-weight:700}
-.top h1 .it{display:block;font-family:var(--f2);font-style:italic;font-weight:500;font-size:1.1em;letter-spacing:-.03em}
-.top .lede{margin:16px 0 0;font-size:.92rem;color:var(--dim);max-width:46ch}
-.spec{display:flex;gap:22px;flex-wrap:wrap;margin:22px 0 0;padding:11px 0;font-family:var(--f4);
-  font-size:.66rem;color:var(--dim);border-top:1px solid var(--ink);border-bottom:1px solid var(--hair)}
-.spec strong{color:var(--ink);font-weight:700}
+  /* 超大预览有 715pt 宽，窄屏上横向滚动，不撑破页面 */
+  .pv-xl{max-width:100%}
+  .pv-xl .scroller{max-width:100%;overflow-x:auto;padding:0 2px 12px}
 
-.sec{margin:38px 0 0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.sec .ix{margin:0;font-family:var(--f4);font-size:.6rem;color:var(--dim)}
-.sec h2{margin:0;font-size:1.36rem;font-weight:700;letter-spacing:-.04em}
-.sec h2 em{font-family:var(--f2);font-style:italic;font-weight:500;color:var(--dim);margin-left:.36em}
+  /* 异形卡：与主页 .call-detail 同一个形状（左上、右下大，右上、左下小） */
+  .wcard{background:#fff;border:1px solid var(--hair);display:flex;flex-direction:column;flex:0 0 auto}
 
-/* ══════ 组件预览 ══════ */
-.previews{display:flex;flex-wrap:wrap;gap:34px;align-items:flex-start;padding:24px 0 6px}
-.pv{margin:0}
-.pv figcaption{margin-bottom:12px}
-.pv .nm{display:block;font-size:.95rem;font-weight:700;letter-spacing:-.02em}
-.pv .sz{display:block;font-family:var(--f4);font-size:.6rem;color:var(--faint);margin-top:2px}
-.pv .wh{display:block;font-size:.76rem;color:var(--dim);margin-top:5px;max-width:30ch}
+  /* ---------- 说明面板：同样用异形圆角 ---------- */
+  .panel{
+    margin:26px 0 0;padding:18px 20px;background:var(--card);border:1px solid var(--hair);
+    border-radius:30px 6px 30px 6px;font-size:.84rem;line-height:1.78;color:#33333a;
+  }
+  .panel p{margin:0}
+  .panel p+p{margin-top:10px}
+  .panel b{font-weight:700;color:var(--ink)}
+  .panel code{font-family:var(--f-mono);font-size:.82em;background:#efeff1;padding:1px 5px;border-radius:4px}
+  .panel a{border-bottom:1px solid var(--ink)}
 
-/* 组件本体：纸白底 + 点阵，和脚本里 paperBackground() 一致 */
-.wg{background:#f4f4f4;border-radius:22px;overflow:hidden;box-sizing:border-box;
-  box-shadow:0 10px 30px #00000018,0 0 0 1px #0000000d;color:#040404}
-.wg *{box-sizing:border-box}
-.sm .wg{width:158px;height:158px;padding:13px}
-.md .wg{width:338px;height:158px;padding:13px}
-.lg .wg{width:338px;height:354px;padding:15px}
-.wg .row{display:flex;align-items:center}
-.wg .mono{font-family:var(--f4)}
-.wg .dt{font-family:var(--f2);font-style:italic;font-weight:600;line-height:.86;letter-spacing:-.03em}
-.wg .hair{height:1px;background:#e2e2e6;margin:0}
-.wg .hairk{height:1px;background:#040404}
-.wg .dot{width:5px;height:5px;border-radius:50%;flex:0 0 auto}
-.d-ex{background:var(--c-ex)}.d-re{background:var(--c-re)}.d-cf{background:var(--c-cf)}
-.t-ex{color:var(--c-ex)}.t-re{color:var(--c-re)}.t-cf{color:var(--c-cf)}
-.wg .dim{color:#5f5f5f}.wg .faint{color:#9a9aa0}
-.grow{flex:1}
+  .download{
+    display:inline-block;margin-top:22px;font-family:var(--f-mono);font-size:.68rem;font-weight:700;
+    background:var(--ink);color:#fff;border-radius:9999px;padding:11px 20px;
+  }
+  .download::before{content:"↓ "}
+  .steps{margin:20px 0 0;padding:0;list-style:none;counter-reset:s}
+  .steps li{
+    counter-increment:s;position:relative;padding:13px 0 13px 42px;border-bottom:1px solid var(--hair);
+    font-size:.86rem;color:#33333a;line-height:1.72;
+  }
+  .steps li::before{
+    content:counter(s,decimal-leading-zero);position:absolute;left:0;top:14px;
+    font-family:var(--f-mono);font-size:.7rem;color:var(--faint);
+  }
+  .steps li:last-child{border-bottom:0}
 
-/* small */
-.sm .wg{display:flex;flex-direction:column}
-.sm .top{display:flex;font-size:8px;color:#5f5f5f;padding:0}
-.sm .big{font-size:46px;margin-top:auto}
-.sm .tm{font-size:8.5px;margin-top:3px}
-.sm .ttl{font-size:11.5px;font-weight:600;line-height:1.24;margin-top:7px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.sm .foot{display:flex;align-items:center;gap:5px;font-size:7.5px;margin-top:6px}
-
-/* medium */
-.md .wg{display:flex;flex-direction:column}
-.md .hd{display:flex;font-size:8.5px;color:#5f5f5f}
-.md .body{display:flex;align-items:flex-start;margin-top:9px}
-.md .left{width:112px;flex:0 0 112px}
-.md .big{font-size:42px}
-.md .tm{font-size:8px;margin-top:4px}
-.md .cat{display:flex;align-items:center;gap:5px;font-size:7.5px;margin-top:6px}
-.md .right{flex:1;min-width:0;margin-left:14px}
-.md .ttl{font-size:13px;font-weight:700;line-height:1.2;letter-spacing:-.02em;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.md .ty{font-size:8.5px;color:#5f5f5f;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.md .nx{display:flex;align-items:center;gap:6px;font-size:9.5px;margin-top:7px}
-.md .nx .nm2{color:#5f5f5f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f1)}
-.md .ft{display:flex;font-size:8px;margin-top:auto}
-
-/* medium 新增 */
-.md .lead{display:flex;align-items:center;gap:7px}
-.md .lead .lt{display:flex;flex-direction:column;min-width:0;flex:1;margin-left:2px}
-.md .lead .l1{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.md .lead .l2{font-size:8px;color:#9a9aa0;margin-top:2px}
-.md .ix1{display:flex;align-items:center;gap:8px;font-size:10px}
-.md .ix1 .nm2{color:#5f5f5f;font-family:var(--f1);font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.md .ix1 .faint{font-size:8.5px}
-/* large 新增 */
-.lg .ix2{display:flex;align-items:center;gap:8px;font-size:11px}
-.lg .ix2 .dd{flex:0 0 auto}
-.lg .ix2 .mid{display:flex;flex-direction:column;min-width:0;margin-left:1px}
-.lg .ix2 .l1{font-family:var(--f1);font-size:10.5px;color:#5f5f5f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.lg .ix2 .l2{font-size:8px;color:#9a9aa0;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lg .ix2 .faint{font-size:9px}
-/* large */
-.lg .wg{display:flex;flex-direction:column}
-.lg .mast{display:flex;align-items:flex-end}
-.lg .mast .n1{font-size:10px;font-weight:700}
-.lg .mast .n2{font-size:21px;font-family:var(--f2);font-style:italic;line-height:1.05}
-.lg .mast .r1{font-size:9.5px;text-align:right}
-.lg .mast .r2{font-size:8.5px;color:#5f5f5f;text-align:right;margin-top:2px}
-.lg .hero{background:#fff;border-radius:15px;padding:11px 13px}
-.lg .hmeta{display:flex;align-items:center;gap:6px;font-size:8px}
-.lg .httl{font-size:14.5px;font-weight:700;line-height:1.2;letter-spacing:-.025em;margin-top:6px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.lg .hfig{display:flex;align-items:flex-end;margin-top:9px}
-.lg .hfig .big{font-size:38px}
-.lg .hfig .tm{font-size:8px;color:#5f5f5f;margin-top:3px}
-.lg .hfig .k{text-align:right}
-.lg .hfig .k b{display:block;font-family:var(--f2);font-style:italic;font-weight:600;font-size:26px;line-height:.9}
-.lg .hfig .k s{text-decoration:none;display:block;font-size:7.5px;color:#5f5f5f;margin-top:4px}
-.lg .idx{display:flex;align-items:center;gap:8px;font-size:11px}
-.lg .idx .nm2{font-size:10.5px;color:#5f5f5f;font-family:var(--f1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lg .ft{display:flex;font-size:8px;margin-top:auto}
-
-.note{margin:26px 0 0;padding:16px 18px;background:#fff;border:1px solid var(--hair);border-radius:14px;
-  font-size:.83rem;color:#33333a;line-height:1.75}
-.note b{font-weight:700}
-.cta{display:inline-flex;align-items:center;gap:9px;margin:22px 0 0;font-family:var(--f4);font-size:.72rem;
-  background:var(--ink);color:#fff;border-radius:9999px;padding:11px 20px}
-.cta::before{content:"↓ "}
-.steps{margin:22px 0 0;padding:0;list-style:none;counter-reset:s}
-.steps li{counter-increment:s;position:relative;padding:12px 0 12px 40px;border-bottom:1px solid var(--hair);
-  font-size:.85rem;color:#33333a;line-height:1.72}
-.steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:12px;
-  font-family:var(--f4);font-size:.72rem;color:var(--faint)}
-.steps li:last-child{border-bottom:0}
-footer{border-top:1px solid var(--ink);margin-top:34px;padding:15px 0 34px;
-  display:flex;justify-content:space-between;font-family:var(--f4);font-size:.64rem;color:var(--dim)}
-@media(max-width:620px){
-  .shell{width:calc(100% - 32px)}
-  .previews{gap:26px}
-  .md .wg,.lg .wg{width:min(338px,calc(100vw - 32px))}
-}
+  @media(max-width:420px){
+    .previews{gap:28px}
+  }
 </style>
 </head>
 <body>
-
-<span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
+<a class="skip-link" href="#main-content">跳至内容</a>
+<span class="reg reg-tl"></span><span class="reg reg-tr"></span>
+<span class="reg reg-bl"></span><span class="reg reg-br"></span>
 
 <header class="site-header"><div class="shell masthead">
-  <span class="brand-mark" aria-hidden="true">MAR<span>↗</span></span>
-  <span class="brand-name">MEDIA ART RADAR</span>
-  <a class="back" href="index.html">返回雷达</a>
+  <a class="brand" href="index.html">
+    <span class="brand-mark" aria-hidden="true">MAR<span>↗</span></span>
+    <span class="brand-name">MEDIA ART RADAR</span>
+  </a>
+  <nav aria-label="主导航">
+    <a class="nav-section" href="index.html#calls">国际机会精选</a>
+    <a class="nav-section" href="index.html#radar">每周优秀作品</a>
+    <a href="install.html" aria-current="page">小组件</a>
+  </nav>
 </div></header>
 
-<div class="shell">
+<div class="shell"><main id="main-content">
 
   <section class="top">
-    <h1>把雷达<span class="it">放上桌面.</span></h1>
-    <p class="lede">三个尺寸各有侧重，通过 Scriptable 每小时读取一次本站周报数据；网络不可用时读手机本地缓存。</p>
-    <div class="spec">
-      <span>小 <strong>158×158</strong></span><span>中 <strong>338×158</strong></span><span>大 <strong>338×354</strong></span>
+    <h1>MEDIA ART<span class="title-line">Widgets<span class="title-period" aria-hidden="true">↗</span></span></h1>
+    <div class="stats">
+      <span>小 <strong>158×158</strong></span>
+      <span>中 <strong>338×158</strong></span>
+      <span>大 <strong>338×354</strong></span>
+      <span>超大 <strong>≈715×342</strong></span>
       <span>刷新 <strong>60 分钟</strong></span>
     </div>
   </section>
 
-  <div class="sec"><p class="ix">[01]</p><h2>三个尺寸<em>Three sizes.</em></h2></div>
+  <!-- ══════════ 01 三个尺寸 ══════════ -->
+  <div class="section-heading">
+    <p class="section-index">[01]</p>
+    <h2>三个尺寸<em>Three sizes.</em></h2>
+  </div>
 
   <div class="previews">
 
-    <!-- ══ SMALL ══ -->
-    <figure class="pv sm">
+    <!-- ── 小号：只回答一件事 ── -->
+    <figure class="pv">
       <figcaption><span class="nm">小号</span><span class="sz">158 × 158 pt</span>
         <span class="wh">只回答一件事：下一个截止是哪天。日期占满整块。</span></figcaption>
-      <div class="wg">
-        <div class="top mono"><span>MAR ↗</span><span class="grow"></span><span>W38</span></div>
-        <div class="dt big t-ex">09.28</div>
-        <div class="mono tm">T-8 DAYS</div>
-        <div class="ttl">CTM 2027 / Resynthesising the Traditional</div>
+      <div class="wg" style="width:158px;height:158px;padding:13px">
+        <div class="row mono" style="font-size:8px"><span class="mb">MAR ↗</span><span class="grow"></span><span class="dim">W38</span></div>
+        <div class="grow"></div>
+        <div class="dt soon" style="font-size:46px">09.28</div>
+        <div class="row mono" style="font-size:8.5px;margin-top:2px;gap:5px"><span class="mb soon">T-8 DAYS</span><span class="dim" style="font-size:8px">申请截止</span></div>
+        <div class="sans" style="font-size:11.5px;font-weight:700;line-height:1.24;margin-top:7px">CTM 2027</div>
         <div class="grow"></div>
         <div class="hair"></div>
-        <div class="foot mono"><span class="dot d-ex"></span><span class="dim">展览征集</span>
-          <span class="grow"></span><span class="faint">已同步</span></div>
+        <div class="row mono" style="font-size:7.5px;margin-top:6px"><span class="mb k-exhibition">展览征集</span><span class="grow"></span><span class="faint">已同步</span></div>
       </div>
     </figure>
 
-    <!-- ══ MEDIUM ══ -->
-    <figure class="pv md">
+    <!-- ── 中号：首项一张异形卡，其余三项索引 ── -->
+    <figure class="pv">
       <figcaption><span class="nm">中号</span><span class="sz">338 × 158 pt</span>
-        <span class="wh">四个机会：首项日期放大并上分类色，其余三项排成索引。</span></figcaption>
-      <div class="wg">
-        <div class="hd mono"><span>MEDIA ART RADAR</span><span class="grow"></span><span style="color:#040404">W38</span></div>
-        <div class="hairk" style="margin-top:5px"></div>
-        <div class="lead" style="margin-top:7px">
-          <span class="dot d-ex"></span>
-          <span class="dt t-ex" style="font-size:21px">09.28</span>
-          <span class="l1 grow">CTM 2027 / Resynthesising</span>
-          <span class="mono t-ex" style="font-size:9.5px">T-8</span>
+        <span class="wh">四个机会：首项是一张异形卡，其余三项排成索引。</span></figcaption>
+      <div class="wg" style="width:338px;height:158px;padding:12px">
+        <div class="row mono" style="font-size:8.5px"><span class="mb">MEDIA ART RADAR</span><span class="grow"></span><span class="dim">W38 · 已同步</span></div>
+        <div style="height:5px;flex:0 0 auto"></div><div class="inkrule"></div><div style="height:6px;flex:0 0 auto"></div>
+
+        <div class="wcard" style="width:314px;height:54px;border-radius:20px 4px 20px 4px;padding:5px 12px;justify-content:space-between">
+          <div class="row mono" style="font-size:7.5px"><span class="mb k-exhibition">展览征集</span><span class="faint" style="margin-left:6px">德国 Berlin</span><span class="grow"></span><span class="mb soon" style="font-size:8px">T-8 DAYS</span></div>
+          <div class="row"><span class="dt soon" style="font-size:26px">09.28</span><span class="sans clip" style="margin-left:9px;font-size:11px;font-weight:700">CTM 2027</span><span class="grow"></span><span class="dt k-exhibition" style="font-size:21px">06</span></div>
         </div>
-        <div class="hair" style="margin-top:6px"></div>
-        <div class="ix1 mono" style="margin-top:6px"><span class="dot d-cf" style="width:4px;height:4px"></span>
-          <span>10.15</span><span class="nm2 grow">Technarte Bilbao 2027</span><span class="faint">T-26</span></div>
-        <div class="ix1 mono" style="margin-top:5px"><span class="dot d-re" style="width:4px;height:4px"></span>
-          <span>11.06</span><span class="nm2 grow">EMAP Residencies 2027</span><span class="faint">T-47</span></div>
-        <div class="ix1 mono" style="margin-top:5px"><span class="dot d-re" style="width:4px;height:4px"></span>
-          <span>12.01</span><span class="nm2 grow">Wave Farm / Research</span><span class="faint">T-73</span></div>
-        <div class="grow"></div>
-        <div class="ft mono"><span class="faint">核验 09.17</span><span class="grow"></span><span class="faint">已同步</span></div>
+
+        <div style="height:6px;flex:0 0 auto"></div>
+        <div class="row mono" style="font-size:9.5px"><span class="mb k-conference" style="font-size:8px">会议</span><span style="margin-left:7px">10.15</span><span class="sans dim clip grow" style="margin-left:8px;font-size:9px">Technarte Bilbao 2027</span><span class="faint" style="font-size:8px">T-26</span></div>
+        <div style="height:5px;flex:0 0 auto"></div>
+        <div class="row mono" style="font-size:9.5px"><span class="mb k-residency" style="font-size:8px">驻留</span><span style="margin-left:7px">11.06</span><span class="sans dim clip grow" style="margin-left:8px;font-size:9px">EMAP Residencies 2027</span><span class="faint" style="font-size:8px">T-47</span></div>
+        <div style="height:5px;flex:0 0 auto"></div>
+        <div class="row mono" style="font-size:9.5px"><span class="mb k-residency" style="font-size:8px">驻留</span><span style="margin-left:7px">12.01</span><span class="sans dim clip grow" style="margin-left:8px;font-size:9px">Wave Farm</span><span class="faint" style="font-size:8px">T-73</span></div>
       </div>
     </figure>
 
-    <!-- ══ LARGE ══ -->
-    <figure class="pv lg">
+    <!-- ── 大号：头条一张完整的异形卡，下面四行索引 ── -->
+    <figure class="pv">
       <figcaption><span class="nm">大号</span><span class="sz">338 × 354 pt</span>
-        <span class="wh">五个机会：头条白卡，其余四项排成索引。</span></figcaption>
-      <div class="wg">
-        <div class="mast">
-          <div><div class="n1">MEDIA ART</div><div class="n2">Radar ↗</div></div>
+        <span class="wh">五个机会：头条卡带项目时间与关键数字，其余四项排成索引。</span></figcaption>
+      <div class="wg" style="width:338px;height:354px;padding:14px">
+        <div class="row" style="align-items:flex-end">
+          <div><div class="sans" style="font-size:10px;font-weight:700;line-height:1.2">MEDIA ART</div>
+            <div style="font-family:var(--f-display);font-style:italic;font-weight:500;font-size:21px;line-height:1.05">Radar ↗</div></div>
           <div class="grow"></div>
-          <div><div class="r1 mono">W38</div><div class="r2 mono">05 项机会</div></div>
+          <div style="text-align:right"><div class="mb" style="font-size:9.5px">W38</div><div class="mono dim" style="font-size:8.5px;margin-top:2px">05 项机会</div></div>
         </div>
-        <div class="hairk" style="margin-top:9px"></div>
-        <div class="hero" style="margin-top:11px">
-          <div class="hmeta mono"><span class="dot d-ex"></span><span class="t-ex">展览征集</span>
-            <span class="dim" style="margin-left:2px">德国 Berlin</span></div>
-          <div class="httl">CTM 2027 / Resynthesising the Traditional</div>
-          <div class="hfig">
-            <div><div class="dt t-ex" style="font-size:34px">09.28</div><div class="mono tm">T-8 DAYS</div></div>
+        <div style="height:9px;flex:0 0 auto"></div><div class="inkrule"></div><div style="height:10px;flex:0 0 auto"></div>
+
+        <div class="wcard" style="width:310px;height:136px;border-radius:26px 5px 26px 5px;padding:10px 14px">
+          <div class="row mono" style="font-size:8px"><span class="mb k-exhibition">展览征集</span><span class="dim" style="margin-left:6px">德国 Berlin</span><span class="grow"></span>
+            <span style="border:.5px solid var(--hair);border-radius:8px;padding:2px 7px;font-size:7.5px">项目 2027.01</span></div>
+          <div class="sans" style="font-size:14.5px;font-weight:700;line-height:1.2;margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">CTM 2027 / Resynthesising the Traditional: At the Extreme</div>
+          <div class="grow"></div>
+          <div class="row" style="align-items:flex-end">
+            <div><div class="dt soon" style="font-size:34px">09.28</div>
+              <div class="row mono" style="font-size:8px;gap:5px;margin-top:1px"><span class="mb soon">T-8 DAYS</span><span class="dim" style="font-size:7.5px">申请截止</span></div></div>
             <div class="grow"></div>
-            <div class="k"><b class="t-ex">06</b><s class="mono">全球名额</s></div>
+            <div style="text-align:right"><div class="dt k-exhibition" style="font-size:30px">06</div><div class="mono dim" style="font-size:7.5px;margin-top:2px">全球名额</div></div>
           </div>
         </div>
-        <div class="ix2 mono" style="margin-top:11px"><span class="dot d-cf" style="width:4px;height:4px"></span>
-          <span class="dd">10.15</span><span class="l1 grow">Technarte Bilbao 2027</span><span class="faint">T-26</span></div>
-        <div class="hair" style="margin:5px 0"></div>
-        <div class="ix2 mono"><span class="dot d-re" style="width:4px;height:4px"></span>
-          <span class="dd">11.06</span><span class="l1 grow">EMAP Residencies 2027</span><span class="faint">T-47</span></div>
-        <div class="hair" style="margin:5px 0"></div>
-        <div class="ix2 mono"><span class="dot d-re" style="width:4px;height:4px"></span>
-          <span class="dd">12.01</span><span class="l1 grow">Wave Farm / Research</span><span class="faint">T-73</span></div>
-        <div class="hair" style="margin:5px 0"></div>
-        <div class="ix2 mono"><span class="dot d-ex" style="width:4px;height:4px"></span>
-          <span class="dd">12.15</span><span class="l1 grow">EMAF 40 / European Media</span><span class="faint">T-86</span></div>
+
+        <div style="height:10px;flex:0 0 auto"></div>
+        <div class="row mono" style="font-size:10.5px"><span class="mb k-conference" style="font-size:9px">会议</span><span style="margin-left:7px">10.15</span><span class="sans dim clip grow" style="margin-left:8px;font-size:10px">Technarte Bilbao 2027</span><span class="faint" style="font-size:9px">T-26</span></div>
+        <div style="height:5px;flex:0 0 auto"></div><div class="hair"></div><div style="height:5px;flex:0 0 auto"></div>
+        <div class="row mono" style="font-size:10.5px"><span class="mb k-residency" style="font-size:9px">驻留</span><span style="margin-left:7px">11.06</span><span class="sans dim clip grow" style="margin-left:8px;font-size:10px">EMAP Residencies 2027</span><span class="faint" style="font-size:9px">T-47</span></div>
+        <div style="height:5px;flex:0 0 auto"></div><div class="hair"></div><div style="height:5px;flex:0 0 auto"></div>
+        <div class="row mono" style="font-size:10.5px"><span class="mb k-residency" style="font-size:9px">驻留</span><span style="margin-left:7px">12.01</span><span class="sans dim clip grow" style="margin-left:8px;font-size:10px">Wave Farm</span><span class="faint" style="font-size:9px">T-73</span></div>
+        <div style="height:5px;flex:0 0 auto"></div><div class="hair"></div><div style="height:5px;flex:0 0 auto"></div>
+        <div class="row mono" style="font-size:10.5px"><span class="mb k-exhibition" style="font-size:9px">展览</span><span style="margin-left:7px">12.15</span><span class="sans dim clip grow" style="margin-left:8px;font-size:10px">EMAF 40</span><span class="faint" style="font-size:9px">T-86</span></div>
+
         <div class="grow"></div>
-        <div class="hair" style="margin-bottom:6px"></div>
-        <div class="ft mono"><span class="faint">核验 09.17</span><span class="grow"></span><span class="faint">已同步</span></div>
+        <div class="hair"></div>
+        <div class="row mono" style="font-size:8px;margin-top:6px"><span class="faint">核验 09.17</span><span class="grow"></span><span class="faint">已同步</span></div>
+      </div>
+    </figure>
+
+    <!-- ── 超大号：Mac / iPad，3×2 网格 ── -->
+    <figure class="pv pv-xl">
+      <figcaption><span class="nm">超大号 · Mac / iPad</span><span class="sz">约 715 × 342 pt（随设备不同）</span>
+        <span class="wh">五个机会各占一格，第六格是刊头。按截止日期从近到远读，全部是征集信息。</span></figcaption>
+      <div class="scroller">
+      <div class="wg" style="width:715px;height:342px;padding:14px;justify-content:center;align-items:center">
+        <div style="display:flex;flex-direction:column;gap:10px">
+
+          <div style="display:flex;gap:10px">
+            <!-- 刊头格：没有卡片底，只有一条墨黑顶线，对应主页的数据条 -->
+            <div style="width:217px;height:151px;padding:0 4px 4px;display:flex;flex-direction:column">
+              <div class="inkrule"></div>
+              <div class="sans" style="font-size:11px;font-weight:700;margin-top:9px">MEDIA ART</div>
+              <div style="font-family:var(--f-display);font-style:italic;font-weight:500;font-size:26px;line-height:1.1">Radar ↗</div>
+              <div class="grow"></div>
+              <div class="mb" style="font-size:10px">W38</div>
+              <div class="mono dim" style="font-size:8.5px;margin-top:2px">05 项机会</div>
+              <div class="mono faint" style="font-size:8px;margin-top:2px">核验 09.17 · 已同步</div>
+            </div>
+        <div class="wcard" style="width:217px;height:151px;border-radius:20px 4px 20px 4px;padding:9px 12px">
+          <div class="row mono" style="font-size:7.5px"><span class="mb k-exhibition">展览征集</span><span class="faint" style="margin-left:5px">德国 Berlin</span></div>
+          <div class="sans" style="font-size:13px;font-weight:700;margin-top:4px">CTM 2027</div>
+          <div class="sans dim" style="font-size:8.5px;margin-top:1px">Resynthesising the Traditional</div>
+          <div class="grow"></div>
+          <div class="row" style="align-items:flex-end"><div><div class="dt soon" style="font-size:30px">09.28</div><div class="row mono" style="font-size:7.5px;gap:5px"><span class="mb soon">T-8 DAYS</span><span class="dim">申请截止</span></div></div><div class="grow"></div>
+            <div style="text-align:right"><div class="dt k-exhibition" style="font-size:22px">06</div><div class="mono dim" style="font-size:7.5px;margin-top:2px">全球名额</div></div></div>
+        </div>
+        <div class="wcard" style="width:217px;height:151px;border-radius:20px 4px 20px 4px;padding:9px 12px">
+          <div class="row mono" style="font-size:7.5px"><span class="mb k-conference">学术会议</span><span class="faint" style="margin-left:5px">西班牙 Bilbao</span></div>
+          <div class="sans" style="font-size:13px;font-weight:700;margin-top:4px">Technarte Bilbao 2027</div>
+          <div class="sans dim" style="font-size:8.5px;margin-top:1px">Call for Papers</div>
+          <div class="grow"></div>
+          <div class="row" style="align-items:flex-end"><div><div class="dt" style="font-size:30px">10.15</div><div class="row mono" style="font-size:7.5px;gap:5px"><span class="mb">T-26 DAYS</span><span class="dim">申请截止</span></div></div><div class="grow"></div>
+            <div style="text-align:right"><div class="sans" style="font-size:11px;color:#b9b9bf">未公布</div><div class="mono dim" style="font-size:7.5px;margin-top:2px">无资助说明</div></div></div>
+        </div>
+          </div>
+
+          <div style="display:flex;gap:10px">
+        <div class="wcard" style="width:217px;height:151px;border-radius:20px 4px 20px 4px;padding:9px 12px">
+          <div class="row mono" style="font-size:7.5px"><span class="mb k-residency">驻留</span><span class="faint" style="margin-left:5px">欧洲 15 家机构</span></div>
+          <div class="sans" style="font-size:13px;font-weight:700;margin-top:4px">EMAP Residencies 2027</div>
+          <div class="sans dim" style="font-size:8.5px;margin-top:1px">European Media Art Platform</div>
+          <div class="grow"></div>
+          <div class="row" style="align-items:flex-end"><div><div class="dt" style="font-size:30px">11.06</div><div class="row mono" style="font-size:7.5px;gap:5px"><span class="mb">T-47 DAYS</span><span class="dim">申请截止</span></div></div><div class="grow"></div>
+            <div style="text-align:right"><div class="dt k-residency" style="font-size:15px">€8,000</div><div class="mono dim" style="font-size:7.5px;margin-top:2px">艺术家费+制作</div></div></div>
+        </div>
+        <div class="wcard" style="width:217px;height:151px;border-radius:20px 4px 20px 4px;padding:9px 12px">
+          <div class="row mono" style="font-size:7.5px"><span class="mb k-residency">驻留</span><span class="faint" style="margin-left:5px">美国 New York</span></div>
+          <div class="sans" style="font-size:13px;font-weight:700;margin-top:4px">Wave Farm</div>
+          <div class="sans dim" style="font-size:8.5px;margin-top:1px">Research and Production Program 2027</div>
+          <div class="grow"></div>
+          <div class="row" style="align-items:flex-end"><div><div class="dt" style="font-size:30px">12.01</div><div class="row mono" style="font-size:7.5px;gap:5px"><span class="mb">T-73 DAYS</span><span class="dim">申请截止</span></div></div><div class="grow"></div>
+            <div style="text-align:right"><div class="dt k-residency" style="font-size:15px">$2,000</div><div class="mono dim" style="font-size:7.5px;margin-top:2px">Fellowship</div></div></div>
+        </div>
+        <div class="wcard" style="width:217px;height:151px;border-radius:20px 4px 20px 4px;padding:9px 12px">
+          <div class="row mono" style="font-size:7.5px"><span class="mb k-exhibition">展览征集</span><span class="faint" style="margin-left:5px">德国 Osnabrück</span></div>
+          <div class="sans" style="font-size:13px;font-weight:700;margin-top:4px">EMAF 40</div>
+          <div class="sans dim" style="font-size:8.5px;margin-top:1px">European Media Art Festival 2027</div>
+          <div class="grow"></div>
+          <div class="row" style="align-items:flex-end"><div><div class="dt" style="font-size:30px">12.15</div><div class="row mono" style="font-size:7.5px;gap:5px"><span class="mb">T-86 DAYS</span><span class="dim">申请截止</span></div></div><div class="grow"></div>
+            <div style="text-align:right"><div class="dt k-exhibition" style="font-size:22px">€500</div><div class="mono dim" style="font-size:7.5px;margin-top:2px">装置酬金</div></div></div>
+        </div>
+          </div>
+
+        </div>
+      </div>
       </div>
     </figure>
 
   </div>
 
-  <div class="note">
-    <b>关于字体</b>：大数字在 iPhone 上用的是系统自带的 <b>Didot 斜体</b>，网页这边用 Bodoni Moda 斜体作等价呈现，两者形态非常接近。标签与数据一律等宽，标题用系统无衬线——和本站的分层一致。<br>
-    <b>关于颜色</b>：整块组件只有分类圆点和日期带色，<span class="t-ex">展览征集红</span> / <span class="t-re">驻留蓝</span> / <span class="t-cf">学术会议绿</span>，其余是纸白、墨黑与灰。组件本体不加底纹，纯纸白——桌面壁纸各不相同，底纹只会变脏。
+  <div class="panel">
+    <p><b>与主页同一套规则。</b>日期默认墨黑，<b>14 天内截止才变红</b>；分类色（<span class="k-exhibition">展览征集红</span> / <span class="k-residency">驻留蓝</span> / <span class="k-conference">学术会议绿</span>）只上在分类标签和右下角的关键数字上。整块组件不叠点阵，纯纸白——桌面壁纸各不相同，底纹只会变脏。</p>
+    <p><b>关于形状。</b>卡片用主页同一个异形圆角。iOS 组件不支持四角不等圆，所以脚本用 <code>DrawContext</code> 把卡片画成一张背景图，尺寸按机型固定；遇到表里没有的机型会取最接近的一档，小屏机型（如 iPhone SE）会少显示一行，而不是溢出。</p>
+    <p><b>关于超大尺寸。</b>Mac 与 iPad 才有。五个机会各占一格、第六格是刊头，按截止日期从近到远读；每个机会只留分类色标签、地点、短标题、日期与倒计时、关键数字。机会超过五个时，刊头格会写「另有 n 项」。我没能核实 Mac 超大组件的官方点数，所以脚本按保守面积排版（大屏 700×340，小 iPad 640×304），网格居中；设备真实面积更大时，多出来的只是留白，不会溢出。如果你在 Mac 上看到偏差，把 Scriptable 里 <code>Device.screenSize()</code> 的输出告诉我，我按实际尺寸调。</p>
+    <p><b>关于字体。</b>日期与英文强调在 iPhone 上用系统自带的 <b>Didot 斜体</b>，网页用 Bodoni Moda 斜体，两者形态接近但不完全相同——这页预览显示的是 Bodoni，真机是 Didot。标签与数据一律等宽，标题用系统无衬线，分层与主页一致。</p>
   </div>
 
-  <div class="sec"><p class="ix">[02]</p><h2>安装<em>Install.</em></h2></div>
-  <a class="cta" href="Media-Art-Radar.js" download>下载组件脚本</a>
+  <!-- ══════════ 02 安装 ══════════ -->
+  <div class="section-heading" style="margin-top:38px">
+    <p class="section-index">[02]</p>
+    <h2>安装<em>Install.</em></h2>
+  </div>
+
+  <a class="download" href="Media-Art-Radar.js" download>下载组件脚本</a>
   <ol class="steps">
     <li>在 Scriptable 中新建脚本，把下载文件里的代码完整粘贴进去，运行一次确认能取到数据。</li>
-    <li>长按 iPhone 主屏幕 → 加号 → 选择 Scriptable → 挑尺寸（小 / 中 / 大）添加。</li>
+    <li>长按 iPhone 主屏幕 → 加号 → 选择 Scriptable → 挑尺寸（小 / 中 / 大）添加。在 Mac 或 iPad 上添加 Scriptable 小组件时可以选「超大」，脚本相同。</li>
     <li>长按刚添加的组件 → 编辑小组件 → Script 选择刚保存的那个脚本。</li>
     <li>中号与大号点击每一行会打开对应机会的官方页面；小号点击打开本站。</li>
   </ol>
 
-  <div class="note">
-    <b>已经装过旧版？</b>把新代码完整替换进原来的 Scriptable 脚本，保留脚本名称，保存并运行一次即可。桌面上的三个尺寸共用同一份脚本，不需要分别替换。<br>
-    <b>更新节奏</b>：内容每周更新，脚本不需要每周重新下载；只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。<br>
-    <b>数据来源</b>：脚本直接读取本站公开的 <a href="latest.json" style="border-bottom:1px solid var(--ink)">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以本站详情和官方页面为准。
+  <div class="panel">
+    <p><b>已经装过旧版？</b>把新代码完整替换进原来的 Scriptable 脚本，保留脚本名称，保存并运行一次即可。桌面上的三个尺寸共用同一份脚本，不需要分别替换。新版会读取 <code>latest.json</code> 里新增的 <code>highlight</code> 与 <code>project_when</code> 两个字段；旧数据缺这两项时会自动跳过，不会报错。</p>
+    <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
+    <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以本站详情和官方页面为准。</p>
   </div>
 
   <footer><span>每周五更新 · 信息来自官方页面</span><span>ISSUE 2026-W38</span></footer>
-</div>
+</main></div>
 
 </body>
 </html>

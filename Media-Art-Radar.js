@@ -1,5 +1,5 @@
-// MEDIA ART RADAR · Edition 03
-// 纸白底 · 点阵肌理 · Didot 斜体大日期 · 分类色只用在一处
+// MEDIA ART RADAR · Edition 04
+// 与主页同一套视觉：纸白底 · 异形圆角卡 · 巨型斜体日期 · 分类色只用在一处
 // Scriptable Home Screen widgets：small / medium / large
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
 
@@ -7,23 +7,38 @@ const DATA_URL = "https://zijianchenart.github.io/media-art-reader/latest.json"
 const SITE_URL = "https://zijianchenart.github.io/media-art-reader/"
 const CACHE_NAME = "media-art-radar-latest.json"
 const REFRESH_MINUTES = 60
-// 在 Scriptable 内预览时改为 small / medium / large；桌面会自动识别尺寸。
+// 在 Scriptable 内预览时改为 small / medium / large / extraLarge；桌面会自动识别尺寸。
 const PREVIEW_FAMILY = "large"
 
+// 与主页 style.css 的变量一一对应。改这里之前先改主页，保持两边一致。
 const C = {
   paper: "#F4F4F4", card: "#FFFFFF", ink: "#040404",
-  dim: "#5F5F5F", faint: "#9A9AA0", hair: "#E2E2E6",
-  ex: "#DE2410",   // 展览征集
-  re: "#1B3FD8",   // 驻留
-  pz: "#7A3FD8",   // 奖项
-  cf: "#0D7A52"    // 学术会议
+  dim: "#5F5F5F", faint: "#9A9AA0", hair: "#DCDCE0", mute: "#B9B9BF",
+  exhibition: "#DE2410", residency: "#1B3FD8", prize: "#7A3FD8", conference: "#0D7A52",
+  soon: "#DE2410"          // 14 天内截止，主页里同样用这个红
 }
-const CATEGORY_ORDER = ["exhibition", "residency", "prize", "conference"]
+const SOON_DAYS = 14       // 与 status.js 的阈值一致
+
+// 异形圆角卡是一张固定尺寸的背景图，必须知道组件的真实点数。
+// 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
+// 注意：这个 const 必须写在下面的执行入口之前——const 不会提升，
+// 放在入口之后会在中号、大号里触发 "before initialization" 而整块空白。
+const WIDGET_SIZES = {
+  932: { small: 170, mw: 364, lh: 382 },
+  926: { small: 170, mw: 364, lh: 382 },
+  896: { small: 169, mw: 360, lh: 379 },
+  852: { small: 158, mw: 338, lh: 354 },
+  844: { small: 158, mw: 338, lh: 354 },
+  812: { small: 155, mw: 329, lh: 345 },
+  736: { small: 159, mw: 348, lh: 357 },
+  667: { small: 148, mw: 321, lh: 324 },
+  568: { small: 141, mw: 292, lh: 311 }
+}
 const CATEGORY = {
-  exhibition: { label: "展览", full: "展览征集", color: C.ex },
-  residency:  { label: "驻留", full: "驻留",     color: C.re },
-  prize:      { label: "奖项", full: "奖项",     color: C.pz },
-  conference: { label: "会议", full: "学术会议", color: C.cf }
+  exhibition: { short: "展览", full: "展览征集", color: C.exhibition },
+  residency:  { short: "驻留", full: "驻留",     color: C.residency },
+  prize:      { short: "奖项", full: "奖项",     color: C.prize },
+  conference: { short: "会议", full: "学术会议", color: C.conference }
 }
 
 // ============================================================
@@ -55,35 +70,61 @@ try {
 const family = config.runsInWidget ? config.widgetFamily : PREVIEW_FAMILY
 const widget = family === "small" ? buildSmall(payload, source)
   : family === "large" ? buildLarge(payload, source)
+  : family === "extraLarge" ? buildExtraLarge(payload, source)
   : buildMedium(payload, source)
 widget.url = SITE_URL
 widget.refreshAfterDate = new Date(Date.now() + REFRESH_MINUTES * 60000)
 if (config.runsInWidget) Script.setWidget(widget)
 else if (family === "small") await widget.presentSmall()
 else if (family === "large") await widget.presentLarge()
+else if (family === "extraLarge") {
+  // presentExtraLarge 只在较新的 Scriptable 里有；没有就退回大号预览
+  if (typeof widget.presentExtraLarge === "function") await widget.presentExtraLarge()
+  else await widget.presentLarge()
+}
 else await widget.presentMedium()
 Script.complete()
 
 // ============================================================
+// 尺寸
+// ============================================================
+function widgetMetrics() {
+  let h = 852
+  try { const s = Device.screenSize(); h = Math.max(s.width, s.height) } catch (_) {}
+  const keys = Object.keys(WIDGET_SIZES).map(Number)
+  // 不在表里的机型取最接近的；并列时取较小的，宁可留白也不溢出
+  const near = keys.reduce((best, k) => {
+    const d = Math.abs(k - h), bd = Math.abs(best - h)
+    return d < bd || (d === bd && k < best) ? k : best
+  }, keys[0])
+  const t = WIDGET_SIZES[near]
+  return { small: { w: t.small, h: t.small }, medium: { w: t.mw, h: t.small }, large: { w: t.mw, h: t.lh } }
+}
+
+// ============================================================
 // 基础件
 // ============================================================
-
 function baseWidget(padding) {
   const wd = new ListWidget()
-  wd.backgroundColor = new Color(C.paper)   // 纯纸白，不再叠点阵
+  wd.backgroundColor = new Color(C.paper)   // 纯纸白，不叠点阵：桌面壁纸各不相同，底纹只会变脏
   wd.setPadding(padding, padding, padding, padding)
   return wd
 }
 
-// 字体三层：Didot 斜体管日期 / 等宽管数据 / 系统字管标题正文
+// 字体三层，对应主页：Didot 斜体 ≈ Bodoni 斜体（日期、英文强调）/ 等宽（数据）/ 系统字（标题正文）
 function didot(size) { return new Font("Didot-Italic", size) }
 function mono(size)  { return Font.mediumMonospacedSystemFont(size) }
+function monoBold(size) {
+  return Font.boldMonospacedSystemFont ? Font.boldMonospacedSystemFont(size) : Font.mediumMonospacedSystemFont(size)
+}
 
 function text(parent, value, size, color = C.ink, weight = "regular", lines = 1) {
   const t = parent.addText(String(value))
   t.font = weight === "bold" ? Font.boldSystemFont(size)
     : weight === "semi" ? Font.semiboldSystemFont(size)
+    : weight === "medium" ? Font.mediumSystemFont(size)
     : weight === "mono" ? mono(size)
+    : weight === "monob" ? monoBold(size)
     : weight === "didot" ? didot(size)
     : Font.systemFont(size)
   t.textColor = new Color(color)
@@ -99,34 +140,120 @@ function rule(parent, color = C.hair) {
   line.addSpacer()
 }
 
-// 分类圆点：全组件唯一的彩色
-function categoryDot(parent, item, d = 5) {
-  const dot = parent.addStack()
-  dot.size = new Size(d, d)
-  dot.cornerRadius = d / 2
-  dot.backgroundColor = categoryColor(item)
+// 异形圆角：左上、右下大，右上、左下小 —— 与主页 border-radius:30px 6px 30px 6px 同一个形状。
+// Scriptable 的 stack 只支持四角等圆，所以用 DrawContext 把整张卡画成背景图。
+function cardImage(w, h, big, small) {
+  const k = 0.5523                      // 用三次贝塞尔逼近四分之一圆
+  const x0 = 0.5, y0 = 0.5, x1 = w - 0.5, y1 = h - 0.5   // 内缩半像素，描边不会被裁
+  const tl = big, tr = small, br = big, bl = small
+  const p = new Path()
+  p.move(new Point(x0 + tl, y0))
+  p.addLine(new Point(x1 - tr, y0))
+  p.addCurve(new Point(x1, y0 + tr), new Point(x1 - tr + k * tr, y0), new Point(x1, y0 + tr - k * tr))
+  p.addLine(new Point(x1, y1 - br))
+  p.addCurve(new Point(x1 - br, y1), new Point(x1, y1 - br + k * br), new Point(x1 - br + k * br, y1))
+  p.addLine(new Point(x0 + bl, y1))
+  p.addCurve(new Point(x0, y1 - bl), new Point(x0 + bl - k * bl, y1), new Point(x0, y1 - bl + k * bl))
+  p.addLine(new Point(x0, y0 + tl))
+  p.addCurve(new Point(x0 + tl, y0), new Point(x0, y0 + tl - k * tl), new Point(x0 + tl - k * tl, y0))
+  p.closeSubpath()
+
+  const ctx = new DrawContext()
+  ctx.size = new Size(w, h)
+  ctx.opaque = false
+  ctx.respectScreenScale = true
+  ctx.setFillColor(new Color(C.card))
+  ctx.addPath(p)
+  ctx.fillPath()
+  ctx.setStrokeColor(new Color(C.hair))
+  ctx.setLineWidth(1)
+  ctx.addPath(p)
+  ctx.strokePath()
+  return ctx.getImage()
 }
 
-// 索引条目：第一行日期+标题+倒计时，第二行分类+地点
-function indexRow(parent, item, twoLine) {
+// 一张固定尺寸的异形卡；画图失败时退回等圆角，组件不会因此空白
+function cardStack(parent, w, h, big, small) {
+  const card = parent.addStack()
+  card.layoutVertically()
+  card.size = new Size(w, h)
+  try {
+    card.backgroundImage = cardImage(w, h, big, small)
+  } catch (_) {
+    card.backgroundColor = new Color(C.card)
+    card.cornerRadius = Math.min(big, h / 2)
+  }
+  return card
+}
+// 居中放一张
+function makeCard(parent, w, h, big, small) {
+  const row = parent.addStack()
+  row.addSpacer()
+  const card = cardStack(row, w, h, big, small)
+  row.addSpacer()
+  return card
+}
+
+// ============================================================
+// 数据 → 展示（规则与主页 status.js / style.css 一致）
+// ============================================================
+function isSoon(item) {
+  const d = daysRemaining(item)
+  return d !== null && d <= SOON_DAYS
+}
+// 主页规则：日期默认墨黑，14 天内才变红，不再按分类上色
+function dateColor(item) { return isSoon(item) ? C.soon : C.ink }
+
+function daysLabel(item) {
+  const d = daysRemaining(item)
+  return d === null ? "日期待定" : d === 0 ? "今日截止" : `T-${d} DAYS`
+}
+// 「T-8 DAYS 申请截止」：倒计时加粗，说明降为灰色
+function daysLine(parent, item, size) {
+  const row = parent.addStack()
+  row.centerAlignContent()
+  text(row, daysLabel(item), size, isSoon(item) ? C.soon : C.ink, "monob")
+  row.addSpacer(5)
+  text(row, "申请截止", size - 0.5, C.dim, "mono")
+}
+
+// 关键数字：与主页三档字号一致——短的最大，4 字符以上缩小，纯中文变灰
+function highlightOf(item) {
+  const v = item.highlight
+  if (!v) return null
+  return { value: String(v), label: String(item.highlight_label || "") }
+}
+function highlightSpec(value, base) {
+  if (!/\d/.test(value)) return { size: base * 0.5, weight: "medium", color: C.mute }
+  if (value.length >= 4) return { size: base * 0.68, weight: "didot", color: null }
+  return { size: base, weight: "didot", color: null }
+}
+function addHighlight(parent, item, base, withLabel = true) {
+  const hl = highlightOf(item)
+  if (!hl) return
+  const spec = highlightSpec(hl.value, base)
+  const col = parent.addStack()
+  col.layoutVertically()
+  text(col, hl.value, spec.size, spec.color || categoryColor(item), spec.weight).rightAlignText()
+  if (withLabel && hl.label) {
+    col.addSpacer(2)
+    text(col, hl.label, 7.5, C.dim, "mono").rightAlignText()
+  }
+}
+
+// 索引行：分类色短标签 · 日期 · 标题 · 倒计时
+function indexRow(parent, item, size) {
   const row = parent.addStack()
   row.centerAlignContent()
   row.url = item.url || SITE_URL
-  categoryDot(row, item, 4)
+  text(row, categoryLabel(item, true), size - 1.5, categoryColor(item), "monob")
+  row.addSpacer(7)
+  text(row, deadlineLabel(item), size, C.ink, "mono")
   row.addSpacer(8)
-  text(row, deadlineLabel(item), twoLine ? 11 : 10, C.ink, "mono")
-  row.addSpacer(9)
-  const mid = row.addStack()
-  mid.layoutVertically()
-  text(mid, splitTitle(item.title).title, twoLine ? 10.5 : 9.5, C.dim, "regular", 1)
-  if (twoLine) {
-    mid.addSpacer(2)
-    const sub = `${categoryLabel(item, false)} · ${compactPlace(item.location)}`
-    text(mid, sub, 8, C.faint, "mono", 1)
-  }
+  text(row, splitTitle(item.title).title, size - 0.5, C.dim, "regular", 1)
   row.addSpacer()
   const d = daysRemaining(item)
-  text(row, d === null ? "—" : `T-${d}`, twoLine ? 9 : 8.5, C.faint, "mono")
+  text(row, d === null ? "—" : `T-${d}`, size - 1.5, C.faint, "mono")
 }
 
 // ============================================================
@@ -138,92 +265,93 @@ function buildSmall(data, state) {
 
   const top = w.addStack()
   top.centerAlignContent()
-  text(top, "MAR ↗", 8, C.dim, "mono")
+  text(top, "MAR ↗", 8, C.ink, "monob")
   top.addSpacer()
   text(top, compactIssue(data.issue_id) || "—", 8, C.dim, "mono")
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
 
   const item = calls[0]
-  const days = daysRemaining(item)
-
   w.addSpacer()
-  // 日期占满宽度，是这个尺寸唯一的主角
-  text(w, deadlineLabel(item), 46, categoryColor(item), "didot")
-  w.addSpacer(3)
-  text(w, days === null ? "日期待定" : days === 0 ? "今日截止" : `T-${days} DAYS`, 8.5, C.ink, "mono")
+  text(w, deadlineLabel(item), 46, dateColor(item), "didot")
+  w.addSpacer(2)
+  daysLine(w, item, 8.5)
   w.addSpacer(7)
-  text(w, splitTitle(item.title).title, 11.5, C.ink, "semi", 2)
+  text(w, splitTitle(item.title).title, 11.5, C.ink, "bold", 2)
   w.addSpacer()
 
   rule(w)
   w.addSpacer(6)
   const foot = w.addStack()
   foot.centerAlignContent()
-  categoryDot(foot, item, 4)
-  foot.addSpacer(5)
-  text(foot, categoryLabel(item, false), 7.5, C.dim, "mono")
+  text(foot, categoryLabel(item, false), 7.5, categoryColor(item), "monob")
   foot.addSpacer()
-  text(foot, statusText(state, data), 7.5, state === "LIVE" && !isStale(data) ? C.faint : C.ex, "mono")
+  text(foot, statusText(state, data), 7.5, state === "LIVE" && !isStale(data) ? C.faint : C.soon, "mono")
   return w
 }
 
 // ============================================================
-// MEDIUM · 四个机会：首项强调，其余三项索引
+// MEDIUM · 四个机会：首项是一张异形卡，其余三项排成索引
 // ============================================================
 function buildMedium(data, state) {
-  const w = baseWidget(12)
+  const pad = 12
+  const cw = widgetMetrics().medium.w - pad * 2
+  const w = baseWidget(pad)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
   const top = w.addStack()
   top.centerAlignContent()
-  text(top, "MEDIA ART RADAR", 8.5, C.dim, "mono")
+  text(top, "MEDIA ART RADAR", 8.5, C.ink, "monob")
   top.addSpacer()
-  text(top, compactIssue(data.issue_id) || "—", 8.5, C.ink, "mono")
+  const fresh = state === "LIVE" && !isStale(data)
+  text(top, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8.5, fresh ? C.dim : C.soon, "mono")
   w.addSpacer(5)
   rule(w, C.ink)
-  w.addSpacer(7)
+  w.addSpacer(6)
 
-  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); footer(w, data, state); return w }
+  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
 
-  // 首项：日期用 Didot 放大并上分类色
   const item = calls[0]
-  const lead = w.addStack()
-  lead.centerAlignContent()
-  lead.url = item.url || SITE_URL
-  categoryDot(lead, item, 5)
-  lead.addSpacer(7)
-  text(lead, deadlineLabel(item), 21, categoryColor(item), "didot")
-  lead.addSpacer(9)
-  text(lead, splitTitle(item.title).title, 11, C.ink, "semi", 1)
-  lead.addSpacer()
-  const ld = daysRemaining(item)
-  text(lead, ld === null ? "—" : `T-${ld}`, 9.5, categoryColor(item), "mono")
+  const card = makeCard(w, cw, 54, 20, 4)
+  card.url = item.url || SITE_URL
+  card.setPadding(5, 12, 5, 12)
+
+  // 行一：分类色标签 · 地点 ······ 倒计时
+  const meta = card.addStack()
+  meta.centerAlignContent()
+  text(meta, categoryLabel(item, false), 7.5, categoryColor(item), "monob")
+  meta.addSpacer(6)
+  text(meta, compactPlace(item.location), 7.5, C.faint, "mono", 1)
+  meta.addSpacer()
+  text(meta, daysLabel(item), 8, isSoon(item) ? C.soon : C.ink, "monob")
+
+  // 行二：日期 · 标题 ······ 关键数字
+  const fig = card.addStack()
+  fig.centerAlignContent()
+  text(fig, deadlineLabel(item), 26, dateColor(item), "didot")
+  fig.addSpacer(9)
+  text(fig, splitTitle(item.title).title, 11, C.ink, "bold", 1)
+  fig.addSpacer()
+  addHighlight(fig, item, 21, false)   // 中号空间不够放小标签，标签留给大号
 
   w.addSpacer(6)
-  rule(w)
-  w.addSpacer(6)
-
-  const rest = calls.slice(1, 4)
+  // 小屏机型（组件高度 < 155pt，如 iPhone SE / 8）少放一行，宁可少一条也不溢出
+  const restCount = widgetMetrics().medium.h >= 155 ? 3 : 2
+  const rest = calls.slice(1, 1 + restCount)
   rest.forEach((next, i) => {
-    indexRow(w, next, false)
+    indexRow(w, next, 9.5)
     if (i < rest.length - 1) w.addSpacer(5)
   })
-
   w.addSpacer()
-  footer(w, data, state)
   return w
 }
 
 // ============================================================
-// LARGE · 头条一张大卡，下面是索引
+// 大号的三块：刊头 / 头条卡 / 索引
 // ============================================================
-function buildLarge(data, state) {
-  const w = baseWidget(14)
-  const calls = activeCalls(data.open_calls || [], "deadline")
-
-  // 刊头
-  const top = w.addStack()
+// 刊头：与主页 MEDIA ART / Radar 同构
+function addMasthead(parent, data, calls) {
+  const top = parent.addStack()
   top.bottomAlignContent()
   const name = top.addStack()
   name.layoutVertically()
@@ -232,73 +360,191 @@ function buildLarge(data, state) {
   top.addSpacer()
   const meta = top.addStack()
   meta.layoutVertically()
-  text(meta, compactIssue(data.issue_id) || "—", 9.5, C.ink, "mono").rightAlignText()
+  text(meta, compactIssue(data.issue_id) || "—", 9.5, C.ink, "monob").rightAlignText()
   meta.addSpacer(2)
   text(meta, `${two(calls.length)} 项机会`, 8.5, C.dim, "mono").rightAlignText()
+  parent.addSpacer(9)
+  rule(parent, C.ink)
+  parent.addSpacer(10)
+}
 
-  w.addSpacer(10)
-  rule(w, C.ink)
+// 头条卡：分类色标签 · 地点 · 项目时间胶囊 / 完整标题 / 巨型日期 + 关键数字
+function addHeroCard(parent, item, cw) {
+  const card = makeCard(parent, cw, 136, 26, 5)
+  card.url = item.url || SITE_URL
+  card.setPadding(10, 14, 10, 14)
 
+  const hMeta = card.addStack()
+  hMeta.centerAlignContent()
+  text(hMeta, categoryLabel(item, false), 8, categoryColor(item), "monob")
+  hMeta.addSpacer(6)
+  text(hMeta, compactPlace(item.location), 8, C.dim, "mono", 1)
+  hMeta.addSpacer()
+  if (item.project_when) {
+    // 右上角小胶囊：项目时间，与主页卡片一致
+    const chip = hMeta.addStack()
+    chip.setPadding(2, 7, 2, 7)
+    chip.cornerRadius = 8
+    chip.borderWidth = 0.5
+    chip.borderColor = new Color(C.hair)
+    text(chip, `项目 ${item.project_when}`, 7.5, C.ink, "mono")
+  }
+
+  card.addSpacer(5)
+  text(card, item.title || "Untitled", 14.5, C.ink, "bold", 2)
+  card.addSpacer()
+
+  const hFig = card.addStack()
+  hFig.bottomAlignContent()
+  const left = hFig.addStack()
+  left.layoutVertically()
+  text(left, deadlineLabel(item), 34, dateColor(item), "didot")
+  left.addSpacer(1)
+  daysLine(left, item, 8)
+  hFig.addSpacer()
+  addHighlight(hFig, item, 30)
+}
+
+// 索引：头条之后的若干项，行间一条细线
+function addIndex(parent, calls, restCount) {
+  const rest = calls.slice(1, 1 + restCount)
+  rest.forEach((next, i) => {
+    indexRow(parent, next, 10.5)
+    if (i < rest.length - 1) { parent.addSpacer(5); rule(parent); parent.addSpacer(5) }
+  })
+}
+
+// ============================================================
+// LARGE · 头条一张完整的异形卡，下面四行索引
+// ============================================================
+function buildLarge(data, state) {
+  const pad = 14
+  const m = widgetMetrics().large
+  const w = baseWidget(pad)
+  const calls = activeCalls(data.open_calls || [], "deadline")
+
+  addMasthead(w, data, calls)
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); footer(w, data, state); return w }
 
-  // 头条：最近截止的那一项做成白卡
-  const hero = w.addStack()
-  hero.layoutVertically()
-  hero.setPadding(11, 13, 11, 13)
-  hero.cornerRadius = 15
-  hero.backgroundColor = new Color(C.card)
-  hero.url = calls[0].url || SITE_URL
-  w.addSpacer(11)
+  addHeroCard(w, calls[0], m.w - pad * 2)
+  w.addSpacer(10)
 
-  const item = calls[0]
-  const days = daysRemaining(item)
-
-  const hMeta = hero.addStack()
-  hMeta.centerAlignContent()
-  categoryDot(hMeta, item, 5)
-  hMeta.addSpacer(6)
-  text(hMeta, categoryLabel(item, false), 8, categoryColor(item), "mono")
-  hMeta.addSpacer(8)
-  text(hMeta, compactPlace(item.location), 8, C.dim, "mono", 1)
-  hero.addSpacer(6)
-  text(hero, splitTitle(item.title).title, 14.5, C.ink, "bold", 2)
-  hero.addSpacer(9)
-
-  const hFig = hero.addStack()
-  hFig.bottomAlignContent()
-  const dCol = hFig.addStack()
-  dCol.layoutVertically()
-  text(dCol, deadlineLabel(item), 34, categoryColor(item), "didot")
-  dCol.addSpacer(3)
-  text(dCol, days === null ? "日期待定" : days === 0 ? "今日截止" : `T-${days} DAYS`, 8, C.dim, "mono")
-  hFig.addSpacer()
-  // 有 highlight 字段就把它当作那个"疯狂的数字"，没有就留空
-  const hl = highlightOf(item)
-  if (hl) {
-    const kCol = hFig.addStack()
-    kCol.layoutVertically()
-    text(kCol, hl.value, 26, categoryColor(item), "didot").rightAlignText()
-    kCol.addSpacer(4)
-    text(kCol, hl.label, 7.5, C.dim, "mono").rightAlignText()
-  }
-
-  w.addSpacer(12)
-
-  // 索引：其余各项
-  const rest = calls.slice(1, 5)
-  rest.forEach((next, i) => {
-    indexRow(w, next, false)
-    if (i < rest.length - 1) { w.addSpacer(5); rule(w); w.addSpacer(5) }
-  })
+  // 小屏机型（组件高度 < 345pt）少放行数，宁可少一条也不溢出
+  let restCount = m.h >= 345 ? 4 : m.h >= 330 ? 3 : 2
+  // 机会放不下、要多出一行「另有 n 项」时，少放一条索引给它腾位置
+  if (calls.length > 1 + restCount) restCount = Math.max(1, restCount - 1)
+  addIndex(w, calls, restCount)
 
   w.addSpacer()
-  if (calls.length > 5) {
-    text(w, `另有 ${calls.length - 5} 项 · 点击查看全部 ↗`, 8.5, C.dim, "mono")
-    w.addSpacer(6)
+  if (calls.length > 1 + restCount) {
+    text(w, `另有 ${calls.length - 1 - restCount} 项 · 点击查看全部 ↗`, 8.5, C.dim, "mono")
+    w.addSpacer(5)
   }
   rule(w)
-  w.addSpacer(7)
+  w.addSpacer(6)
   footer(w, data, state)
+  return w
+}
+
+// ============================================================
+// EXTRA LARGE · iPad / Mac 的超大组件：3×2 网格，五个机会各占一格，第六格是刊头
+// 每个机会只留最要紧的几项：分类色标签 · 地点 / 短标题 + 副标题 / 巨型日期 + 倒计时 / 关键数字
+// ============================================================
+// 异形卡是固定尺寸的图，必须先假定组件面积。Mac 与 iPad 超大组件的点数我没有官方数据可核对，
+// 所以按屏幕大小保守假定：大屏（Mac、11 / 12.9 英寸 iPad）取 700×340，小 iPad 取 640×304。
+// 真实面积更大时，网格居中，多出来的只是留白；不会溢出。
+function extraLargeArea() {
+  let longest = 0
+  try { const s = Device.screenSize(); longest = Math.max(s.width, s.height) } catch (_) {}
+  return longest >= 1180 ? { w: 700, h: 340 } : { w: 640, h: 304 }
+}
+
+// 一格机会：与主页的卡片同一个异形圆角，缩小到能放进网格
+function addGridCard(parent, item, cw, ch) {
+  const card = cardStack(parent, cw, ch, 20, 4)
+  card.url = item.url || SITE_URL
+  card.setPadding(9, 12, 9, 12)
+
+  const meta = card.addStack()
+  meta.centerAlignContent()
+  text(meta, categoryLabel(item, false), 7.5, categoryColor(item), "monob")
+  meta.addSpacer(5)
+  text(meta, compactPlace(item.location), 7.5, C.faint, "mono", 1)
+  meta.addSpacer()
+
+  card.addSpacer(4)
+  const t = splitTitle(item.title)
+  text(card, t.title, 13, C.ink, "bold", 1)
+  if (t.subtitle) {
+    card.addSpacer(1)
+    // 副标题只取冒号之前，"Resynthesising the Traditional: At the Extreme" → 前半
+    text(card, t.subtitle.split(":")[0].trim(), 8.5, C.dim, "regular", 1)
+  }
+  card.addSpacer()
+
+  const fig = card.addStack()
+  fig.bottomAlignContent()
+  const left = fig.addStack()
+  left.layoutVertically()
+  text(left, deadlineLabel(item), 30, dateColor(item), "didot")
+  left.addSpacer(1)
+  daysLine(left, item, 7.5)
+  fig.addSpacer()
+  addHighlight(fig, item, 22)
+}
+
+// 第六格：刊头。没有卡片底，只有一条墨黑顶线，对应主页的数据条
+function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
+  const cell = parent.addStack()
+  cell.layoutVertically()
+  cell.size = new Size(cw, ch)
+  cell.setPadding(0, 4, 4, 4)
+  rule(cell, C.ink)
+  cell.addSpacer(9)
+  text(cell, "MEDIA ART", 11, C.ink, "bold")
+  text(cell, "Radar ↗", 26, C.ink, "didot")
+  cell.addSpacer()
+  text(cell, compactIssue(data.issue_id) || "—", 10, C.ink, "monob")
+  cell.addSpacer(2)
+  text(cell, `${two(calls.length)} 项机会`, 8.5, C.dim, "mono")
+  if (hidden > 0) {
+    cell.addSpacer(2)
+    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, C.dim, "mono")
+  }
+  cell.addSpacer(2)
+  const fresh = state === "LIVE" && !isStale(data)
+  text(cell, `核验 ${numericDate(data.generated_at)} · ${statusText(state, data)}`, 8, fresh ? C.faint : C.soon, "mono")
+}
+
+function buildExtraLarge(data, state) {
+  const area = extraLargeArea()
+  const pad = 14, gap = 10
+  const cw = Math.floor((area.w - pad * 2 - gap * 2) / 3)
+  const ch = Math.floor((area.h - pad * 2 - gap) / 2)
+  const w = baseWidget(pad)
+  const calls = activeCalls(data.open_calls || [], "deadline")
+
+  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
+
+  const shown = calls.slice(0, 5)
+  const hidden = calls.length - shown.length
+
+  w.addSpacer()                      // 上下各一个弹性空白：设备比假定面积更大时，网格居中
+  for (let r = 0; r < 2; r++) {
+    const wrap = w.addStack()        // 居中：两侧弹性空白
+    wrap.addSpacer()
+    const line = wrap.addStack()
+    for (let c = 0; c < 3; c++) {
+      const idx = r * 3 + c          // 0 是刊头，1–5 是五个机会
+      if (c > 0) line.addSpacer(gap)
+      if (idx === 0) addMastheadCell(line, data, state, calls, hidden, cw, ch)
+      else if (shown[idx - 1]) addGridCard(line, shown[idx - 1], cw, ch)
+      else { const blank = line.addStack(); blank.size = new Size(cw, ch) }   // 不足五项时占位，保持对齐
+    }
+    wrap.addSpacer()
+    if (r === 0) w.addSpacer(gap)
+  }
+  w.addSpacer()
   return w
 }
 
@@ -310,20 +556,13 @@ function footer(parent, data, state) {
   row.centerAlignContent()
   text(row, state === "OFFLINE" ? "等待首次同步" : `核验 ${numericDate(data.generated_at)}`, 8, C.faint, "mono")
   row.addSpacer()
-  text(row, statusText(state, data), 8, state === "LIVE" && !isStale(data) ? C.faint : C.ex, "mono")
+  text(row, statusText(state, data), 8, state === "LIVE" && !isStale(data) ? C.faint : C.soon, "mono")
 }
 
 function addEmptyState(parent, state, compact = false) {
   text(parent, state === "OFFLINE" ? "等待首次同步" : "暂无开放机会", compact ? 13 : 16, C.ink, "semi")
   parent.addSpacer(4)
   text(parent, state === "OFFLINE" ? "联网后运行脚本" : "点击查看本期周刊 ↗", 9, C.dim, "mono", 2)
-}
-
-// latest.json 若提供 highlight / highlight_label 就用，没有则不显示
-function highlightOf(item) {
-  const v = item.highlight
-  if (!v) return null
-  return { value: String(v), label: String(item.highlight_label || "") }
 }
 
 function isStale(data) {
@@ -384,10 +623,10 @@ function normalizedCategory(item) {
 }
 function categoryLabel(item, short) {
   const meta = CATEGORY[normalizedCategory(item)]
-  return short ? meta.label : meta.full
+  return short ? meta.short : meta.full
 }
 function categoryColor(item) {
-  return new Color(CATEGORY[normalizedCategory(item)].color)
+  return CATEGORY[normalizedCategory(item)].color
 }
 
 function parseDeadline(item) {
@@ -412,12 +651,6 @@ function splitTitle(value) {
   const sep = original.indexOf("/")
   if (sep !== -1) return { title: original.slice(0, sep).trim(), subtitle: original.slice(sep + 1).trim() }
   return { title: original, subtitle: "" }
-}
-function compactType(value) {
-  if (!value) return "MEDIA ART"
-  return String(value)
-    .replace(/驻留与/g, "").replace(/艺术节作品征集：/g, "")
-    .replace(/艺术研究实验室\s*\/\s*/g, "").trim().slice(0, 30)
 }
 function compactIssue(value) {
   if (!value) return ""
