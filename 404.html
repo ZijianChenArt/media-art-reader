@@ -6,36 +6,45 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex,nofollow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232563eb'/%3E%3Cpath d='M8 10h16M8 16h16M8 22h10' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23040404'/%3E%3Cpath d='M8 10h16M8 16h16M8 22h10' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
 <title>页面不存在 · Media Art Radar</title>
-<!-- Served by GitHub Pages for any missing path at any depth, so every URL
-     here is root-absolute; relative ones would break under /archive/. -->
+<!-- GitHub Pages 会在任意深度的缺失路径上返回这个页面，所以内部链接一律用根绝对路径。
+     style.css 里的字体是相对路径，但 CSS 的相对 URL 以样式表自身位置解析，不受本页深度影响。 -->
 <link rel="stylesheet" href="/media-art-reader/style.css">
+<style>
+  body{padding-bottom:0}
+  .lost{padding:54px 0 90px}
+  .lost .code{margin:0 0 14px;font-family:var(--f-mono);font-size:.62rem;color:var(--dim)}
+  .lost h1{margin:0;font-size:clamp(2.6rem,9vw,4.6rem);line-height:.94;letter-spacing:-.06em;font-weight:700}
+  .lost h1 em{display:block;font-family:var(--f-display);font-style:italic;font-weight:500;font-size:1.12em}
+  .lost p{margin:20px 0 0;font-size:.86rem;color:var(--dim);max-width:40ch}
+  .lost .back{
+    display:inline-block;margin-top:24px;font-family:var(--f-mono);font-size:.68rem;
+    border:1px solid #c0c0c8;border-radius:9999px;padding:9px 16px;
+  }
+  .lost .back::before{content:"→ ";color:#a4a4ac}
+</style>
 </head>
 <body>
-<a class="skip-link" href="#main-content">跳至内容</a>
-<header class="site-header">
-  <div class="shell masthead">
-    <a class="brand" href="/media-art-reader/"><span class="brand-mark" aria-hidden="true">MAR<span>↗</span></span><span class="brand-name">Media Art<br>Radar</span></a>
-    <nav aria-label="主导航">
-      <a href="/media-art-reader/#calls">国际机会精选</a>
-      <a href="/media-art-reader/#radar">每周优秀作品</a>
-      <a class="widget-nav" href="/media-art-reader/install.html">小组件 <span aria-hidden="true">↗</span></a>
-    </nav>
-  </div>
-</header>
+<span class="reg reg-tl"></span><span class="reg reg-tr"></span>
+<span class="reg reg-bl"></span><span class="reg reg-br"></span>
+
+<header class="site-header"><div class="shell masthead">
+  <a class="brand" href="/media-art-reader/">
+    <span class="brand-mark" aria-hidden="true">MAR<span>↗</span></span>
+    <span class="brand-name">MEDIA ART RADAR</span>
+  </a>
+  <nav aria-label="主导航"><a href="/media-art-reader/install.html">小组件</a></nav>
+</div></header>
+
 <div class="shell">
-  <main id="main-content">
-    <section class="top">
-      <div>
-        <p class="eyebrow">404 / NOT FOUND</p>
-        <h1>页面<span class="title-line">不存在<span class="title-period" aria-hidden="true">↗</span></span></h1>
-        <p class="lede">这个地址没有对应的内容。可能是链接写错了，或者该期周刊已经调整。</p>
-        <p><a class="apply-link" href="/media-art-reader/">返回最新一期 <span aria-hidden="true">↗</span></a></p>
-      </div>
-    </section>
-  </main>
-  <footer><span>每周五更新 · 信息来自官方页面</span></footer>
+  <section class="lost">
+    <p class="code">[404] NOT FOUND</p>
+    <h1>页面<em>不存在.</em></h1>
+    <p>这个地址没有对应的内容。可能是链接写错了，或者该期周刊已经调整。</p>
+    <a class="back" href="/media-art-reader/">返回最新一期</a>
+  </section>
+  <footer><span>每周五更新 · 信息来自官方页面</span><span>MEDIA ART RADAR</span></footer>
 </div>
 </body>
 </html>

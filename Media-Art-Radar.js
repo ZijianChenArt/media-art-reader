@@ -1,6 +1,6 @@
-// MEDIA ART RADAR · Edition 02 / 冷白、淡紫、银铬
-// Scriptable Home Screen widgets: small / medium / large
-// 小号：最近截止；中号：最近三项；大号：五项精选，兼顾各分类。
+// MEDIA ART RADAR · Edition 03
+// 纸白底 · 点阵肌理 · Didot 斜体大日期 · 分类色只用在一处
+// Scriptable Home Screen widgets：small / medium / large
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
 
 const DATA_URL = "https://zijianchenart.github.io/media-art-reader/latest.json"
@@ -9,19 +9,26 @@ const CACHE_NAME = "media-art-radar-latest.json"
 const REFRESH_MINUTES = 60
 // 在 Scriptable 内预览时改为 small / medium / large；桌面会自动识别尺寸。
 const PREVIEW_FAMILY = "large"
+
 const C = {
-  bg: "#F3F2F6", paper: "#FCFBFE", text: "#18171C", muted: "#65616F",
-  accent: "#5E458F", lilac: "#DED4F0", divider: "#CBC6D3",
-  silver: "#D0CCD7", urgent: "#974312"
+  paper: "#F4F4F4", card: "#FFFFFF", ink: "#040404",
+  dim: "#5F5F5F", faint: "#9A9AA0", hair: "#E2E2E6",
+  ex: "#DE2410",   // 展览征集
+  re: "#1B3FD8",   // 驻留
+  pz: "#7A3FD8",   // 奖项
+  cf: "#0D7A52"    // 学术会议
 }
 const CATEGORY_ORDER = ["exhibition", "residency", "prize", "conference"]
 const CATEGORY = {
-  exhibition: { label: "展览", full: "展览征集", color: C.accent },
-  residency: { label: "驻留", full: "驻留", color: C.accent },
-  prize: { label: "奖项", full: "奖项", color: C.accent },
-  conference: { label: "会议", full: "学术会议", color: C.accent }
+  exhibition: { label: "展览", full: "展览征集", color: C.ex },
+  residency:  { label: "驻留", full: "驻留",     color: C.re },
+  prize:      { label: "奖项", full: "奖项",     color: C.pz },
+  conference: { label: "会议", full: "学术会议", color: C.cf }
 }
 
+// ============================================================
+// 取数：优先联网，失败回落本机缓存，再失败给空态
+// ============================================================
 const fm = FileManager.local()
 const cachePath = fm.joinPath(fm.documentsDirectory(), CACHE_NAME)
 let payload, source = "LIVE"
@@ -31,7 +38,7 @@ try {
   request.headers = { Accept: "application/json" }
   payload = await request.loadJSON()
   validate(payload)
-  // A failed local write should not discard valid fresh data.
+  // 本地写入失败不应该丢掉刚拿到的有效数据
   try { fm.writeString(cachePath, JSON.stringify(payload)) } catch (_) {}
 } catch (error) {
   try {
@@ -46,10 +53,9 @@ try {
 }
 
 const family = config.runsInWidget ? config.widgetFamily : PREVIEW_FAMILY
-const widget = family === "small" ? buildSmallWidget(payload, source)
-  : family === "large" ? buildLargeWidget(payload, source)
-  : buildMediumWidget(payload, source)
-// Small widgets have one tap target; medium/large rows keep their official URLs.
+const widget = family === "small" ? buildSmall(payload, source)
+  : family === "large" ? buildLarge(payload, source)
+  : buildMedium(payload, source)
 widget.url = SITE_URL
 widget.refreshAfterDate = new Date(Date.now() + REFRESH_MINUTES * 60000)
 if (config.runsInWidget) Script.setWidget(widget)
@@ -58,200 +64,268 @@ else if (family === "large") await widget.presentLarge()
 else await widget.presentMedium()
 Script.complete()
 
+// ============================================================
+// 基础件
+// ============================================================
+
 function baseWidget(padding) {
-  const w = new ListWidget()
-  w.backgroundColor = new Color(C.bg)
-  w.setPadding(padding, padding, padding, padding)
-  return w
+  const wd = new ListWidget()
+  wd.backgroundColor = new Color(C.paper)   // 纯纸白，不再叠点阵
+  wd.setPadding(padding, padding, padding, padding)
+  return wd
 }
-function text(parent, value, size, color = C.text, weight = "regular", lines = 1) {
+
+// 字体三层：Didot 斜体管日期 / 等宽管数据 / 系统字管标题正文
+function didot(size) { return new Font("Didot-Italic", size) }
+function mono(size)  { return Font.mediumMonospacedSystemFont(size) }
+
+function text(parent, value, size, color = C.ink, weight = "regular", lines = 1) {
   const t = parent.addText(String(value))
   t.font = weight === "bold" ? Font.boldSystemFont(size)
-    : weight === "medium" ? Font.mediumSystemFont(size)
-    : weight === "mono" ? Font.mediumMonospacedSystemFont(size)
-    : weight === "italic" ? new Font("Georgia-Italic", size)
+    : weight === "semi" ? Font.semiboldSystemFont(size)
+    : weight === "mono" ? mono(size)
+    : weight === "didot" ? didot(size)
     : Font.systemFont(size)
   t.textColor = new Color(color)
   t.lineLimit = lines
-  t.minimumScaleFactor = 0.85
+  t.minimumScaleFactor = 0.8
   return t
 }
-function chromePill(parent, label) {
-  const pill = parent.addStack()
-  pill.centerAlignContent()
-  pill.setPadding(3, 8, 3, 8)
-  pill.cornerRadius = 20
-  pill.borderWidth = 0.5
-  pill.borderColor = new Color("#A7A0B1")
-  const gradient = new LinearGradient()
-  gradient.colors = [new Color("#FFFFFF"), new Color("#F5F3F9"), new Color("#C9C4D3"), new Color("#ECE8F2")]
-  gradient.locations = [0, 0.4, 0.85, 1]
-  gradient.startPoint = new Point(0, 0)
-  gradient.endPoint = new Point(0, 1)
-  pill.backgroundGradient = gradient
-  text(pill, label, 9, C.text, "mono")
-  return pill
-}
-function rule(parent) {
+
+function rule(parent, color = C.hair) {
   const line = parent.addStack()
-  line.size = new Size(0, 0.5)
-  line.backgroundColor = new Color(C.divider)
+  line.size = new Size(0, 1)
+  line.backgroundColor = new Color(color)
   line.addSpacer()
 }
-function header(parent, data, small = false) {
-  const row = parent.addStack()
-  row.centerAlignContent()
-  text(row, small ? "MAR ↗" : "MEDIA ART", small ? 17 : 11, C.text, small ? "italic" : "bold")
-  if (!small) { row.addSpacer(5); text(row, "Radar", 17, C.text, "italic") }
-  row.addSpacer()
-  chromePill(row, compactIssue(data.issue_id) || "—")
-}
-function countdown(parent, item, size) {
-  const row = parent.addStack()
-  row.bottomAlignContent()
-  const days = daysRemaining(item)
-  text(row, days === null ? "—" : two(days), size, C.text, "italic")
-  row.addSpacer(5)
-  const labels = row.addStack()
-  labels.layoutVertically()
-  text(labels, days === 0 ? "今日" : days === null ? "日期" : "天后", 10, C.accent, "medium")
-  text(labels, days === null ? "待定" : "截止", 10, C.accent, "medium")
-  labels.addSpacer(5)
-}
-function footer(parent, data, state, suffix = "") {
-  const row = parent.addStack()
-  row.centerAlignContent()
-  const date = state === "OFFLINE" ? "等待首次同步" : `核验 ${numericDate(data.generated_at)}`
-  text(row, date, 9, C.muted)
-  row.addSpacer()
-  text(row, statusText(state, data) + suffix, 9, state === "LIVE" && !isStale(data) ? C.muted : C.urgent)
+
+// 分类圆点：全组件唯一的彩色
+function categoryDot(parent, item, d = 5) {
+  const dot = parent.addStack()
+  dot.size = new Size(d, d)
+  dot.cornerRadius = d / 2
+  dot.backgroundColor = categoryColor(item)
 }
 
-// SMALL · deadline poster, sized for the smaller iPhone widget canvas.
-function buildSmallWidget(data, state) {
-  const w = baseWidget(12)
-  const calls = activeCalls(data.open_calls || [], "deadline")
-  header(w, data, true)
-  w.addSpacer(3)
-  if (calls.length) {
-    const item = calls[0]
-    countdown(w, item, 38)
-    w.addSpacer(1)
-    text(w, splitTitle(item.title).title, 12, C.text, "bold", 2)
-    w.addSpacer(3)
-    text(w, `${categoryLabel(item, true)} / ${deadlineLabel(item)}`, 10, C.accent, "medium")
-  } else { w.addSpacer(); addEmptyState(w, state, true) }
-  w.addSpacer()
-  footer(w, data, state)
-  return w
-}
-
-// MEDIUM · a lilac countdown panel paired with three clearly separated rows.
-function buildMediumWidget(data, state) {
-  const w = baseWidget(12)
-  const calls = activeCalls(data.open_calls || [], "deadline")
-  header(w, data)
-  w.addSpacer(7)
-  if (calls.length) {
-    const body = w.addStack()
-    body.centerAlignContent()
-    const next = body.addStack()
-    next.layoutVertically()
-    next.size = new Size(78, 86)
-    next.setPadding(7, 9, 7, 9)
-    next.cornerRadius = 15
-    next.backgroundColor = new Color(C.lilac)
-    next.url = calls[0].url || SITE_URL
-    text(next, "NEXT / 最近", 8, C.accent, "medium")
-    const days = daysRemaining(calls[0])
-    text(next, days === null ? "—" : two(days), 33, C.text, "italic")
-    text(next, days === null ? "日期待定" : days === 0 ? "今日截止" : "天后截止", 10, C.accent, "medium")
-    body.addSpacer(12)
-    const list = body.addStack()
-    list.layoutVertically()
-    calls.slice(0, 3).forEach((item, i, items) => {
-      const row = list.addStack()
-      row.layoutVertically()
-      row.url = item.url || SITE_URL
-      text(row, splitTitle(item.title).title, 12, C.text, "bold")
-      const meta = row.addStack()
-      text(meta, categoryLabel(item, true), 9, C.muted)
-      meta.addSpacer()
-      text(meta, deadlineLabel(item), 9, C.accent, "mono")
-      if (i < items.length - 1) list.addSpacer(5)
-    })
-  } else { w.addSpacer(); addEmptyState(w, state) }
-  w.addSpacer()
-  footer(w, data, state)
-  return w
-}
-
-// LARGE · a miniature weekly index; five readable rows instead of tiny type.
-function buildLargeWidget(data, state) {
-  const w = baseWidget(16)
-  const calls = activeCalls(data.open_calls || [], "priority")
-  const top = w.addStack()
-  top.centerAlignContent()
-  const name = top.addStack()
-  name.layoutVertically()
-  text(name, "MEDIA ART", 11, C.text, "bold")
-  text(name, "Radar ↗", 25, C.text, "italic")
-  top.addSpacer()
-  const edition = top.addStack()
-  edition.layoutVertically()
-  chromePill(edition, compactIssue(data.issue_id) || "—")
-  edition.addSpacer(3)
-  text(edition, `${calls.length} 项机会`, 10, C.muted).rightAlignText()
-  w.addSpacer(8)
-  rule(w)
-  w.addSpacer(8)
-  const categories = w.addStack()
-  categories.centerAlignContent()
-  CATEGORY_ORDER.forEach((key, i) => {
-    const count = calls.filter(item => normalizedCategory(item) === key).length
-    text(categories, `${CATEGORY[key].label} ${count}`, 10, count ? C.accent : C.muted, "medium")
-    if (i < CATEGORY_ORDER.length - 1) categories.addSpacer()
-  })
-  w.addSpacer(10)
-  const visible = featuredCalls(calls, 5)
-  if (!visible.length) { w.addSpacer(); addEmptyState(w, state) }
-  visible.forEach((item, i) => {
-    addLargeCall(w, item, i + 1)
-    if (i < visible.length - 1) { w.addSpacer(7); rule(w); w.addSpacer(7) }
-  })
-  w.addSpacer()
-  if (calls.length > visible.length) {
-    text(w, `另有 ${calls.length - visible.length} 项 · 点击查看全部 ↗`, 10, C.accent)
-    w.addSpacer(5)
-  }
-  footer(w, data, state)
-  return w
-}
-function addLargeCall(parent, item, index) {
+// 索引条目：第一行日期+标题+倒计时，第二行分类+地点
+function indexRow(parent, item, twoLine) {
   const row = parent.addStack()
   row.centerAlignContent()
   row.url = item.url || SITE_URL
-  text(row, two(index), 9, C.muted, "mono")
-  row.addSpacer(9)
-  const content = row.addStack()
-  content.layoutVertically()
-  const title = splitTitle(item.title)
-  text(content, title.title, 13, C.text, "bold")
-  text(content, `${categoryLabel(item, true)} · ${title.subtitle || compactType(item.type)}`, 10, C.muted)
-  row.addSpacer()
+  categoryDot(row, item, 4)
   row.addSpacer(8)
-  const date = row.addStack()
-  date.layoutVertically()
-  date.size = new Size(54, 0)
-  text(date, deadlineLabel(item), 13, C.text, "mono").rightAlignText()
+  text(row, deadlineLabel(item), twoLine ? 11 : 10, C.ink, "mono")
+  row.addSpacer(9)
+  const mid = row.addStack()
+  mid.layoutVertically()
+  text(mid, splitTitle(item.title).title, twoLine ? 10.5 : 9.5, C.dim, "regular", 1)
+  if (twoLine) {
+    mid.addSpacer(2)
+    const sub = `${categoryLabel(item, false)} · ${compactPlace(item.location)}`
+    text(mid, sub, 8, C.faint, "mono", 1)
+  }
+  row.addSpacer()
+  const d = daysRemaining(item)
+  text(row, d === null ? "—" : `T-${d}`, twoLine ? 9 : 8.5, C.faint, "mono")
+}
+
+// ============================================================
+// SMALL · 一个巨大的日期，其余全部让路
+// ============================================================
+function buildSmall(data, state) {
+  const w = baseWidget(13)
+  const calls = activeCalls(data.open_calls || [], "deadline")
+
+  const top = w.addStack()
+  top.centerAlignContent()
+  text(top, "MAR ↗", 8, C.dim, "mono")
+  top.addSpacer()
+  text(top, compactIssue(data.issue_id) || "—", 8, C.dim, "mono")
+
+  if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
+
+  const item = calls[0]
   const days = daysRemaining(item)
-  text(date, days === null ? "待定" : days === 0 ? "今日截止" : `${days} 天后`, 9, days !== null && days <= 14 ? C.urgent : C.accent).rightAlignText()
+
+  w.addSpacer()
+  // 日期占满宽度，是这个尺寸唯一的主角
+  text(w, deadlineLabel(item), 46, categoryColor(item), "didot")
+  w.addSpacer(3)
+  text(w, days === null ? "日期待定" : days === 0 ? "今日截止" : `T-${days} DAYS`, 8.5, C.ink, "mono")
+  w.addSpacer(7)
+  text(w, splitTitle(item.title).title, 11.5, C.ink, "semi", 2)
+  w.addSpacer()
+
+  rule(w)
+  w.addSpacer(6)
+  const foot = w.addStack()
+  foot.centerAlignContent()
+  categoryDot(foot, item, 4)
+  foot.addSpacer(5)
+  text(foot, categoryLabel(item, false), 7.5, C.dim, "mono")
+  foot.addSpacer()
+  text(foot, statusText(state, data), 7.5, state === "LIVE" && !isStale(data) ? C.faint : C.ex, "mono")
+  return w
 }
+
+// ============================================================
+// MEDIUM · 四个机会：首项强调，其余三项索引
+// ============================================================
+function buildMedium(data, state) {
+  const w = baseWidget(12)
+  const calls = activeCalls(data.open_calls || [], "deadline")
+
+  const top = w.addStack()
+  top.centerAlignContent()
+  text(top, "MEDIA ART RADAR", 8.5, C.dim, "mono")
+  top.addSpacer()
+  text(top, compactIssue(data.issue_id) || "—", 8.5, C.ink, "mono")
+  w.addSpacer(5)
+  rule(w, C.ink)
+  w.addSpacer(7)
+
+  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); footer(w, data, state); return w }
+
+  // 首项：日期用 Didot 放大并上分类色
+  const item = calls[0]
+  const lead = w.addStack()
+  lead.centerAlignContent()
+  lead.url = item.url || SITE_URL
+  categoryDot(lead, item, 5)
+  lead.addSpacer(7)
+  text(lead, deadlineLabel(item), 21, categoryColor(item), "didot")
+  lead.addSpacer(9)
+  text(lead, splitTitle(item.title).title, 11, C.ink, "semi", 1)
+  lead.addSpacer()
+  const ld = daysRemaining(item)
+  text(lead, ld === null ? "—" : `T-${ld}`, 9.5, categoryColor(item), "mono")
+
+  w.addSpacer(6)
+  rule(w)
+  w.addSpacer(6)
+
+  const rest = calls.slice(1, 4)
+  rest.forEach((next, i) => {
+    indexRow(w, next, false)
+    if (i < rest.length - 1) w.addSpacer(5)
+  })
+
+  w.addSpacer()
+  footer(w, data, state)
+  return w
+}
+
+// ============================================================
+// LARGE · 头条一张大卡，下面是索引
+// ============================================================
+function buildLarge(data, state) {
+  const w = baseWidget(14)
+  const calls = activeCalls(data.open_calls || [], "deadline")
+
+  // 刊头
+  const top = w.addStack()
+  top.bottomAlignContent()
+  const name = top.addStack()
+  name.layoutVertically()
+  text(name, "MEDIA ART", 10, C.ink, "bold")
+  text(name, "Radar ↗", 21, C.ink, "didot")
+  top.addSpacer()
+  const meta = top.addStack()
+  meta.layoutVertically()
+  text(meta, compactIssue(data.issue_id) || "—", 9.5, C.ink, "mono").rightAlignText()
+  meta.addSpacer(2)
+  text(meta, `${two(calls.length)} 项机会`, 8.5, C.dim, "mono").rightAlignText()
+
+  w.addSpacer(10)
+  rule(w, C.ink)
+
+  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); footer(w, data, state); return w }
+
+  // 头条：最近截止的那一项做成白卡
+  const hero = w.addStack()
+  hero.layoutVertically()
+  hero.setPadding(11, 13, 11, 13)
+  hero.cornerRadius = 15
+  hero.backgroundColor = new Color(C.card)
+  hero.url = calls[0].url || SITE_URL
+  w.addSpacer(11)
+
+  const item = calls[0]
+  const days = daysRemaining(item)
+
+  const hMeta = hero.addStack()
+  hMeta.centerAlignContent()
+  categoryDot(hMeta, item, 5)
+  hMeta.addSpacer(6)
+  text(hMeta, categoryLabel(item, false), 8, categoryColor(item), "mono")
+  hMeta.addSpacer(8)
+  text(hMeta, compactPlace(item.location), 8, C.dim, "mono", 1)
+  hero.addSpacer(6)
+  text(hero, splitTitle(item.title).title, 14.5, C.ink, "bold", 2)
+  hero.addSpacer(9)
+
+  const hFig = hero.addStack()
+  hFig.bottomAlignContent()
+  const dCol = hFig.addStack()
+  dCol.layoutVertically()
+  text(dCol, deadlineLabel(item), 34, categoryColor(item), "didot")
+  dCol.addSpacer(3)
+  text(dCol, days === null ? "日期待定" : days === 0 ? "今日截止" : `T-${days} DAYS`, 8, C.dim, "mono")
+  hFig.addSpacer()
+  // 有 highlight 字段就把它当作那个"疯狂的数字"，没有就留空
+  const hl = highlightOf(item)
+  if (hl) {
+    const kCol = hFig.addStack()
+    kCol.layoutVertically()
+    text(kCol, hl.value, 26, categoryColor(item), "didot").rightAlignText()
+    kCol.addSpacer(4)
+    text(kCol, hl.label, 7.5, C.dim, "mono").rightAlignText()
+  }
+
+  w.addSpacer(12)
+
+  // 索引：其余各项
+  const rest = calls.slice(1, 5)
+  rest.forEach((next, i) => {
+    indexRow(w, next, false)
+    if (i < rest.length - 1) { w.addSpacer(5); rule(w); w.addSpacer(5) }
+  })
+
+  w.addSpacer()
+  if (calls.length > 5) {
+    text(w, `另有 ${calls.length - 5} 项 · 点击查看全部 ↗`, 8.5, C.dim, "mono")
+    w.addSpacer(6)
+  }
+  rule(w)
+  w.addSpacer(7)
+  footer(w, data, state)
+  return w
+}
+
+// ============================================================
+// 公共件
+// ============================================================
+function footer(parent, data, state) {
+  const row = parent.addStack()
+  row.centerAlignContent()
+  text(row, state === "OFFLINE" ? "等待首次同步" : `核验 ${numericDate(data.generated_at)}`, 8, C.faint, "mono")
+  row.addSpacer()
+  text(row, statusText(state, data), 8, state === "LIVE" && !isStale(data) ? C.faint : C.ex, "mono")
+}
+
 function addEmptyState(parent, state, compact = false) {
-  text(parent, state === "OFFLINE" ? "等待首次同步" : "暂无开放机会", compact ? 13 : 16, C.text, "medium")
+  text(parent, state === "OFFLINE" ? "等待首次同步" : "暂无开放机会", compact ? 13 : 16, C.ink, "semi")
   parent.addSpacer(4)
-  text(parent, state === "OFFLINE" ? "联网后运行脚本" : "点击查看本期周刊 ↗", 10, C.muted, "regular", 2)
+  text(parent, state === "OFFLINE" ? "联网后运行脚本" : "点击查看本期周刊 ↗", 9, C.dim, "mono", 2)
 }
+
+// latest.json 若提供 highlight / highlight_label 就用，没有则不显示
+function highlightOf(item) {
+  const v = item.highlight
+  if (!v) return null
+  return { value: String(v), label: String(item.highlight_label || "") }
+}
+
 function isStale(data) {
   const updated = Date.parse(data.generated_at)
   return !Number.isFinite(updated) || Date.now() - updated > 8 * 86400000
@@ -266,83 +340,52 @@ function numericDate(value) {
   return isNaN(d) ? "—" : `${two(d.getMonth() + 1)}.${two(d.getDate())}`
 }
 function deadlineLabel(item) {
-  // Keep the publisher's calendar date, rather than silently shifting it to
-  // another day when the phone is in a different time zone.
+  // 保留发布方的日历日期，不因手机处在别的时区而整体挪动一天
   const raw = String(item.deadline_date || item.deadline_at || "")
   const match = raw.match(/^\d{4}-(\d{2})-(\d{2})/)
   return match ? `${match[1]}.${match[2]}` : "待定"
+}
+function compactPlace(value) {
+  if (!value) return ""
+  return String(value).split(/[；;·]/)[0].trim().slice(0, 16)
 }
 function validate(data) {
   if (!data || data.schema_version !== 1) throw new Error("Unsupported data format")
   if (!Array.isArray(data.open_calls)) throw new Error("Incomplete data")
 }
-
 function emptyPayload(error) {
-  return {
-    schema_version: 1,
-    issue_id: "WAITING",
-    generated_at: new Date(0).toISOString(),
-    open_calls: [],
-    radar: [],
-    reminders: [],
-    error: String(error)
-  }
+  return { schema_version: 1, issue_id: "WAITING", generated_at: new Date(0).toISOString(),
+    open_calls: [], radar: [], reminders: [], error: String(error) }
 }
 
 function activeCalls(items, order) {
   const now = Date.now()
   const active = items.filter(item => {
-      const deadline = parseDeadline(item)
-      if (!deadline) return true
-      return deadline.getTime() > now
-    })
-
+    const deadline = parseDeadline(item)
+    if (!deadline) return true
+    return deadline.getTime() > now
+  })
   if (order !== "deadline") return active
-
   return active.sort((a, b) => {
-      const da = parseDeadline(a)
-      const db = parseDeadline(b)
-      const ta = da ? da.getTime() : Number.MAX_SAFE_INTEGER
-      const tb = db ? db.getTime() : Number.MAX_SAFE_INTEGER
-      return ta - tb
-    })
-}
-
-// 大组件保留站点的精选顺序，同时尽量让四类机会都出现。
-function featuredCalls(items, limit) {
-  const picked = []
-
-  CATEGORY_ORDER.forEach(key => {
-    const match = items.find(item => normalizedCategory(item) === key)
-    if (match && picked.indexOf(match) === -1) picked.push(match)
+    const da = parseDeadline(a), db = parseDeadline(b)
+    return (da ? da.getTime() : Number.MAX_SAFE_INTEGER) - (db ? db.getTime() : Number.MAX_SAFE_INTEGER)
   })
-
-  items.forEach(item => {
-    if (picked.length < limit && picked.indexOf(item) === -1) picked.push(item)
-  })
-
-  return picked
-    .slice(0, limit)
-    .sort((a, b) => items.indexOf(a) - items.indexOf(b))
 }
 
 function normalizedCategory(item) {
   const explicit = String(item.category || "").toLowerCase()
   if (CATEGORY[explicit]) return explicit
-
-  // 兼容旧缓存：没有 category 时，根据标题和类型推断。
-  const text = `${item.title || ""} ${item.type || ""}`.toLowerCase()
-  if (/residen|驻留|驻村/.test(text)) return "residency"
-  if (/conference|symposium|cfp|paper|会议|论文/.test(text)) return "conference"
-  if (/prize|award|奖项|大奖/.test(text)) return "prize"
+  // 兼容旧缓存：没有 category 时按标题和类型推断
+  const t = `${item.title || ""} ${item.type || ""}`.toLowerCase()
+  if (/residen|驻留|驻村/.test(t)) return "residency"
+  if (/conference|symposium|cfp|paper|会议|论文/.test(t)) return "conference"
+  if (/prize|award|奖项|大奖/.test(t)) return "prize"
   return "exhibition"
 }
-
 function categoryLabel(item, short) {
   const meta = CATEGORY[normalizedCategory(item)]
   return short ? meta.label : meta.full
 }
-
 function categoryColor(item) {
   return new Color(CATEGORY[normalizedCategory(item)].color)
 }
@@ -350,79 +393,35 @@ function categoryColor(item) {
 function parseDeadline(item) {
   const raw = item.deadline_at || item.deadline_date
   if (!raw) return null
-
   const simple = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})$/)
-  if (simple) {
-    return new Date(Number(simple[1]), Number(simple[2]) - 1, Number(simple[3]), 23, 59, 59)
-  }
-
+  if (simple) return new Date(Number(simple[1]), Number(simple[2]) - 1, Number(simple[3]), 23, 59, 59)
   const d = new Date(raw)
-  if (isNaN(d)) return null
-  return d
+  return isNaN(d) ? null : d
 }
-
 function daysRemaining(item) {
   const deadline = parseDeadline(item)
   if (!deadline) return null
-
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const target = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate())
-  const diff = target.getTime() - today.getTime()
-
-  return Math.max(0, Math.ceil(diff / 86400000))
+  return Math.max(0, Math.ceil((target.getTime() - today.getTime()) / 86400000))
 }
-
-// ============================================================
-// TEXT HELPERS
-// ============================================================
 
 function splitTitle(value) {
   const original = value || "Untitled"
-  const separator = original.indexOf("/")
-
-  if (separator !== -1) {
-    const title = original.slice(0, separator).trim()
-    const subtitle = original.slice(separator + 1).trim()
-    return { title, subtitle }
-  }
-
+  const sep = original.indexOf("/")
+  if (sep !== -1) return { title: original.slice(0, sep).trim(), subtitle: original.slice(sep + 1).trim() }
   return { title: original, subtitle: "" }
 }
-
 function compactType(value) {
   if (!value) return "MEDIA ART"
   return String(value)
-    .replace(/驻留与/g, "")
-    .replace(/艺术节作品征集：/g, "")
-    .replace(/艺术研究实验室\s*\/\s*/g, "")
-    .trim()
-    .slice(0, 30)
+    .replace(/驻留与/g, "").replace(/艺术节作品征集：/g, "")
+    .replace(/艺术研究实验室\s*\/\s*/g, "").trim().slice(0, 30)
 }
-
 function compactIssue(value) {
   if (!value) return ""
-  const match = String(value).match(/W\d+/i)
-  return match ? match[0].toUpperCase() : String(value)
+  const m = String(value).match(/W\d+/i)
+  return m ? m[0].toUpperCase() : String(value)
 }
-
-function compactDeadlineDate(item) {
-  const d = parseDeadline(item)
-  if (!d) return "NO DATE"
-
-  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-  return `${months[d.getMonth()]} ${two(d.getDate())}`
-}
-
-function compactDate(value) {
-  const d = new Date(value)
-  if (isNaN(d)) return "--"
-
-  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-  return `${months[d.getMonth()]} ${two(d.getDate())}`
-}
-
-function two(value) {
-  return String(value).padStart(2, "0")
-}
-
+function two(value) { return String(value).padStart(2, "0") }
