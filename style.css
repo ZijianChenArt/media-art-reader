@@ -313,8 +313,10 @@ body::before{
 .radar-item:first-of-type{margin-top:20px;padding-top:0;border-top:0}
 .artwork-figure{margin:0}
 /* 本站原有的异形圆角，原样保留 */
+/* 必须写 height:auto。HTML 里的 width/height 属性会变成 CSS 的 height:917px，
+   不写它，aspect-ratio 就不生效，图会被拉成一根长条（改版时漏过一次）。 */
 .artwork-figure img{
-  width:100%;aspect-ratio:1.18;object-fit:cover;display:block;
+  width:100%;height:auto;aspect-ratio:1.18;object-fit:cover;display:block;
   border-radius:34px 6px 34px 6px;background:#e4e4e7;
 }
 .radar-item .tag{margin:11px 0 4px;font-family:var(--f-mono);font-size:.58rem;color:var(--dim)}

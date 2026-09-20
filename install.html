@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Media Art Radar 的 iPhone 主屏幕小组件：小、中、大三个尺寸。">
+<meta name="description" content="Media Art Radar 的 iPhone 主屏幕小组件：小、中、大、超大四个尺寸。">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex,nofollow">
@@ -16,7 +16,7 @@
 <style>
   body{padding-bottom:0}
 
-  /* ---------- 三个尺寸的 1:1 预览 ----------
+  /* ---------- 四个尺寸的 1:1 预览 ----------
      尺寸是 iPhone 15 / 16 的真实点数；布局镜像 Media-Art-Radar.js。
      预览里的日期用网页的 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。 */
   .previews{display:flex;flex-wrap:wrap;gap:34px 30px;align-items:flex-start;margin:22px 0 0}
@@ -72,6 +72,8 @@
     background:var(--ink);color:#fff;border-radius:9999px;padding:11px 20px;
   }
   .download::before{content:"↓ "}
+  .dl-note{margin:12px 0 0;font-family:var(--f-mono);font-size:.62rem;color:var(--dim);line-height:1.8}
+  .dl-note a{color:var(--ink);border-bottom:1px solid var(--ink)}
   .steps{margin:20px 0 0;padding:0;list-style:none;counter-reset:s}
   .steps li{
     counter-increment:s;position:relative;padding:13px 0 13px 42px;border-bottom:1px solid var(--hair);
@@ -118,10 +120,18 @@
     </div>
   </section>
 
-  <!-- ══════════ 01 三个尺寸 ══════════ -->
+  <!-- ══════════ 01 安装（最前面：标题 + 下载） ══════════ -->
   <div class="section-heading">
     <p class="section-index">[01]</p>
-    <h2>三个尺寸<em>Three sizes.</em></h2>
+    <h2>安装<em>Install.</em></h2>
+  </div>
+  <a class="download" href="Media-Art-Radar.js" download>下载组件脚本</a>
+  <p class="dl-note">Scriptable 脚本 · 已装过旧版？整份替换原脚本，保存并运行一次即可。<br><a href="#steps">安装步骤 ↓</a></p>
+
+  <!-- ══════════ 02 四个尺寸 ══════════ -->
+  <div class="section-heading" style="margin-top:40px">
+    <p class="section-index">[02]</p>
+    <h2>四个尺寸<em>Four sizes.</em></h2>
   </div>
 
   <div class="previews">
@@ -283,22 +293,21 @@
     <p><b>关于字体。</b>日期与英文强调在 iPhone 上用系统自带的 <b>Didot 斜体</b>，网页用 Bodoni Moda 斜体，两者形态接近但不完全相同——这页预览显示的是 Bodoni，真机是 Didot。标签与数据一律等宽，标题用系统无衬线，分层与主页一致。</p>
   </div>
 
-  <!-- ══════════ 02 安装 ══════════ -->
-  <div class="section-heading" style="margin-top:38px">
-    <p class="section-index">[02]</p>
-    <h2>安装<em>Install.</em></h2>
+  <!-- ══════════ 03 步骤（最后） ══════════ -->
+  <div class="section-heading" id="steps" style="margin-top:38px">
+    <p class="section-index">[03]</p>
+    <h2>步骤<em>Steps.</em></h2>
   </div>
 
-  <a class="download" href="Media-Art-Radar.js" download>下载组件脚本</a>
   <ol class="steps">
     <li>在 Scriptable 中新建脚本，把下载文件里的代码完整粘贴进去，运行一次确认能取到数据。</li>
     <li>长按 iPhone 主屏幕 → 加号 → 选择 Scriptable → 挑尺寸（小 / 中 / 大）添加。在 Mac 或 iPad 上添加 Scriptable 小组件时可以选「超大」，脚本相同。</li>
     <li>长按刚添加的组件 → 编辑小组件 → Script 选择刚保存的那个脚本。</li>
-    <li>中号与大号点击每一行会打开对应机会的官方页面；小号点击打开本站。</li>
+    <li>中号、大号和超大号点击每个机会会打开对应的官方页面；小号点击打开本站。</li>
   </ol>
 
   <div class="panel">
-    <p><b>已经装过旧版？</b>把新代码完整替换进原来的 Scriptable 脚本，保留脚本名称，保存并运行一次即可。桌面上的三个尺寸共用同一份脚本，不需要分别替换。新版会读取 <code>latest.json</code> 里新增的 <code>highlight</code> 与 <code>project_when</code> 两个字段；旧数据缺这两项时会自动跳过，不会报错。</p>
+    <p><b>已经装过旧版？</b>把新代码完整替换进原来的 Scriptable 脚本，保留脚本名称，保存并运行一次即可。桌面上的四个尺寸共用同一份脚本，不需要分别替换。新版会读取 <code>latest.json</code> 里新增的 <code>highlight</code> 与 <code>project_when</code> 两个字段；旧数据缺这两项时会自动跳过，不会报错。</p>
     <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
     <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以本站详情和官方页面为准。</p>
   </div>
