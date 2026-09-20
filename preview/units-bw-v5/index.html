@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Media Art Radar — 全球媒体艺术机会与创作现场。">
+<title>Media Art Radar — Units V5</title>
+<link rel="preload" href="../../assets/fonts/space-grotesk-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../assets/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+  <aside class="rail">
+    <a class="logo" href="#top">MAR<span>↗</span><small>MEDIA ART RADAR</small></a>
+    <nav class="rail-nav rail-stack" aria-label="内容筛选">
+      <a class="nav-exhibition" href="#calls" data-filter="exhibition"><b>01</b><span>展览征集</span><i>↗</i></a>
+      <a class="nav-residency" href="#calls" data-filter="residency"><b>02</b><span>驻留</span><i>↗</i></a>
+      <a class="nav-prize" href="#calls" data-filter="prize"><b>03</b><span>奖项</span><i>↗</i></a>
+      <a class="nav-conference" href="#calls" data-filter="conference"><b>04</b><span>学术会议</span><i>↗</i></a>
+      <a class="nav-focus" href="#focus" data-section="focus"><b>05</b><span>本周关注</span><i>↗</i></a>
+    </nav>
+    <div class="rail-status">
+      <span>ISSUE <b id="issue">—</b></span>
+      <span id="verified">SYNCING</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="hero" id="top">
+      <figure class="hero-media">
+        <img src="../../assets/diatomic-garden.jpg" alt="本周媒体艺术作品">
+        <figcaption>GLOBAL MEDIA ART / OPEN CALLS / WEEKLY RADAR</figcaption>
+      </figure>
+      <article class="hero-copy">
+        <div class="pill">How we scan media art</div>
+        <div>
+          <h1>MEDIA ART<br><em>Radar.</em></h1>
+          <p>全球媒体艺术机会，驻留、展览征集、奖项与研究型项目。每周筛选、核验，并保留进入官方来源的最短路径。</p>
+        </div>
+        <div class="hero-meta">
+          <span><b id="call-count">00</b> OPEN CALLS</span>
+          <span><b id="focus-count">00</b> IN FOCUS</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="calls-section" id="calls">
+      <header class="section-head">
+        <div>
+          <span>01 / OPPORTUNITIES</span>
+          <h2>国际机会精选 <em>Open calls.</em></h2>
+        </div>
+        <p>截止日期是第一层信息；其他条件尽量压缩。进入官方页面的入口保持最明确。</p>
+      </header>
+      <div id="calls-grid" class="calls-grid"></div>
+    </section>
+
+    <section class="focus-section" id="focus">
+      <header class="section-head focus-head">
+        <div>
+          <span>05 / WEEKLY RADAR</span>
+          <h2>本周关注 <em>In focus.</em></h2>
+        </div>
+        <p>作品、出版与研究线索。作为机会列表之外的编辑性观察。</p>
+      </header>
+      <div id="focus-grid" class="focus-grid"></div>
+    </section>
+
+    <footer>
+      <span>MEDIA ART RADAR</span>
+      <span>EVERY FRIDAY / VERIFIED FROM PRIMARY SOURCES</span>
+      <span id="footer-issue">ISSUE —</span>
+    </footer>
+  </main>
+</div>
+<script src="app.js" defer></script>
+</body>
+</html>
