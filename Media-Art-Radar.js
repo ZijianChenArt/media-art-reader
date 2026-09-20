@@ -1,4 +1,4 @@
-// MEDIA ART RADAR · Edition 04
+// MEDIA ART RADAR · Edition 05
 // 与主页同一套视觉：纸白底 · 异形圆角卡 · 巨型斜体日期 · 分类色只用在一处
 // Scriptable Home Screen widgets：small / medium / large
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
@@ -12,10 +12,10 @@ const PREVIEW_FAMILY = "large"
 
 // 与主页 style.css 的变量一一对应。改这里之前先改主页，保持两边一致。
 const C = {
-  paper: "#F4F4F4", card: "#FFFFFF", ink: "#040404",
-  dim: "#5F5F5F", faint: "#9A9AA0", hair: "#DCDCE0", mute: "#B9B9BF",
-  exhibition: "#DE2410", residency: "#1B3FD8", prize: "#7A3FD8", conference: "#0D7A52",
-  soon: "#DE2410"          // 14 天内截止，主页里同样用这个红
+  paper: "#FFFFFF", card: "#FFFFFF", ink: "#050505",
+  dim: "#717176", faint: "#9A9AA0", hair: "#D5D5D7", mute: "#B9B9BF",
+  exhibition: "#1479E8", residency: "#FFB314", prize: "#FF5B22", conference: "#0BB64A",
+  soon: "#050505"
 }
 const SOON_DAYS = 14       // 与 status.js 的阈值一致
 
@@ -273,74 +273,75 @@ function buildSmall(data, state) {
 
   const item = calls[0]
   w.addSpacer()
-  text(w, deadlineLabel(item), 46, dateColor(item), "didot")
+  const cat = w.addStack()
+  cat.centerAlignContent()
+  const dot = cat.addStack()
+  dot.size = new Size(5, 5)
+  dot.cornerRadius = 2.5
+  dot.backgroundColor = new Color(categoryColor(item))
+  cat.addSpacer(5)
+  text(cat, categoryLabel(item, false), 7.5, C.ink, "monob")
+  w.addSpacer(6)
+  text(w, deadlineLabel(item), 46, C.ink, "didot")
   w.addSpacer(2)
-  daysLine(w, item, 8.5)
+  text(w, daysLabel(item), 8.5, C.ink, "monob")
   w.addSpacer(7)
   text(w, splitTitle(item.title).title, 11.5, C.ink, "bold", 2)
   w.addSpacer()
-
   rule(w)
   w.addSpacer(6)
   const foot = w.addStack()
-  foot.centerAlignContent()
-  text(foot, categoryLabel(item, false), 7.5, categoryColor(item), "monob")
+  text(foot, "DEADLINE", 7.5, C.dim, "mono")
   foot.addSpacer()
-  text(foot, statusText(state, data), 7.5, state === "LIVE" && !isStale(data) ? C.faint : C.soon, "mono")
+  text(foot, "↗", 8, C.ink, "monob")
   return w
 }
 
 // ============================================================
 // MEDIUM · 四个机会：首项是一张异形卡，其余三项排成索引
 // ============================================================
+function addMediumEqualRow(parent, item) {
+  const row = parent.addStack()
+  row.centerAlignContent()
+  row.url = item.url || SITE_URL
+
+  const cat = row.addStack()
+  cat.centerAlignContent()
+  const dot = cat.addStack()
+  dot.size = new Size(5, 5)
+  dot.cornerRadius = 2.5
+  dot.backgroundColor = new Color(categoryColor(item))
+  cat.addSpacer(4)
+  text(cat, categoryLabel(item, true), 7.5, C.ink, "monob")
+
+  row.addSpacer(7)
+  text(row, deadlineLabel(item), 22, C.ink, "didot")
+  row.addSpacer(8)
+  text(row, splitTitle(item.title).title, 10.5, C.ink, "semi", 1)
+  row.addSpacer()
+  const d = daysRemaining(item)
+  text(row, d === null ? "—" : `T-${d}`, 8, C.dim, "monob")
+}
+
 function buildMedium(data, state) {
-  const pad = 12
-  const cw = widgetMetrics().medium.w - pad * 2
-  const w = baseWidget(pad)
+  const w = baseWidget(12)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
   const top = w.addStack()
   top.centerAlignContent()
   text(top, "MEDIA ART RADAR", 8.5, C.ink, "monob")
   top.addSpacer()
-  const fresh = state === "LIVE" && !isStale(data)
-  text(top, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8.5, fresh ? C.dim : C.soon, "mono")
+  text(top, compactIssue(data.issue_id) || "—", 8.5, C.dim, "mono")
   w.addSpacer(5)
-  rule(w, C.ink)
-  w.addSpacer(6)
+  rule(w)
+  w.addSpacer(4)
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
 
-  const item = calls[0]
-  const card = makeCard(w, cw, 54, 20, 4)
-  card.url = item.url || SITE_URL
-  card.setPadding(5, 12, 5, 12)
-
-  // 行一：分类色标签 · 地点 ······ 倒计时
-  const meta = card.addStack()
-  meta.centerAlignContent()
-  text(meta, categoryLabel(item, false), 7.5, categoryColor(item), "monob")
-  meta.addSpacer(6)
-  text(meta, compactPlace(item.location), 7.5, C.faint, "mono", 1)
-  meta.addSpacer()
-  text(meta, daysLabel(item), 8, isSoon(item) ? C.soon : C.ink, "monob")
-
-  // 行二：日期 · 标题 ······ 关键数字
-  const fig = card.addStack()
-  fig.centerAlignContent()
-  text(fig, deadlineLabel(item), 26, dateColor(item), "didot")
-  fig.addSpacer(9)
-  text(fig, splitTitle(item.title).title, 11, C.ink, "bold", 1)
-  fig.addSpacer()
-  addHighlight(fig, item, 21, false)   // 中号空间不够放小标签，标签留给大号
-
-  w.addSpacer(6)
-  // 小屏机型（组件高度 < 155pt，如 iPhone SE / 8）少放一行，宁可少一条也不溢出
-  const restCount = widgetMetrics().medium.h >= 155 ? 3 : 2
-  const rest = calls.slice(1, 1 + restCount)
-  rest.forEach((next, i) => {
-    indexRow(w, next, 9.5)
-    if (i < rest.length - 1) w.addSpacer(5)
+  const shown = calls.slice(0, widgetMetrics().medium.h >= 155 ? 3 : 2)
+  shown.forEach((item, i) => {
+    addMediumEqualRow(w, item)
+    if (i < shown.length - 1) { w.addSpacer(3); rule(w); w.addSpacer(3) }
   })
   w.addSpacer()
   return w
@@ -417,103 +418,96 @@ function addIndex(parent, calls, restCount) {
 // ============================================================
 // LARGE · 头条一张完整的异形卡，下面四行索引
 // ============================================================
+function addEqualWidgetCard(parent, item, cw, ch, compact = false) {
+  const card = parent.addStack()
+  card.layoutVertically()
+  card.size = new Size(cw, ch)
+  card.backgroundColor = new Color(C.card)
+  card.borderWidth = 1
+  card.borderColor = new Color(C.ink)
+  card.cornerRadius = compact ? 14 : 18
+  card.setPadding(compact ? 8 : 9, compact ? 9 : 10, compact ? 8 : 9, compact ? 9 : 10)
+  card.url = item.url || SITE_URL
+
+  const meta = card.addStack()
+  meta.centerAlignContent()
+  const dot = meta.addStack()
+  dot.size = new Size(compact ? 4 : 5, compact ? 4 : 5)
+  dot.cornerRadius = compact ? 2 : 2.5
+  dot.backgroundColor = new Color(categoryColor(item))
+  meta.addSpacer(4)
+  text(meta, categoryLabel(item, false), compact ? 6.8 : 7.5, C.ink, "monob")
+  meta.addSpacer()
+  text(meta, compactPlace(item.location), compact ? 6.5 : 7, C.dim, "mono", 1)
+
+  card.addSpacer(compact ? 4 : 5)
+  text(card, splitTitle(item.title).title, compact ? 10 : 11, C.ink, "bold", 2)
+  card.addSpacer()
+  text(card, deadlineLabel(item), compact ? 28 : 31, C.ink, "didot")
+  card.addSpacer(2)
+
+  const foot = card.addStack()
+  foot.centerAlignContent()
+  const d = daysRemaining(item)
+  text(foot, d === null ? "—" : `T-${d}`, compact ? 7 : 7.5, C.ink, "monob")
+  foot.addSpacer()
+  if (item.highlight) text(foot, String(item.highlight), compact ? 7 : 7.5, C.dim, "mono", 1)
+}
+
 function buildLarge(data, state) {
-  const pad = 14
+  const pad = 14, gap = 8
   const m = widgetMetrics().large
   const w = baseWidget(pad)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
-  addMasthead(w, data, calls)
-  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); footer(w, data, state); return w }
-
-  addHeroCard(w, calls[0], m.w - pad * 2)
-  w.addSpacer(10)
-
-  // 小屏机型（组件高度 < 345pt）少放行数，宁可少一条也不溢出
-  let restCount = m.h >= 345 ? 4 : m.h >= 330 ? 3 : 2
-  // 机会放不下、要多出一行「另有 n 项」时，少放一条索引给它腾位置
-  if (calls.length > 1 + restCount) restCount = Math.max(1, restCount - 1)
-  addIndex(w, calls, restCount)
-
-  w.addSpacer()
-  if (calls.length > 1 + restCount) {
-    text(w, `另有 ${calls.length - 1 - restCount} 项 · 点击查看全部 ↗`, 8.5, C.dim, "mono")
-    w.addSpacer(5)
-  }
-  rule(w)
+  const top = w.addStack()
+  top.centerAlignContent()
+  text(top, "MEDIA ART RADAR", 8.5, C.ink, "monob")
+  top.addSpacer()
+  text(top, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} OPEN`, 8, C.dim, "mono")
   w.addSpacer(6)
-  footer(w, data, state)
+
+  if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
+
+  const cw = Math.floor((m.w - pad * 2 - gap) / 2)
+  const ch = Math.floor((m.h - pad * 2 - 28 - gap) / 2)
+  const shown = calls.slice(0, 4)
+
+  for (let r = 0; r < 2; r++) {
+    const row = w.addStack()
+    for (let c = 0; c < 2; c++) {
+      if (c > 0) row.addSpacer(gap)
+      const item = shown[r * 2 + c]
+      if (item) addEqualWidgetCard(row, item, cw, ch)
+      else { const blank = row.addStack(); blank.size = new Size(cw, ch) }
+    }
+    if (r === 0) w.addSpacer(gap)
+  }
   return w
 }
 
 // ============================================================
-// EXTRA LARGE · iPad / Mac 的超大组件：3×2 网格，五个机会各占一格，第六格是刊头
-// 每个机会只留最要紧的几项：分类色标签 · 地点 / 短标题 + 副标题 / 巨型日期 + 倒计时 / 关键数字
+// EXTRA LARGE · 5 个机会完全等权 + 1 个品牌格
 // ============================================================
-// 异形卡是固定尺寸的图，必须先假定组件面积。Mac 与 iPad 超大组件的点数我没有官方数据可核对，
-// 所以按屏幕大小保守假定：大屏（Mac、11 / 12.9 英寸 iPad）取 700×340，小 iPad 取 640×304。
-// 真实面积更大时，网格居中，多出来的只是留白；不会溢出。
 function extraLargeArea() {
   let longest = 0
   try { const s = Device.screenSize(); longest = Math.max(s.width, s.height) } catch (_) {}
   return longest >= 1180 ? { w: 700, h: 340 } : { w: 640, h: 304 }
 }
 
-// 一格机会：与主页的卡片同一个异形圆角，缩小到能放进网格
-function addGridCard(parent, item, cw, ch) {
-  const card = cardStack(parent, cw, ch, 20, 4)
-  card.url = item.url || SITE_URL
-  card.setPadding(9, 12, 9, 12)
-
-  const meta = card.addStack()
-  meta.centerAlignContent()
-  text(meta, categoryLabel(item, false), 7.5, categoryColor(item), "monob")
-  meta.addSpacer(5)
-  text(meta, compactPlace(item.location), 7.5, C.faint, "mono", 1)
-  meta.addSpacer()
-
-  card.addSpacer(4)
-  const t = splitTitle(item.title)
-  text(card, t.title, 13, C.ink, "bold", 1)
-  if (t.subtitle) {
-    card.addSpacer(1)
-    // 副标题只取冒号之前，"Resynthesising the Traditional: At the Extreme" → 前半
-    text(card, t.subtitle.split(":")[0].trim(), 8.5, C.dim, "regular", 1)
-  }
-  card.addSpacer()
-
-  const fig = card.addStack()
-  fig.bottomAlignContent()
-  const left = fig.addStack()
-  left.layoutVertically()
-  text(left, deadlineLabel(item), 30, dateColor(item), "didot")
-  left.addSpacer(1)
-  daysLine(left, item, 7.5)
-  fig.addSpacer()
-  addHighlight(fig, item, 22)
-}
-
-// 第六格：刊头。没有卡片底，只有一条墨黑顶线，对应主页的数据条
-function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
+function addBrandCell(parent, data, calls, cw, ch) {
   const cell = parent.addStack()
   cell.layoutVertically()
   cell.size = new Size(cw, ch)
-  cell.setPadding(0, 4, 4, 4)
-  rule(cell, C.ink)
-  cell.addSpacer(9)
-  text(cell, "MEDIA ART", 11, C.ink, "bold")
-  text(cell, "Radar ↗", 26, C.ink, "didot")
+  cell.backgroundColor = new Color(C.ink)
+  cell.cornerRadius = 16
+  cell.setPadding(12, 12, 12, 12)
+  text(cell, "MEDIA ART RADAR", 8, C.card, "monob")
   cell.addSpacer()
-  text(cell, compactIssue(data.issue_id) || "—", 10, C.ink, "monob")
-  cell.addSpacer(2)
-  text(cell, `${two(calls.length)} 项机会`, 8.5, C.dim, "mono")
-  if (hidden > 0) {
-    cell.addSpacer(2)
-    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, C.dim, "mono")
-  }
-  cell.addSpacer(2)
-  const fresh = state === "LIVE" && !isStale(data)
-  text(cell, `核验 ${numericDate(data.generated_at)} · ${statusText(state, data)}`, 8, fresh ? C.faint : C.soon, "mono")
+  text(cell, "MAR ↗", 23, C.card, "bold")
+  text(cell, "Open calls.", 21, C.card, "didot")
+  cell.addSpacer(5)
+  text(cell, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} OPEN`, 8, C.faint, "mono")
 }
 
 function buildExtraLarge(data, state) {
@@ -527,19 +521,18 @@ function buildExtraLarge(data, state) {
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
 
   const shown = calls.slice(0, 5)
-  const hidden = calls.length - shown.length
 
-  w.addSpacer()                      // 上下各一个弹性空白：设备比假定面积更大时，网格居中
+  w.addSpacer()
   for (let r = 0; r < 2; r++) {
-    const wrap = w.addStack()        // 居中：两侧弹性空白
+    const wrap = w.addStack()
     wrap.addSpacer()
     const line = wrap.addStack()
     for (let c = 0; c < 3; c++) {
-      const idx = r * 3 + c          // 0 是刊头，1–5 是五个机会
       if (c > 0) line.addSpacer(gap)
-      if (idx === 0) addMastheadCell(line, data, state, calls, hidden, cw, ch)
-      else if (shown[idx - 1]) addGridCard(line, shown[idx - 1], cw, ch)
-      else { const blank = line.addStack(); blank.size = new Size(cw, ch) }   // 不足五项时占位，保持对齐
+      const idx = r * 3 + c
+      if (idx < 5 && shown[idx]) addEqualWidgetCard(line, shown[idx], cw, ch, true)
+      else if (idx === 5) addBrandCell(line, data, calls, cw, ch)
+      else { const blank = line.addStack(); blank.size = new Size(cw, ch) }
     }
     wrap.addSpacer()
     if (r === 0) w.addSpacer(gap)
