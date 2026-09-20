@@ -1,4 +1,4 @@
-// MEDIA ART RADAR · Edition 05
+// MEDIA ART RADAR · Edition 06
 // 与主页同一套视觉：纸白底 · 异形圆角卡 · 巨型斜体日期 · 分类色只用在一处
 // Scriptable Home Screen widgets：small / medium / large
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
@@ -305,43 +305,46 @@ function addMediumEqualRow(parent, item) {
   row.centerAlignContent()
   row.url = item.url || SITE_URL
 
-  const cat = row.addStack()
-  cat.centerAlignContent()
-  const dot = cat.addStack()
-  dot.size = new Size(5, 5)
-  dot.cornerRadius = 2.5
-  dot.backgroundColor = new Color(categoryColor(item))
-  cat.addSpacer(4)
-  text(cat, categoryLabel(item, true), 7.5, C.ink, "monob")
-
-  row.addSpacer(7)
-  text(row, deadlineLabel(item), 22, C.ink, "didot")
+  text(row, deadlineLabel(item), 21, C.ink, "didot")
   row.addSpacer(8)
-  text(row, splitTitle(item.title).title, 10.5, C.ink, "semi", 1)
+
+  const middle = row.addStack()
+  middle.layoutVertically()
+  const meta = middle.addStack()
+  meta.centerAlignContent()
+  const dot = meta.addStack()
+  dot.size = new Size(4, 4)
+  dot.cornerRadius = 2
+  dot.backgroundColor = new Color(categoryColor(item))
+  meta.addSpacer(4)
+  text(meta, categoryLabel(item, true), 7, C.ink, "monob")
+  middle.addSpacer(1)
+  text(middle, splitTitle(item.title).title, 10, C.ink, "semi", 1)
+
   row.addSpacer()
   const d = daysRemaining(item)
-  text(row, d === null ? "—" : `T-${d}`, 8, C.dim, "monob")
+  text(row, d === null ? "—" : `T-${d}`, 7.5, C.dim, "monob")
 }
 
 function buildMedium(data, state) {
-  const w = baseWidget(12)
+  const w = baseWidget(11)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
   const top = w.addStack()
   top.centerAlignContent()
-  text(top, "MEDIA ART RADAR", 8.5, C.ink, "monob")
+  text(top, "MEDIA ART RADAR", 8, C.ink, "monob")
   top.addSpacer()
-  text(top, compactIssue(data.issue_id) || "—", 8.5, C.dim, "mono")
-  w.addSpacer(5)
-  rule(w)
+  text(top, compactIssue(data.issue_id) || "—", 8, C.dim, "mono")
   w.addSpacer(4)
+  rule(w)
+  w.addSpacer(3)
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
 
   const shown = calls.slice(0, widgetMetrics().medium.h >= 155 ? 3 : 2)
   shown.forEach((item, i) => {
     addMediumEqualRow(w, item)
-    if (i < shown.length - 1) { w.addSpacer(3); rule(w); w.addSpacer(3) }
+    if (i < shown.length - 1) { w.addSpacer(2); rule(w); w.addSpacer(2) }
   })
   w.addSpacer()
   return w
@@ -425,8 +428,8 @@ function addEqualWidgetCard(parent, item, cw, ch, compact = false) {
   card.backgroundColor = new Color(C.card)
   card.borderWidth = 1
   card.borderColor = new Color(C.ink)
-  card.cornerRadius = compact ? 14 : 18
-  card.setPadding(compact ? 8 : 9, compact ? 9 : 10, compact ? 8 : 9, compact ? 9 : 10)
+  card.cornerRadius = compact ? 12 : 16
+  card.setPadding(compact ? 7 : 8, compact ? 8 : 9, compact ? 7 : 8, compact ? 8 : 9)
   card.url = item.url || SITE_URL
 
   const meta = card.addStack()
@@ -436,41 +439,41 @@ function addEqualWidgetCard(parent, item, cw, ch, compact = false) {
   dot.cornerRadius = compact ? 2 : 2.5
   dot.backgroundColor = new Color(categoryColor(item))
   meta.addSpacer(4)
-  text(meta, categoryLabel(item, false), compact ? 6.8 : 7.5, C.ink, "monob")
+  text(meta, categoryLabel(item, false), compact ? 6.3 : 7, C.ink, "monob")
   meta.addSpacer()
-  text(meta, compactPlace(item.location), compact ? 6.5 : 7, C.dim, "mono", 1)
+  text(meta, compactPlace(item.location), compact ? 6 : 6.5, C.dim, "mono", 1)
 
-  card.addSpacer(compact ? 4 : 5)
-  text(card, splitTitle(item.title).title, compact ? 10 : 11, C.ink, "bold", 2)
+  card.addSpacer(compact ? 3 : 4)
+  text(card, splitTitle(item.title).title, compact ? 9 : 10, C.ink, "bold", 1)
   card.addSpacer()
-  text(card, deadlineLabel(item), compact ? 28 : 31, C.ink, "didot")
-  card.addSpacer(2)
+  text(card, deadlineLabel(item), compact ? 25 : 28, C.ink, "didot")
+  card.addSpacer(1)
 
   const foot = card.addStack()
   foot.centerAlignContent()
   const d = daysRemaining(item)
-  text(foot, d === null ? "—" : `T-${d}`, compact ? 7 : 7.5, C.ink, "monob")
+  text(foot, d === null ? "—" : `T-${d}`, compact ? 6.5 : 7, C.ink, "monob")
   foot.addSpacer()
-  if (item.highlight) text(foot, String(item.highlight), compact ? 7 : 7.5, C.dim, "mono", 1)
+  if (item.highlight) text(foot, String(item.highlight), compact ? 6.2 : 6.8, C.dim, "mono", 1)
 }
 
 function buildLarge(data, state) {
-  const pad = 14, gap = 8
+  const pad = 13, gap = 7
   const m = widgetMetrics().large
   const w = baseWidget(pad)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
   const top = w.addStack()
   top.centerAlignContent()
-  text(top, "MEDIA ART RADAR", 8.5, C.ink, "monob")
+  text(top, "MEDIA ART RADAR", 8, C.ink, "monob")
   top.addSpacer()
-  text(top, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} OPEN`, 8, C.dim, "mono")
-  w.addSpacer(6)
+  text(top, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} OPEN`, 7.5, C.dim, "mono")
+  w.addSpacer(5)
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
 
   const cw = Math.floor((m.w - pad * 2 - gap) / 2)
-  const ch = Math.floor((m.h - pad * 2 - 28 - gap) / 2)
+  const ch = Math.floor((m.h - pad * 2 - 25 - gap) / 2)
   const shown = calls.slice(0, 4)
 
   for (let r = 0; r < 2; r++) {
@@ -500,19 +503,19 @@ function addBrandCell(parent, data, calls, cw, ch) {
   cell.layoutVertically()
   cell.size = new Size(cw, ch)
   cell.backgroundColor = new Color(C.ink)
-  cell.cornerRadius = 16
-  cell.setPadding(12, 12, 12, 12)
-  text(cell, "MEDIA ART RADAR", 8, C.card, "monob")
+  cell.cornerRadius = 14
+  cell.setPadding(10, 10, 10, 10)
+  text(cell, "MEDIA ART RADAR", 7.5, C.card, "monob")
   cell.addSpacer()
-  text(cell, "MAR ↗", 23, C.card, "bold")
-  text(cell, "Open calls.", 21, C.card, "didot")
-  cell.addSpacer(5)
-  text(cell, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} OPEN`, 8, C.faint, "mono")
+  text(cell, "MAR ↗", 21, C.card, "bold")
+  text(cell, "Open calls.", 19, C.card, "didot")
+  cell.addSpacer(4)
+  text(cell, `${compactIssue(data.issue_id) || "—"} · ${two(calls.length)} OPEN`, 7.5, C.faint, "mono")
 }
 
 function buildExtraLarge(data, state) {
   const area = extraLargeArea()
-  const pad = 14, gap = 10
+  const pad = 14, gap = 9
   const cw = Math.floor((area.w - pad * 2 - gap * 2) / 3)
   const ch = Math.floor((area.h - pad * 2 - gap) / 2)
   const w = baseWidget(pad)
