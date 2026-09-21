@@ -34,7 +34,10 @@ const INSET = 12                       // 组件内边距（四边相同）
 const GAP = 6                          // 相邻块的间距（横竖相同）
 const CARD_R = WIDGET_R - INSET        // 14：卡片圆角，与外框同心
 const PAD_IN = 10                      // 块内文字与块边缘的距离
-const BW = 1.2                         // 描边宽度
+const BW = 1.2                         // 线宽：卡内竖分隔线（一块 1.2pt 宽的实心黑条）与卡片外框的有效线宽，两者一样粗
+// iOS 画 borderWidth 时，外侧那半圈会被圆角裁掉，只剩里面一半（真机实测：写 1.2 只剩约 0.6pt，比竖线细一半）。
+// 所以外框的 borderWidth 要写成 2 倍，有效线宽才等于 BW，与竖线一样粗。
+const OUTLINE_W = BW * 2
 
 // 组件显示在 Mac 桌面上（macOS Tahoe 的「来自 iPhone 的小组件」）：脚本仍然是在 iPhone 上运行的，
 // 所以 Device 里读到的永远是 iPhone，脚本看不出自己被放在哪里——只能靠下面几个线索判断（见 hostIsMac）。
@@ -193,7 +196,7 @@ function box(parent, w, h, r, o = {}) {
   if (w || h) st.size = new Size(w || 0, h || 0)
   st.cornerRadius = r
   if (o.fill) st.backgroundColor = new Color(o.fill)
-  if (o.stroke) { st.borderColor = new Color(o.stroke); st.borderWidth = BW }
+  if (o.stroke) { st.borderColor = new Color(o.stroke); st.borderWidth = OUTLINE_W }
   return st
 }
 // 卡：白底 + 墨黑描边 + 等角圆角

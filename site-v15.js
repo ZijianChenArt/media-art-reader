@@ -283,9 +283,9 @@
 
   // ---------- 小组件页：预览按 Media-Art-Radar.js（Edition 10）同一套规则绘制，iPhone 与 Mac 两组尺寸 ----------
   // 圆角：全部等角；卡片 14（= 组件外框 26 − 内边距 12）。间距：组件四边内边距 12；相邻块之间 6；块内文字距块边缘 10。
-  // 线条：真机上 iOS 会把描边的外半圈裁掉，卡片外框的有效粗细只有约 0.6pt；卡里的竖分隔线是一块 1.2pt 宽的黑条。所以外细内粗，预览照此绘制。
+  // 线条：卡片外框与卡里的竖分隔线一样粗（1.2pt）。iOS 画描边会把外侧那半圈裁掉，所以脚本里外框的 borderWidth 写成 2.4，有效线宽才是 1.2。
   // 尺寸（iPhone 17 Pro Max 与 Mac 桌面）都是真机截图实测。预览里的日期用 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。
-  const WG = { inset: 12, gap: 6, cardR: 14, padIn: 10, bw: 0.6 };
+  const WG = { inset: 12, gap: 6, cardR: 14, padIn: 10, bw: 1.2 };
   const SIZES = {
     phone: { small: 176, mw: 378, lh: 393 },
     mac: { small: 162, mw: 341, lh: 342, xl: { w: 701, h: 342 } }
@@ -437,7 +437,7 @@
             <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
             <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
             <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=19" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-primary" href="Media-Art-Radar.js?v=20" download><span>下载脚本</span><span>↓</span></a>
               <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
             </div>
           </div>
@@ -479,7 +479,7 @@
           <p><b>放在 Mac 桌面上。</b>macOS Tahoe 可以把 iPhone 上的小组件放到 Mac 桌面（「来自 iPhone 的小组件」）。脚本仍然在 iPhone 上运行，看不出自己被显示在哪里，而 Mac 桌面上的组件尺寸和 iPhone 不同（上面「在 Mac 桌面上」是实测尺寸）。<b>超大号只会出现在 Mac 桌面上，脚本会自动按 Mac 排</b>；小、中、大号请这样告诉脚本：编辑那个组件，把 Parameter 填成 <code>mac</code>；如果编辑不了，把脚本复制一份改名，把开头的 <code>FORCE_HOST</code> 改成 <code>"mac"</code>，Mac 桌面上的组件选这一份。不设置时按 iPhone 尺寸排。</p>
           <p><b>名称是主角。</b>日期只是一根窄柱里的两行小字，名称用粗体、比日期大一号；小号名称最多两行，超大号名称下面还有副标题，一眼就能知道这是什么机会。</p>
           <p><b>圆角与间距。</b>所有形状都是等角圆角（四个角同一个半径），并且同心：卡片圆角 14 = 组件外框 26 − 内边距 12（外框圆角实测约 26）。组件四边内边距都是 12，相邻块之间一律 6，块内文字距块边缘 10（超大号格子里是 12）。</p>
-          <p><b>线条粗细。</b>真机上卡片的外框线很细（约 0.6pt），只有卡里面的竖分隔线是粗的（1.2pt）。原因是 iOS 画描边时把外侧那半圈裁掉了，而竖线是一块实心的窄黑条。预览已按真机画成外细内粗。</p>
+          <p><b>线条粗细。</b>卡片外框与卡里的竖分隔线一样粗（1.2pt）。iOS 画描边时会把外侧那半圈裁掉，只剩里面一半，所以脚本里外框的描边宽度写成 2.4，有效才是 1.2；竖线是一块实心窄黑条，直接写 1.2。</p>
           <p><b>关于尺寸。</b>iPhone 组件按 iPhone 17 Pro Max 的组件点数绘制，其他 iPhone 机型取最接近的一档，小屏机型上字号会等比缩小。</p>
           <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
           <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>
