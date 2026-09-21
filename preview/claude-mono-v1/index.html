@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Media Art Radar — 全球媒体艺术机会与创作现场。">
+<title>Media Art Radar</title>
+<link rel="preload" href="../../assets/fonts/space-grotesk-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../assets/fonts/bodoni-moda-italic-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a0a'/%3E%3Cg fill='none' stroke='white' stroke-width='1.6'%3E%3Ccircle cx='16' cy='16' r='9.5'/%3E%3Ccircle cx='16' cy='16' r='4.5'/%3E%3C/g%3E%3Ccircle cx='22.5' cy='9.5' r='2.4' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#stage">跳到内容</a>
+<div class="app">
+  <aside class="rail">
+    <!-- 字标：雷达标记 + 两行字。标记 = 同心圆 + 一个亮点（一个「信号」） -->
+    <a class="brand" href="#opportunities" aria-label="Media Art Radar">
+      <svg class="mark" viewBox="0 0 34 34" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="17" cy="17" r="15.2"/><circle cx="17" cy="17" r="8.6"/></g><path d="M17 17 28.4 7.2" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="25.4" cy="9.8" r="2.9" fill="currentColor"/></svg>
+      <span class="brand-a">Media Art</span>
+      <span class="brand-b">Radar</span>
+    </a>
+
+    <nav class="index" aria-label="主要内容">
+      <button class="nav nav-main" type="button" data-route="opportunities" data-filter="all">
+        <span class="n">01</span><strong>国际机会精选</strong><span class="c" data-count="all">—</span>
+      </button>
+      <div class="subs">
+        <button class="nav sub" type="button" data-route="opportunities" data-filter="exhibition"><i class="g" data-g="exhibition"></i><span class="lb">展览征集</span><span class="c" data-count="exhibition">—</span></button>
+        <button class="nav sub" type="button" data-route="opportunities" data-filter="residency"><i class="g" data-g="residency"></i><span class="lb">驻留</span><span class="c" data-count="residency">—</span></button>
+        <button class="nav sub" type="button" data-route="opportunities" data-filter="prize"><i class="g" data-g="prize"></i><span class="lb">奖项</span><span class="c" data-count="prize">—</span></button>
+        <button class="nav sub" type="button" data-route="opportunities" data-filter="conference"><i class="g" data-g="conference"></i><span class="lb">学术会议</span><span class="c" data-count="conference">—</span></button>
+      </div>
+      <button class="nav nav-main" type="button" data-route="focus"><span class="n">02</span><strong>本周关注</strong></button>
+      <button class="nav nav-main" type="button" data-route="widget"><span class="n">03</span><strong>小组件</strong></button>
+    </nav>
+
+    <div class="status" aria-label="期号与核验时间">
+      <span class="live"></span><span id="status-issue">—</span><small id="status-verified"></small>
+    </div>
+  </aside>
+
+  <main class="stage" id="stage" tabindex="-1">
+    <div id="view"></div>
+  </main>
+</div>
+<script src="app.js" defer></script>
+</body>
+</html>
