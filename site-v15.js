@@ -182,7 +182,7 @@
   function renderRow(item, i) {
     const parts = titleParts(item.title);
     const brief = firstSentence(item.why);
-    return `<article class="call ${isClosed(item) ? 'is-closed' : ''}" data-cat="${esc(item.category)}" data-id="${esc(item.id)}" id="call-${esc(item.id)}">
+    return `<article class="call ${isClosed(item) ? 'is-closed' : ''} ${item.highlight ? '' : 'no-key'}" data-cat="${esc(item.category)}" data-id="${esc(item.id)}" id="call-${esc(item.id)}">
       <div class="c-date">
         <span class="c-lab">申请截止 · DEADLINE</span>
         <span class="c-d">${esc(fmtDate(item))}</span>

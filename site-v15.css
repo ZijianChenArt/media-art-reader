@@ -317,13 +317,32 @@ img{display:block;max-width:100%}
   .call{grid-template-columns:1fr;border-radius:30px 6px 30px 6px}
   .c-date{grid-row:auto;flex-direction:row;flex-wrap:wrap;align-items:flex-end;min-height:0;gap:8px 16px;padding:18px 22px 20px;border-right:0;border-bottom:1.5px solid var(--ink)}
   .is-closed .c-date{border-bottom-style:dashed}
-  .c-main{grid-row:auto;padding:22px 22px 8px}
+  .c-main{grid-row:auto;padding:22px 22px 24px}
   .c-lab{flex:1 0 100%}
   .c-t{margin:0 0 4px}
   .c-key{grid-column:auto;grid-row:auto;margin:0 22px;padding:16px 0 22px;border-left:0;border-top:1px solid var(--hair)}
   .c-key:empty{display:none}
   .facts{grid-column:1;grid-row:auto;grid-template-columns:1fr;padding:4px 22px 16px}
-  .btn-primary,.btn-ghost{flex:1 1 100%}
+  /* 按钮同一行：主按钮占宽，「更多信息」收在右边 */
+  .actions{flex-wrap:nowrap;margin-top:20px}
+  .btn-primary{flex:1 1 auto}
+  .btn-ghost{flex:0 0 auto;padding:0 20px}
+
+  /* 单张机会卡：顶部一条「关键数字带」= 日期（左）｜资助（右）；下面是名称、摘要与按钮。
+     以前日期块、资助数字、两个整行按钮各占一行，一张卡要滑一屏半；现在把最要紧的两个数字放在同一行 */
+  .call:not(.two){grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .call:not(.two) .c-date{grid-row:1;grid-column:1;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;justify-content:flex-start;gap:0;min-height:0;padding:16px 16px 16px 20px;border-right:0;border-bottom:1.5px solid var(--ink)}
+  .call:not(.two) .c-lab{flex:none;white-space:nowrap;margin-bottom:12px}
+  .call:not(.two) .c-t{margin:12px 0 0}
+  .call:not(.two) .c-key{grid-row:1;grid-column:2;align-self:stretch;margin:0;padding:16px 18px 16px 16px;border-left:1px solid var(--hair);border-top:0;border-bottom:1.5px solid var(--ink)}
+  .call:not(.two) .c-key{flex-direction:column;flex-wrap:nowrap;align-items:flex-start;gap:6px}
+  .call:not(.two) .c-key .kv{font-size:2.3rem}
+  .call:not(.two) .c-key .kv.long{font-size:1.75rem}
+  .call:not(.two) .c-key .kt{font-size:1.05rem}
+  .call.no-key .c-date{grid-column:1/-1}
+  .is-closed .c-key{border-bottom-style:dashed}
+  .call:not(.two) .c-main{grid-row:2;grid-column:1/-1;padding:20px 22px 24px}
+  .call:not(.two) .facts{grid-row:3;grid-column:1/-1}
   .call.two{grid-template-columns:1fr}
   .c-img{grid-row:auto;border-right:0;border-bottom:1.5px solid var(--ink);min-height:0;height:230px}
   .wg-list{gap:26px}
