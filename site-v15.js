@@ -333,7 +333,7 @@
       <div style="padding:0 4px"><b class="clip" style="font-size:12px;display:block">${esc(titleParts(first.title)[0])}</b>
         <div class="row" style="margin-top:3px"><span class="mono dim" style="font-size:8px">申请截止</span><span class="grow"></span>${hlHtml(first, 13)}</div></div>` : '';
 
-    // 中号：左边黑色「总数」（红色数字），右边三张卡
+    // 中号：左边白底描边的「总数」（红色数字），右边三张卡
     const mS = { w: 256, h: 44, big: 14, small: 5, pillarW: 52, date: 17, tn: 7.5, pad: 9, colW: 256 - 52 - 1.2 - 9 - 58 - 9 - 4, keyW: 58, title: 10.5, meta: 7.5, hl: 16 };
     const mN = Math.min(3, calls.length), mHidden = calls.length - mN, mCr = nest(12);
     const mTouchBottom = mN * 44 + (mN - 1) * 4 >= 144 - 4;
@@ -342,9 +342,9 @@
       <div class="cnt" style="width:74px;height:144px;border-radius:${mCr}px 5px 14px ${mCr}px;padding:10px 9px 9px 8px">
         <span class="mono" style="font-size:7px;font-weight:700">${issue}</span><div class="grow"></div>
         <span class="it" style="font-size:46px;line-height:.9;color:#d71921">${total}</span>
-        <span class="mono" style="font-size:7.5px;color:#b9b9bf;margin-top:3px">项机会</span>
+        <span class="mono" style="font-size:7.5px;color:#6d6d6d;margin-top:3px">项机会</span>
         <div style="height:6px"></div>
-        <span class="mono" style="font-size:7px;${mHidden > 0 ? 'font-weight:700' : 'color:#b9b9bf'}">${mHidden > 0 ? `另有 ${mHidden} 项` : '已同步'}</span>
+        <span class="mono" style="font-size:7px;${mHidden > 0 ? 'font-weight:700' : 'color:#6d6d6d'}">${mHidden > 0 ? `另有 ${mHidden} 项` : '已同步'}</span>
       </div>
       <div style="width:10px;flex:0 0 auto"></div>
       <div style="display:flex;flex-direction:column;gap:4px">${calls.slice(0, mN).map(mCard).join('')}</div>
@@ -371,10 +371,10 @@
         <div class="row" style="margin-top:2px">${hlHtml(c, 14)}<span class="mono dim clip" style="font-size:7px;margin-left:5px">${esc(c.highlight_label || '')}</span></div></div></div>`;
     const xlHidden = Math.max(0, calls.length - 5);
     const xl = `<div class="wg-grid">
-      <div class="wg-card" style="width:217px;height:151px;border-radius:${px(gridR(0))};background:#0a0a0a;border-color:#0a0a0a;color:#fff;padding:14px 16px 12px 14px">
+      <div class="wg-card" style="width:217px;height:151px;border-radius:${px(gridR(0))};padding:14px 16px 12px 14px">
         <b style="font-size:9px">MEDIA ART</b><span class="it" style="font-size:20px;line-height:1.1">Radar ↗</span><div class="grow"></div>
-        <span class="it" style="font-size:40px;line-height:.95;color:#d71921">${total}</span><span class="mono" style="font-size:8px;color:#b9b9bf">项机会 · OPEN CALLS</span>
-        <div style="height:4px"></div><span class="mono" style="font-size:8px;color:#b9b9bf">${issue} · 已同步</span>${xlHidden ? `<span class="mono" style="font-size:8px;font-weight:700;margin-top:2px">另有 ${xlHidden} 项 · 点击查看 ↗</span>` : ''}</div>
+        <span class="it" style="font-size:40px;line-height:.95;color:#d71921">${total}</span><span class="mono" style="font-size:8px;color:#6d6d6d">项机会 · OPEN CALLS</span>
+        <div style="height:4px"></div><span class="mono" style="font-size:8px;color:#6d6d6d">${issue} · 已同步</span>${xlHidden ? `<span class="mono" style="font-size:8px;font-weight:700;margin-top:2px">另有 ${xlHidden} 项 · 点击查看 ↗</span>` : ''}</div>
       ${calls.slice(0, 5).map((c, i) => cell(c, i)).join('')}</div>`;
 
     return `<section class="view">
@@ -393,7 +393,7 @@
             <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
             <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
             <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=13" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-primary" href="Media-Art-Radar.js?v=14" download><span>下载脚本</span><span>↓</span></a>
               <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
             </div>
           </div>

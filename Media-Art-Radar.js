@@ -393,17 +393,17 @@ function buildMedium(data, state) {
   outer.layoutHorizontally()
 
   const cr = nest(pad)                  // 贴着组件边角的那些角
-  const panel = shapeStack(outer, panelW, innerH, [cr, 5, 14, cr], C.ink)   // 左上、左下贴边；右侧两角在内部
+  const panel = shapeStack(outer, panelW, innerH, [cr, 5, 14, cr], C.card, C.ink, 1.2)   // 左上、左下贴边；右侧两角在内部；白底描边，不用黑块
   panel.setPadding(10, 9, 9, 8)
-  text(panel, compactIssue(data.issue_id) || "—", 7, "#FFFFFF", "monob")
+  text(panel, compactIssue(data.issue_id) || "—", 7, C.ink, "monob")
   panel.addSpacer()
   text(panel, two(calls.length), 46, C.red, "didot")
-  text(panel, "项机会", 7.5, C.mute, "mono")
+  text(panel, "项机会", 7.5, C.dim, "mono")
   panel.addSpacer(6)
   const fresh = state === "LIVE" && !isStale(data)
   const hidden = calls.length - n
-  if (hidden > 0) text(panel, `另有 ${hidden} 项`, 7, "#FFFFFF", "monob")
-  else text(panel, statusText(state, data), 7, fresh ? C.mute : "#FF8A7A", "mono")
+  if (hidden > 0) text(panel, `另有 ${hidden} 项`, 7, C.ink, "monob")
+  else text(panel, statusText(state, data), 7, fresh ? C.dim : C.soon, "mono")
 
   outer.addSpacer(gap)
   const list = outer.addStack()
@@ -531,21 +531,21 @@ function addGridCard(parent, item, cw, ch, r) {
   meta.addSpacer()
 }
 
-// 第六格：刊头。墨黑实底，与五张卡同一个异形圆角；红色大号数字写明一共几项
+// 第六格：刊头。白底黑描边，与五张卡同一个异形圆角；红色大号数字写明一共几项（不用黑块）
 function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
-  const cell = shapeStack(parent, cw, ch, gridRadii(0), C.ink)
+  const cell = shapeStack(parent, cw, ch, gridRadii(0), C.card, C.ink, 1.2)
   cell.setPadding(14, 16, 12, 14)
-  text(cell, "MEDIA ART", 9, "#FFFFFF", "bold")
-  text(cell, "Radar ↗", 20, "#FFFFFF", "didot")
+  text(cell, "MEDIA ART", 9, C.ink, "bold")
+  text(cell, "Radar ↗", 20, C.ink, "didot")
   cell.addSpacer()
   text(cell, two(calls.length), 40, C.red, "didot")
-  text(cell, "项机会 · OPEN CALLS", 8, C.mute, "mono")
+  text(cell, "项机会 · OPEN CALLS", 8, C.dim, "mono")
   cell.addSpacer(4)
   const fresh = state === "LIVE" && !isStale(data)
-  text(cell, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8, fresh ? C.mute : "#FF8A7A", "mono")
+  text(cell, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8, fresh ? C.dim : C.soon, "mono")
   if (hidden > 0) {
     cell.addSpacer(2)
-    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, "#FFFFFF", "monob")
+    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, C.ink, "monob")
   }
 }
 
