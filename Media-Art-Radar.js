@@ -1,6 +1,6 @@
-// MEDIA ART RADAR · Edition 10（黑白 + 两个酸性色）
+// MEDIA ART RADAR · Edition 10（黑白 + 一个红）
 // 与网站 site-v15 同一套语言：黑白为底 · 分类靠符号（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）
-// 柠檬绿 = 日期柱与总数块，电紫 = 关键数字 · 每个机会是一张独立的黑描边卡 · 总数用大号数字写明 · 不再标记「最近」
+// 整体黑白、白为主，只有一个红：倒计时 T-n、关键数字、总数 · 每个机会是一张独立的黑描边卡 · 总数用大号数字写明 · 不标记「最近」
 // Scriptable Home Screen widgets：small / medium / large / extraLarge（Mac、iPad）
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
 
@@ -12,11 +12,11 @@ const REFRESH_MINUTES = 60
 const PREVIEW_FAMILY = "large"
 
 // 与网站 site-v15.css 的变量一一对应。改这里之前先改网站，保持两边一致。
-// 只有两个酸性色，各司其职：柠檬绿铺日期柱与总数块，电紫只给关键数字；分类用符号表示，不用颜色。
+// 只有一个红（Nothing 那种），只上在几个关键数字的字上，不铺色块；分类用符号表示，不用颜色。
 const C = {
   paper: "#FFFFFF", card: "#FFFFFF", ink: "#040404", sub: "#2B2B2B",
   dim: "#6D6D6D", faint: "#A3A3A3", hair: "#ECECEC", mute: "#B9B9BF",
-  acid: "#D8FF3D", volt: "#5B3BFF",
+  red: "#D71921",
   soon: "#DE2410"          // 只用于「数据过期」的警示字
 }
 
@@ -210,9 +210,9 @@ function pill(parent, label, size, o) {
   text(st, label, size, o.color || C.ink, o.weight || "monob")
   return st
 }
-// 倒计时胶囊：描边，不再区分「最近」
+// 倒计时胶囊：红色描边红字，所有机会一视同仁，不再区分「最近」
 function daysPill(parent, label, size, h) {
-  return pill(parent, label, size, { h, stroke: C.ink, color: C.ink })
+  return pill(parent, label, size, { h, stroke: C.red, color: C.red })
 }
 // 分类标签：符号 + 名字，不用颜色
 function categoryTag(parent, item, size, color) {
@@ -232,21 +232,21 @@ function highlightSpec(value, base) {
   // 下限 9pt：再小就读不出来了（中号里 base 只有 12，按比例会缩到 6pt）
   if (!/\d/.test(value)) return { size: Math.max(base * 0.5, 9), weight: "medium", color: C.dim }
   // 5 个字符以上才缩小，与主页一致：€8,000 / $2,000 缩小，€500 不缩
-  if (value.length >= 5) return { size: Math.max(base * 0.68, 9), weight: "didot", color: C.volt }
-  return { size: base, weight: "didot", color: C.volt }
+  if (value.length >= 5) return { size: Math.max(base * 0.68, 9), weight: "didot", color: C.red }
+  return { size: base, weight: "didot", color: C.red }
 }
 // ============================================================
-// 日期柱 · 与网站机会卡同一条规则：一律柠檬绿；只写两样：日期、T-n
+// 日期柱 · 与网站机会卡同一条规则：白底，日期墨黑，T-n 红字；只写两样
 // ============================================================
 function pillar(parent, item, w, h, r, dateSize, tnSize) {
-  const st = shapeStack(parent, w, h, r, C.acid)
+  const st = shapeStack(parent, w, h, r, null)
   st.addSpacer()
   const a = st.addStack()
   a.addSpacer(); text(a, deadlineLabel(item), dateSize, C.ink, "didot"); a.addSpacer()
   st.addSpacer(2)
   const d = daysRemaining(item)
   const b = st.addStack()
-  b.addSpacer(); text(b, d === null ? "TBA" : `T-${d}`, tnSize, C.sub, "monob"); b.addSpacer()
+  b.addSpacer(); text(b, d === null ? "TBA" : `T-${d}`, tnSize, C.red, "monob"); b.addSpacer()
   st.addSpacer()
   return st
 }
@@ -325,14 +325,14 @@ function buildSmall(data, state) {
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
 
   const item = calls[0]
-  const panel = shapeStack(w, cw, 100, [20, 20, 20, 5], C.acid, C.ink, 1.2)
+  const panel = shapeStack(w, cw, 100, [20, 20, 20, 5], C.card, C.ink, 1.2)
   panel.url = item.url || SITE_URL
   panel.setPadding(10, 11, 9, 10)
   const top = panel.addStack()
   top.centerAlignContent()
   categoryTag(top, item, 7.5, C.ink)
   top.addSpacer()
-  text(top, `共 ${two(calls.length)} 项`, 7.5, C.sub, "monob")
+  text(top, `共 ${two(calls.length)} 项`, 7.5, C.dim, "monob")
   panel.addSpacer()
   const fig = panel.addStack()
   fig.bottomAlignContent()
@@ -386,17 +386,17 @@ function buildMedium(data, state) {
   const outer = w.addStack()
   outer.layoutHorizontally()
 
-  const panel = shapeStack(outer, panelW, innerH, [22, 5, 22, 5], C.acid)
+  const panel = shapeStack(outer, panelW, innerH, [22, 5, 22, 5], C.ink)
   panel.setPadding(10, 9, 9, 8)
-  text(panel, compactIssue(data.issue_id) || "—", 7, C.ink, "monob")
+  text(panel, compactIssue(data.issue_id) || "—", 7, "#FFFFFF", "monob")
   panel.addSpacer()
-  text(panel, two(calls.length), 46, C.ink, "didot")
-  text(panel, "项机会", 7.5, C.sub, "mono")
+  text(panel, two(calls.length), 46, C.red, "didot")
+  text(panel, "项机会", 7.5, C.mute, "mono")
   panel.addSpacer(6)
   const fresh = state === "LIVE" && !isStale(data)
   const hidden = calls.length - n
-  if (hidden > 0) text(panel, `另有 ${hidden} 项`, 7, C.ink, "monob")
-  else text(panel, statusText(state, data), 7, fresh ? C.sub : C.soon, "mono")
+  if (hidden > 0) text(panel, `另有 ${hidden} 项`, 7, "#FFFFFF", "monob")
+  else text(panel, statusText(state, data), 7, fresh ? C.mute : "#FF8A7A", "mono")
 
   outer.addSpacer(gap)
   const list = outer.addStack()
@@ -418,7 +418,7 @@ function addMasthead(parent, data, calls) {
   top.addSpacer(6)
   text(top, "Radar ↗", 18, C.ink, "didot")
   top.addSpacer()
-  text(top, two(calls.length), 26, C.ink, "didot")
+  text(top, two(calls.length), 26, C.red, "didot")
   top.addSpacer(4)
   const unit = top.addStack()
   unit.layoutVertically()
@@ -480,7 +480,7 @@ function addGridCard(parent, item, cw, ch) {
   const iw = cw - 16
 
   const panelH = ch - 16 - 51           // 下面留 51pt：标题 15 + 间距 + 关键数字一行 + 余量
-  const panel = shapeStack(card, iw, panelH, [19, 19, 19, 5], C.acid, C.ink, 1.2)
+  const panel = shapeStack(card, iw, panelH, [19, 19, 19, 5], C.card, C.ink, 1.2)
   panel.setPadding(8, 11, 8, 10)
   const top = panel.addStack()
   top.centerAlignContent()
@@ -511,21 +511,21 @@ function addGridCard(parent, item, cw, ch) {
   meta.addSpacer()
 }
 
-// 第六格：刊头。柠檬绿实底，与五张卡同一个异形圆角；大号数字写明一共几项
+// 第六格：刊头。墨黑实底，与五张卡同一个异形圆角；红色大号数字写明一共几项
 function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
-  const cell = shapeStack(parent, cw, ch, [26, 6, 26, 6], C.acid, C.ink, 1.2)
+  const cell = shapeStack(parent, cw, ch, [26, 6, 26, 6], C.ink)
   cell.setPadding(14, 16, 12, 14)
-  text(cell, "MEDIA ART", 9, C.ink, "bold")
-  text(cell, "Radar ↗", 20, C.ink, "didot")
+  text(cell, "MEDIA ART", 9, "#FFFFFF", "bold")
+  text(cell, "Radar ↗", 20, "#FFFFFF", "didot")
   cell.addSpacer()
-  text(cell, two(calls.length), 40, C.ink, "didot")
-  text(cell, "项机会 · OPEN CALLS", 8, C.sub, "mono")
+  text(cell, two(calls.length), 40, C.red, "didot")
+  text(cell, "项机会 · OPEN CALLS", 8, C.mute, "mono")
   cell.addSpacer(4)
   const fresh = state === "LIVE" && !isStale(data)
-  text(cell, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8, fresh ? C.sub : C.soon, "mono")
+  text(cell, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8, fresh ? C.mute : "#FF8A7A", "mono")
   if (hidden > 0) {
     cell.addSpacer(2)
-    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, C.ink, "monob")
+    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, "#FFFFFF", "monob")
   }
 }
 
