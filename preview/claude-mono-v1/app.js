@@ -73,9 +73,51 @@
       t.classList.toggle('in-section', route === 'opportunities' && t.dataset.filter === 'all');
       if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
     });
+    $$('.pb').forEach(el => el.classList.toggle('is-dim', route === 'opportunities' && filter !== 'all' && el.dataset.cat !== filter));
     $('#status-issue').textContent = String(data.issue_id || '—').replace(/^\d{4}-/, '');
     const ver = (calls.map(c => c.verified_at).filter(Boolean).sort().pop() || '').slice(5, 10).replace('-', '.');
     $('#status-verified').textContent = ver ? '核验 ' + ver : '';
+  }
+
+
+  // ---------- 左栏下半：下一个截止 + 极坐标雷达（只画一次） ----------
+  function railExtras() {
+    const open = sorted().filter(c => !isClosed(c) && daysLeft(c) !== null);
+    if (!open.length) return;
+    const nx = open[0];
+    $('#nextup').innerHTML = `<button class="nextup ${isSoon(nx) ? 'is-soon' : ''}" type="button" data-id="${esc(nx.id)}" data-jump="${esc(nx.id)}">
+      <span class="nu-lab">NEXT DEADLINE</span>
+      <span class="nu-n">${esc(tnOf(nx).replace('-', '−'))}</span>
+      <span class="nu-t">${esc(titleParts(nx.title)[0] || nx.title)}</span>
+      <span class="nu-d">${esc(fmtDate(nx))} · ${esc(labels[nx.category] || '')} ↗</span>
+    </button>`;
+
+    // 半径 = 距今天数（中心 = 今天）；每类占一个象限，同类多个在象限里错开角度
+    const dom = Math.max(60, Math.max(...open.map(daysLeft)) + 8), R = 90, r0 = 14;
+    const rOf = d => r0 + Math.min(d, dom) / dom * (R - r0);
+    const centre = { exhibition: 45, residency: 135, prize: 225, conference: 315 };
+    const corner = { exhibition: [198, 3, 'end', 'EXH'], residency: [198, 196, 'end', 'RES'], prize: [2, 196, 'start', 'PRZ'], conference: [2, 3, 'start', 'CON'] };
+    const rings = [30, 60, 90].filter(d => d < dom - 4);
+    const dots = open.map(c => {
+      const same = open.filter(x => x.category === c.category), k = same.indexOf(c);
+      const ang = ((centre[c.category] ?? 45) + (k - (same.length - 1) / 2) * 26) * Math.PI / 180;
+      const r = rOf(daysLeft(c));
+      const x = 100 + r * Math.sin(ang), y = 100 - r * Math.cos(ang);
+      return `<g class="pb ${isSoon(c) ? 'soon' : ''}" data-id="${esc(c.id)}" data-jump="${esc(c.id)}" data-cat="${esc(c.category)}" role="button" tabindex="0" aria-label="${esc(fmtDate(c) + ' ' + (titleParts(c.title)[0] || '') + '，' + daysText(c))}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">
+        <circle r="11" fill="transparent"/><g class="pb-in"><svg x="-5" y="-5" width="10" height="10" viewBox="0 0 12 12">${SHAPES[c.category] || SHAPES.exhibition}</svg>${isSoon(c) ? '<circle r="9" fill="none" stroke="currentColor" stroke-width="1.2"/>' : ''}</g></g>`;
+    }).join('');
+    const corners = Object.keys(corner).map(k => {
+      const [x, y, anchor, t] = corner[k];
+      return `<text x="${x}" y="${y + 6}" text-anchor="${anchor}">${t}</text>`;
+    }).join('');
+    $('#polar').innerHTML = `<svg viewBox="0 0 200 200" role="group" aria-label="截止日极坐标雷达：半径为距今天数，四个象限为四类机会" preserveAspectRatio="xMidYMid meet">
+      ${rings.map(d => `<circle class="ring" cx="100" cy="100" r="${rOf(d).toFixed(1)}"/>`).join('')}
+      <circle class="rim" cx="100" cy="100" r="${R}"/>
+      <line class="axis-l" x1="10" y1="100" x2="190" y2="100"/><line class="axis-l" x1="100" y1="10" x2="100" y2="190"/>
+      ${rings.map(d => `<text x="103" y="${(100 - rOf(d) - 2).toFixed(1)}">${d}D</text>`).join('')}
+      <circle cx="100" cy="100" r="2.6" fill="currentColor"/>
+      ${corners}${dots}
+    </svg>`;
   }
 
   // ---------- 雷达：截止日时间轴 ----------
@@ -356,26 +398,26 @@
     }
   }
 
-  // 时间轴上的点与台账里的行互相呼应：悬停同亮，点击跳到那一行
+  // 时间轴 / 极坐标 / 下一个截止 与台账里的卡片互相呼应：悬停同亮，点击跳到那一张
   const hot = (id, on) => $$('[data-id]').forEach(el => { if (el.dataset.id === id) el.classList.toggle('is-hot', on); });
-  $('#view').addEventListener('mouseover', e => { const el = e.target.closest('[data-id]'); if (el) hot(el.dataset.id, true); });
-  $('#view').addEventListener('mouseout', e => { const el = e.target.closest('[data-id]'); if (el) hot(el.dataset.id, false); });
+  addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('[data-id]'); if (el) hot(el.dataset.id, true); });
+  addEventListener('mouseout', e => { const el = e.target.closest && e.target.closest('[data-id]'); if (el) hot(el.dataset.id, false); });
+  function jumpTo(id) {
+    let row = document.getElementById('call-' + id);
+    if (!row) { const s = parseHash(); if (s.route !== 'opportunities' || s.filter !== 'all' || !document.querySelector('.ledger')) { render('opportunities', 'all', true); row = document.getElementById('call-' + id); } }
+    if (!row) return;
+    row.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    hot(id, true);
+    setTimeout(() => hot(id, false), 1800);
+  }
+  document.addEventListener('click', e => { const j = e.target.closest('[data-jump]'); if (j) jumpTo(j.dataset.jump); });
+  document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches && e.target.matches('.pb')) jumpTo(e.target.dataset.jump); });
 
   $('#view').addEventListener('click', e => {
     const reset = e.target.closest('.reset-filter');
     if (reset) { render('opportunities', 'all', true); return; }
     const mf = e.target.closest('.mobile-filter');
     if (mf) { render('opportunities', mf.dataset.filter, true); return; }
-    const blip = e.target.closest('[data-jump]');
-    if (blip) {
-      const row = document.getElementById('call-' + blip.dataset.jump);
-      if (row) {
-        row.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        hot(blip.dataset.jump, true);
-        setTimeout(() => hot(blip.dataset.jump, false), 1800);
-      }
-      return;
-    }
     const jump = e.target.closest('[data-scroll]');
     if (jump) {
       e.preventDefault();
@@ -400,6 +442,6 @@
 
   fetch(DATA_URL, { cache: 'no-store' })
     .then(r => r.json())
-    .then(json => { data = json; const s = parseHash(); render(s.route, s.filter, false); })
+    .then(json => { data = json; railExtras(); const s = parseHash(); render(s.route, s.filter, false); })
     .catch(() => { $('#view').innerHTML = '<div class="view"><div class="empty">数据暂时无法读取，请稍后刷新。</div></div>'; });
 })();
