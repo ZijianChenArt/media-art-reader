@@ -224,7 +224,7 @@ img{display:block;max-width:100%}
 .wg-cap b{font-size:1rem}
 .wg-cap span{font-family:var(--mono);font-size:.72rem;color:var(--mute)}
 .wg-scroll{max-width:100%;overflow-x:auto;padding:4px 4px 16px}
-.wg{display:flex;flex-direction:column;background:#fff;border-radius:26px;line-height:1.2;overflow:hidden;color:var(--ink);box-shadow:0 0 0 1px rgba(0,0,0,.14)}
+.wg{display:flex;flex-direction:column;background:#fff;border-radius:30px;line-height:1.2;overflow:hidden;color:var(--ink);box-shadow:0 0 0 1px rgba(0,0,0,.14)}
 .wg *{box-sizing:border-box}
 .wg-s{padding:12px}
 .wg-m{padding:12px}
