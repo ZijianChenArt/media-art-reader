@@ -226,10 +226,10 @@ img{display:block;max-width:100%}
 .wg-scroll{max-width:100%;overflow-x:auto;padding:4px 4px 16px}
 .wg{display:flex;flex-direction:column;background:#fff;border-radius:22px;line-height:1.2;overflow:hidden;color:var(--ink);box-shadow:0 0 0 1px rgba(0,0,0,.14)}
 .wg *{box-sizing:border-box}
-.wg-s{width:170px;height:170px;padding:10px}
+.wg-s{width:170px;height:170px;padding:12px}
 .wg-m{width:364px;height:170px;padding:12px}
-.wg-l{width:364px;height:382px;padding:14px}
-.wg-xl{width:715px;height:342px;padding:14px}
+.wg-l{width:364px;height:382px;padding:12px}
+.wg-xl{width:700px;height:340px;padding:12px}
 .wg .row{display:flex;align-items:center;min-width:0}
 .wg .grow{flex:1;min-width:0}
 .wg .mono{font-family:var(--mono)}
@@ -256,7 +256,7 @@ img{display:block;max-width:100%}
 .wg-row .r2 .g{font-size:.9em;margin-right:4px}
 .wg-card{border:1.2px solid var(--ink);background:#fff;flex:0 0 auto;display:flex;flex-direction:column}
 .wg-l .wg-card{flex-direction:row;align-items:center}
-.wg-grid{display:grid;grid-template-columns:repeat(3,217px);grid-template-rows:repeat(2,151px);gap:10px;margin:auto}
+.wg-grid{display:grid;grid-template-columns:repeat(3,221px);grid-template-rows:repeat(2,154px);gap:6px;margin:auto}
 
 /* ============ 窄一点的桌面 ============ */
 @media(max-width:1250px){

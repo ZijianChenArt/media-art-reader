@@ -1,6 +1,7 @@
 // MEDIA ART RADAR · Edition 10（黑白 + 一个红）
 // 与网站 site-v15 同一套语言：黑白为底 · 分类靠符号（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）
 // 整体黑白、白为主，只有一个红：倒计时 T-n、关键数字、总数 · 每个机会是一张独立的黑描边卡 · 总数用大号数字写明 · 不标记「最近」
+// 圆角等角、同心，边距与间距等距（见下面「圆角与间距」）
 // Scriptable Home Screen widgets：small / medium / large / extraLarge（Mac、iPad）
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
 
@@ -20,15 +21,22 @@ const C = {
   soon: "#DE2410"          // 只用于「数据过期」的警示字
 }
 
-// 组件外框的圆角（iOS，估值 22pt）。贴着组件边角的形状，圆角取「外框半径 − 内边距」，与外框同心；
-// 不贴边角的角，才用我们的异形圆角（tl / br 大，tr / bl 小）。内层圆角绝不大于外层，否则边角处会「鼓」出来。
-const WIDGET_R = 22
-function nest(pad) { return Math.max(WIDGET_R - pad, 4) }
-
-// 异形圆角卡是一张固定尺寸的背景图，必须知道组件的真实点数。
-// 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
-// 注意：这个 const 必须写在下面的执行入口之前——const 不会提升，
+// ============================================================
+// 圆角与间距：一套「等角、等距」的规则，四个尺寸共用
+//   · 等角：每个形状的四个角是同一个半径（iOS 原生就是这样；不再画异形圆角）
+//   · 同心：卡片圆角 = 组件外框半径 − 内边距（贴着组件边角的卡片与外框同心；卡内不再嵌套带描边的块）
+//   · 等距：组件四边的内边距相同，所有相邻块的间距相同（横竖一样），块内文字与块边缘的距离相同（超大号格子里也是 INSET）
+// 注意：这些 const 必须写在下面的执行入口之前——const 不会提升，
 // 放在入口之后会在中号、大号里触发 "before initialization" 而整块空白。
+// ============================================================
+const WIDGET_R = 22                    // iOS 组件外框圆角（估值）
+const INSET = 12                       // 组件内边距（四边相同）
+const GAP = 6                          // 相邻块的间距（横竖相同）
+const CARD_R = WIDGET_R - INSET        // 10：卡片圆角，与外框同心
+const PAD_IN = 10                      // 块内文字与块边缘的距离
+const BW = 1.2                         // 描边宽度
+
+// 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
 const WIDGET_SIZES = {
   956: { small: 170, mw: 364, lh: 382 },   // iPhone 16 / 17 Pro Max（440×956），按同档 6.9 英寸机型取值
   932: { small: 170, mw: 364, lh: 382 },
@@ -147,61 +155,19 @@ function rule(parent, color = C.hair) {
   line.addSpacer()
 }
 
-// 圆角矩形，四个角半径各自指定 [左上, 右上, 右下, 左下]，可填色、可描边。
-// 网站的卡片是「左上、右下大，右上、左下小」的异形圆角；日期块同样。
-// Scriptable 的 stack 只支持四角等圆，所以画成固定尺寸的背景图——必须知道真实点数。
-function shapeImage(w, h, r, fill, stroke, lw) {
-  const k = 0.5523                      // 用三次贝塞尔逼近四分之一圆
-  const inset = stroke ? lw / 2 : 0     // 内缩半个线宽，描边才不会被裁掉
-  const x0 = inset, y0 = inset, x1 = w - inset, y1 = h - inset
-  const tl = r[0], tr = r[1], br = r[2], bl = r[3]
-  const p = new Path()
-  p.move(new Point(x0 + tl, y0))
-  p.addLine(new Point(x1 - tr, y0))
-  p.addCurve(new Point(x1, y0 + tr), new Point(x1 - tr + k * tr, y0), new Point(x1, y0 + tr - k * tr))
-  p.addLine(new Point(x1, y1 - br))
-  p.addCurve(new Point(x1 - br, y1), new Point(x1, y1 - br + k * br), new Point(x1 - br + k * br, y1))
-  p.addLine(new Point(x0 + bl, y1))
-  p.addCurve(new Point(x0, y1 - bl), new Point(x0 + bl - k * bl, y1), new Point(x0, y1 - bl + k * bl))
-  p.addLine(new Point(x0, y0 + tl))
-  p.addCurve(new Point(x0 + tl, y0), new Point(x0, y0 + tl - k * tl), new Point(x0 + tl - k * tl, y0))
-  p.closeSubpath()
-
-  const ctx = new DrawContext()
-  ctx.size = new Size(w, h)
-  ctx.opaque = false
-  ctx.respectScreenScale = true
-  if (fill) { ctx.setFillColor(new Color(fill)); ctx.addPath(p); ctx.fillPath() }
-  if (stroke) { ctx.setStrokeColor(new Color(stroke)); ctx.setLineWidth(lw); ctx.addPath(p); ctx.strokePath() }
-  return ctx.getImage()
-}
-
-// 一块固定尺寸的异形底；画图失败时退回等圆角，组件不会因此空白
-function shapeStack(parent, w, h, r, fill, stroke, lw = 1.2) {
+// 一个等角圆角矩形（可填色、可描边）。用 Scriptable 原生的 cornerRadius / borderWidth，不再画背景图，
+// 所以不依赖 DrawContext，也不必知道组件的真实点数就能画对形状。
+function box(parent, w, h, r, o = {}) {
   const st = parent.addStack()
   st.layoutVertically()
-  st.size = new Size(w, h)
-  try {
-    st.backgroundImage = shapeImage(w, h, r, fill, stroke, lw)
-  } catch (_) {
-    if (fill) st.backgroundColor = new Color(fill)
-    if (stroke) { st.borderColor = new Color(stroke); st.borderWidth = lw }
-    st.cornerRadius = Math.min(Math.max(r[0], r[1], r[2], r[3]), h / 2)
-  }
+  if (w || h) st.size = new Size(w || 0, h || 0)
+  st.cornerRadius = r
+  if (o.fill) st.backgroundColor = new Color(o.fill)
+  if (o.stroke) { st.borderColor = new Color(o.stroke); st.borderWidth = BW }
   return st
 }
-// 网站的卡片：白底 + 墨黑描边 + 大小对角圆角
-function cardShape(parent, w, h, big, small) {
-  return shapeStack(parent, w, h, [big, small, big, small], C.card, C.ink, 1.2)
-}
-// 居中放一张
-function makeCard(parent, w, h, big, small) {
-  const row = parent.addStack()
-  row.addSpacer()
-  const card = cardShape(row, w, h, big, small)
-  row.addSpacer()
-  return card
-}
+// 卡：白底 + 墨黑描边 + 等角圆角
+function card(parent, w, h, r = CARD_R) { return box(parent, w, h, r, { fill: C.card, stroke: C.ink }) }
 
 // 胶囊：高度固定，宽度随文字。用在 T-n 上：日期块是黑底时反白，否则描边。
 function pill(parent, label, size, o) {
@@ -243,8 +209,10 @@ function highlightSpec(value, base) {
 // ============================================================
 // 日期柱 · 与网站机会卡同一条规则：白底，日期墨黑，T-n 红字；只写两样
 // ============================================================
-function pillar(parent, item, w, h, r, dateSize, tnSize) {
-  const st = shapeStack(parent, w, h, r, null)
+function pillar(parent, item, w, h, dateSize, tnSize) {
+  const st = parent.addStack()
+  st.layoutVertically()
+  st.size = new Size(w, h)
   st.addSpacer()
   const a = st.addStack()
   a.addSpacer(); text(a, deadlineLabel(item), dateSize, C.ink, "didot"); a.addSpacer()
@@ -277,37 +245,35 @@ function keyColumn(parent, item, w, base, labelSize) {
 // 一个机会 = 一张独立的黑描边卡：[日期柱] | 名称 + 分类 | 关键数字。
 // 中号与大号共用；不主推任何一个，不写地点，不写「申请截止」——只留最要紧的三样。
 function addOppCard(parent, item, s) {
-  const r = s.r || [s.big, s.small, s.big, s.small]      // 四角半径：tl tr br bl
-  const card = shapeStack(parent, s.w, s.h, r, C.card, C.ink, 1.2)
-  card.url = item.url || SITE_URL
-  card.layoutHorizontally()
-  card.centerAlignContent()
-  pillar(card, item, s.pillarW, s.h, [r[0], 0, 0, r[3]], s.date, s.tn)
-  const bar = card.addStack()
-  bar.size = new Size(1.2, s.h)
+  const c = card(parent, s.w, s.h)
+  c.url = item.url || SITE_URL
+  c.layoutHorizontally()
+  c.centerAlignContent()
+  pillar(c, item, s.pillarW, s.h, s.date, s.tn)
+  const bar = c.addStack()
+  bar.size = new Size(BW, s.h)
   bar.backgroundColor = new Color(C.ink)
-  card.addSpacer(s.pad)
-  const col = card.addStack()
+  c.addSpacer(PAD_IN)
+  const col = c.addStack()
   col.layoutVertically()
   col.size = new Size(s.colW, 0)
   text(col, splitTitle(item.title).title, s.title, C.ink, "bold", 1)
   col.addSpacer(3)
   text(col, `${glyphOf(item)} ${categoryLabel(item, true)}`, s.meta, C.dim, "monob", 1)
-  card.addSpacer()
-  keyColumn(card, item, s.keyW, s.hl, s.meta - 1)
-  card.addSpacer(s.pad)
-  return card
+  c.addSpacer()
+  keyColumn(c, item, s.keyW, s.hl, s.meta - 1)
+  c.addSpacer(PAD_IN)
+  return c
 }
 
-// 能放几行：先看全部能否放下，放不下再少放，并给「另有 n 项」那一行腾位置。
-// 留 4pt 余量——这里的高度是估算，不是 iOS 的真实排版。
-function fitRows(avail, rowH, gap, extra, total) {
-  const need = n => n * rowH + (n - 1) * gap
-  const room = avail - 4
-  let n = total
-  while (n > 1 && need(n) > room) n--
-  if (n < total) { while (n > 1 && need(n) + extra > room) n-- }
-  return Math.max(1, n)
+// 一列卡片的排法：在 avail 高度里放 n 张、每张高 h，间距一律 GAP，整列正好填满（组件上下内边距因此相等）。
+// 每张不低于 minH、不高于 maxH；放不下的机会写成一行小字「另有 n 项」，那一行（extra）先从高度里扣掉。
+function planRows(avail, minH, maxH, total, extra = 0) {
+  const most = a => Math.max(1, Math.floor((a + GAP) / (minH + GAP)))
+  let n = Math.min(total, most(avail))
+  if (n < total) n = Math.min(n, most(avail - extra))
+  const room = avail - (n < total ? extra : 0)
+  return { n, h: Math.min(maxH, (room - (n - 1) * GAP) / n) }
 }
 
 // 放不下的机会压成一行小字：「另有 2 项 · 12.01 Wave Farm · 12.15 EMAF 40」
@@ -319,21 +285,23 @@ function restText(calls, shown, max = 3) {
 }
 
 // ============================================================
-// SMALL · 下一个截止：一块日期块（分类 · 巨型日期 · 倒计时）+ 标题与关键数字；右上角写明一共几项
+// SMALL · 下一个截止：一块卡（分类 · 共 N 项 · 巨型日期 · 倒计时）+ 标题与关键数字
 // ============================================================
 function buildSmall(data, state) {
-  const pad = 10
   const m = widgetMetrics().small
-  const cw = m.w - pad * 2
-  const w = baseWidget(pad)
+  const cw = m.w - INSET * 2
+  const ch = m.h - INSET * 2 - 1
+  const w = baseWidget(INSET)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
 
   const item = calls[0]
-  const panel = shapeStack(w, cw, 100, [nest(pad), nest(pad), nest(pad), 5], C.card, C.ink, 1.2)   // 上边两角贴组件边角：同心
+  const BODY_H = 33                                   // 标题一行 + 间距 + 说明 / 关键数字一行
+  const panelH = ch - GAP - BODY_H                    // 卡片撑满：上下内边距相等
+  const panel = card(w, cw, panelH)                   // 上边两角贴组件边角：圆角 = 外框 − 内边距（同心）
   panel.url = item.url || SITE_URL
-  panel.setPadding(10, 11, 9, 10)
+  panel.setPadding(PAD_IN, PAD_IN, PAD_IN, PAD_IN)
   const top = panel.addStack()
   top.centerAlignContent()
   categoryTag(top, item, 7.5, C.ink)
@@ -342,15 +310,15 @@ function buildSmall(data, state) {
   panel.addSpacer()
   const fig = panel.addStack()
   fig.bottomAlignContent()
-  text(fig, deadlineLabel(item), 41, C.ink, "didot")
+  text(fig, deadlineLabel(item), panelH >= 100 ? 41 : 36, C.ink, "didot")
   fig.addSpacer()
   const d = daysRemaining(item)
   daysPill(fig, d === null ? "TBA" : `T-${d}`, 8, 14)
 
-  w.addSpacer(7)
+  w.addSpacer(GAP)
   const body = w.addStack()
   body.layoutVertically()
-  body.setPadding(0, 4, 0, 4)
+  body.setPadding(0, PAD_IN, 0, PAD_IN)               // 与卡内文字同一条左线
   text(body, splitTitle(item.title).title, 12, C.ink, "bold", 1)
   body.addSpacer(3)
   const meta = body.addStack()
@@ -368,33 +336,32 @@ function buildSmall(data, state) {
 }
 
 // ============================================================
-// MEDIUM · 左边一块黑色「总数」，右边三个机会，每个是一张独立的卡
+// MEDIUM · 左边一块「总数」，右边三个机会，每个是一张独立的卡；块与块的间距一律 GAP
 // 总数：一共几项开放机会（大号数字）；放不下的写「另有 n 项」。
 // ============================================================
 function buildMedium(data, state) {
-  const pad = 12
   const m = widgetMetrics().medium
-  const w = baseWidget(pad)
+  const w = baseWidget(INSET)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
 
-  const panelW = 74, gap = 10
-  const innerH = m.h - pad * 2 - 2
-  const listW = m.w - pad * 2 - panelW - gap
+  const panelW = 74
+  const innerH = m.h - INSET * 2 - 1
+  const listW = m.w - INSET * 2 - panelW - GAP
   const tight = listW < 240              // 小屏机型：日期柱与数字列收窄，把宽度让给标题
   const pw = tight ? 46 : 52, kw = tight ? 46 : 58
-  const s = { w: listW, h: 44, big: 14, small: 5, pillarW: pw, date: tight ? 15 : 17, tn: 7.5, pad: 8,
-    colW: listW - pw - 1.2 - 8 - kw - 8 - 4, keyW: kw, title: 10.5, meta: 7.5, hl: tight ? 14 : 16 }
-  const rgap = 4
-  const n = fitRows(innerH, s.h, rgap, 0, calls.length)
+  const rows = innerH >= 3 * 38 + 2 * GAP ? 3 : 2
+  const cardH = (innerH - (rows - 1) * GAP) / rows      // 三张（或两张）正好填满整列
+  const s = { w: listW, h: cardH, pillarW: pw, date: tight ? 15 : 17, tn: 7.5,
+    colW: listW - pw - BW - PAD_IN - kw - PAD_IN - 4, keyW: kw, title: 10.5, meta: 7.5, hl: tight ? 14 : 16 }
+  const n = Math.min(calls.length, rows)
 
   const outer = w.addStack()
   outer.layoutHorizontally()
 
-  const cr = nest(pad)                  // 贴着组件边角的那些角
-  const panel = shapeStack(outer, panelW, innerH, [cr, 5, 14, cr], C.card, C.ink, 1.2)   // 左上、左下贴边；右侧两角在内部；白底描边，不用黑块
-  panel.setPadding(10, 9, 9, 8)
+  const panel = card(outer, panelW, innerH)
+  panel.setPadding(PAD_IN, PAD_IN, PAD_IN, PAD_IN)
   text(panel, compactIssue(data.issue_id) || "—", 7, C.ink, "monob")
   panel.addSpacer()
   text(panel, two(calls.length), 46, C.red, "didot")
@@ -405,20 +372,18 @@ function buildMedium(data, state) {
   if (hidden > 0) text(panel, `另有 ${hidden} 项`, 7, C.ink, "monob")
   else text(panel, statusText(state, data), 7, fresh ? C.dim : C.soon, "mono")
 
-  outer.addSpacer(gap)
+  outer.addSpacer(GAP)
   const list = outer.addStack()
   list.layoutVertically()
   for (let i = 0; i < n; i++) {
-    const touchBottom = n * s.h + (n - 1) * rgap >= innerH - 4
-    const r = [s.big, i === 0 ? cr : s.small, i === n - 1 && touchBottom ? cr : s.big, s.small]
-    addOppCard(list, calls[i], Object.assign({}, s, { r }))
-    if (i < n - 1) list.addSpacer(rgap)
+    addOppCard(list, calls[i], s)
+    if (i < n - 1) list.addSpacer(GAP)
   }
   return w
 }
 
 // ============================================================
-// LARGE · 刊头写明总数，下面五张同样的卡
+// LARGE · 刊头写明总数，下面五张同样的卡；卡与卡、刊头、页脚之间的间距一律 GAP
 // ============================================================
 function addMasthead(parent, data, calls) {
   const top = parent.addStack()
@@ -434,38 +399,37 @@ function addMasthead(parent, data, calls) {
   text(unit, "项机会", 8.5, C.ink, "monob")
   text(unit, compactIssue(data.issue_id) || "—", 7.5, C.dim, "mono")
   unit.addSpacer(2)
-  parent.addSpacer(8)
+  parent.addSpacer(GAP)
 }
 
 function buildLarge(data, state) {
-  const pad = 14
   const m = widgetMetrics().large
-  const cw = m.w - pad * 2
-  const w = baseWidget(pad)
+  const cw = m.w - INSET * 2
+  const chh = m.h - INSET * 2 - 1
+  const w = baseWidget(INSET)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
   addMasthead(w, data, calls)
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); footer(w, data, state); return w }
 
-  const gap = 5
+  const MAST = 32, FOOT = 10           // 刊头（26pt 数字）与页脚一行字的高度
+  const area = chh - MAST - GAP - GAP - 1 - GAP - FOOT      // 刊头 | 卡片区 | 间距 | 线 | 间距 | 页脚
   const tight = cw < 320
   const pw = tight ? 62 : 72, kw = tight ? 64 : 80
-  const s = { w: cw, h: 54, big: 18, small: 5, pillarW: pw, date: tight ? 19 : 21, tn: 8, pad: 10,
-    colW: cw - pw - 1.2 - 10 - kw - 10 - 4, keyW: kw, title: 12.5, meta: 8, hl: tight ? 15 : 17 }
-  const extra = 17                     // 「另有 n 项」小字行 + 与上面的间距
-  const head = 38, foot = 17           // 刊头（30+8）与页脚（线 + 间距 + 一行字）
-  const n = fitRows(m.h - pad * 2 - head - foot, s.h, gap, extra, calls.length)
-  for (let i = 0; i < n; i++) {
+  const plan = planRows(area, 46, 60, calls.length, GAP + 10)
+  const s = { w: cw, h: plan.h, pillarW: pw, date: tight ? 19 : 21, tn: 8,
+    colW: cw - pw - BW - PAD_IN - kw - PAD_IN - 4, keyW: kw, title: 12.5, meta: 8, hl: tight ? 15 : 17 }
+  for (let i = 0; i < plan.n; i++) {
     addOppCard(w, calls[i], s)
-    if (i < n - 1) w.addSpacer(gap)
+    if (i < plan.n - 1) w.addSpacer(GAP)
   }
 
-  const rest = restText(calls, n)
-  if (rest) { w.addSpacer(7); text(w, rest, 8, C.faint, "mono", 1) }
+  const rest = restText(calls, plan.n)
+  if (rest) { w.addSpacer(GAP); text(w, rest, 8, C.faint, "mono", 1) }
 
   w.addSpacer()
   rule(w)
-  w.addSpacer(6)
+  w.addSpacer(GAP)
   footer(w, data, state)
   return w
 }
@@ -473,7 +437,7 @@ function buildLarge(data, state) {
 // ============================================================
 // EXTRA LARGE · iPad / Mac 的超大组件：3×2 网格，五个机会各占一格，第六格是刊头（写明总数）
 // ============================================================
-// 异形卡是固定尺寸的图，必须先假定组件面积。Mac 与 iPad 超大组件的点数我没有官方数据可核对，
+// 格子尺寸要先假定组件面积。Mac 与 iPad 超大组件的点数我没有官方数据可核对，
 // 所以按屏幕大小保守假定：大屏（Mac、11 / 12.9 英寸 iPad）取 700×340，小 iPad 取 640×304。
 // 真实面积更大时，网格居中，多出来的只是留白；不会溢出。
 function extraLargeArea() {
@@ -482,79 +446,92 @@ function extraLargeArea() {
   return longest >= 1180 ? { w: 700, h: 340 } : { w: 640, h: 304 }
 }
 
-// 3×2 网格里 6 个格子的四角半径：位于组件四个角上的格子，对应那个角取同心半径
-function gridRadii(idx) {
-  const big = 22, small = 6, cc = nest(14)
-  const r = [big, small, big, small]
-  if (idx === 0) r[0] = cc      // 左上
-  if (idx === 2) r[1] = cc      // 右上
-  if (idx === 3) r[3] = cc      // 左下
-  if (idx === 5) r[2] = cc      // 右下
-  return r
+// 一条自适应宽度的发丝线（放在横排里，把两端的字隔开）
+function hairLine(parent) {
+  const l = parent.addStack()
+  l.size = new Size(0, 1)
+  l.backgroundColor = new Color(C.hair)
+  l.addSpacer()
 }
 
-function addGridCard(parent, item, cw, ch, r) {
-  const card = shapeStack(parent, cw, ch, r, C.card, C.ink, 1.2)
-  card.url = item.url || SITE_URL
-  card.setPadding(8, 8, 8, 8)
-  const iw = cw - 16
+// 超大号的一格：顶行「01/05 ── ● 展览」，中间超大号日期 + T-n，一条线，底行标题 + 红色关键数字。
+// 排版语言偏「酸性」：超大斜体数字、等宽小标、发丝线；不铺色块，只有红字。
+function addGridCard(parent, item, cw, ch, idx, total) {
+  const c = card(parent, cw, ch)       // 六个格子都是同一个等角圆角；文字距格边一律 INSET
+  c.url = item.url || SITE_URL
+  c.setPadding(INSET, INSET, INSET, INSET)
+  const sc = Math.min(1, (ch - INSET * 2) / 130)     // 小 iPad 的假定面积更矮：数字按格高等比缩小，装得下
 
-  const panelH = ch - 16 - 51           // 下面留 51pt：标题 15 + 间距 + 关键数字一行 + 余量
-  const panel = shapeStack(card, iw, panelH, r.map(v => Math.max(v - 8, 4)), C.card, C.ink, 1.2)   // 与外格同心：外格半径 − 内边距 8
-  panel.setPadding(8, 11, 8, 10)
-  const top = panel.addStack()
+  const top = c.addStack()
   top.centerAlignContent()
+  text(top, `${two(idx)}/${two(total)}`, 7.5, C.ink, "monob")
+  top.addSpacer(6)
+  hairLine(top)
+  top.addSpacer(6)
   categoryTag(top, item, 7.5, C.ink)
-  top.addSpacer()
-  panel.addSpacer()
-  const fig = panel.addStack()
+
+  c.addSpacer()
+  const fig = c.addStack()
   fig.bottomAlignContent()
-  text(fig, deadlineLabel(item), 38, C.ink, "didot")
+  text(fig, deadlineLabel(item), Math.round(50 * sc), C.ink, "didot")
   fig.addSpacer()
   const d = daysRemaining(item)
   daysPill(fig, d === null ? "TBA" : `T-${d} DAYS`, 7, 13)
 
-  card.addSpacer(6)
-  const body = card.addStack()
-  body.layoutVertically()
-  body.setPadding(0, 4, 0, 4)
-  text(body, splitTitle(item.title).title, 12, C.ink, "bold", 1)
-  body.addSpacer(2)
-  const meta = body.addStack()
-  meta.centerAlignContent()
+  c.addSpacer(4)
+  rule(c)
+  c.addSpacer(5)
+  const row = c.addStack()
+  row.centerAlignContent()
+  row.size = new Size(0, Math.round(1.22 * Math.max(14, 18 * sc)))   // 固定行高：各格的标题行才在同一条线上，不随关键数字大小上下浮动
+  text(row, splitTitle(item.title).title, 12, C.ink, "bold", 1)
+  row.addSpacer()
   const hl = highlightOf(item)
   if (hl) {
-    const spec = highlightSpec(hl.value, 14)
-    text(meta, hl.value, spec.size, spec.color || C.ink, spec.weight)
-    if (hl.label) { meta.addSpacer(5); text(meta, hl.label, 7, C.dim, "mono", 1) }
+    const spec = highlightSpec(hl.value, Math.max(14, 18 * sc))
+    text(row, hl.value, spec.size, spec.color || C.ink, spec.weight)
+    if (hl.label) {
+      const lab = c.addStack()
+      lab.addSpacer()
+      text(lab, hl.label, 7, C.dim, "mono", 1)
+    }
   }
-  meta.addSpacer()
 }
 
-// 第六格：刊头。白底黑描边，与五张卡同一个异形圆角；红色大号数字写明一共几项（不用黑块）
+// 第六格：刊头。同一套骨架，红色超大总数写明一共几项
 function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
-  const cell = shapeStack(parent, cw, ch, gridRadii(0), C.card, C.ink, 1.2)
-  cell.setPadding(14, 16, 12, 14)
-  text(cell, "MEDIA ART", 9, C.ink, "bold")
-  text(cell, "Radar ↗", 20, C.ink, "didot")
+  const cell = card(parent, cw, ch)
+  cell.setPadding(INSET, INSET, INSET, INSET)
+  const sc = Math.min(1, (ch - INSET * 2) / 130)
+  const top = cell.addStack()
+  top.centerAlignContent()
+  text(top, "MEDIA ART", 7.5, C.ink, "monob")
+  top.addSpacer(6)
+  hairLine(top)
+  top.addSpacer(6)
+  text(top, "Radar ↗", 11, C.ink, "didot")
+
   cell.addSpacer()
-  text(cell, two(calls.length), 40, C.red, "didot")
+  text(cell, two(calls.length), Math.round(64 * sc), C.red, "didot")
   text(cell, "项机会 · OPEN CALLS", 8, C.dim, "mono")
   cell.addSpacer(4)
+  rule(cell)
+  cell.addSpacer(5)
+  const foot = cell.addStack()
+  foot.centerAlignContent()
   const fresh = state === "LIVE" && !isStale(data)
-  text(cell, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8, fresh ? C.dim : C.soon, "mono")
-  if (hidden > 0) {
-    cell.addSpacer(2)
-    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, C.ink, "monob")
-  }
+  text(foot, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 7.5, fresh ? C.dim : C.soon, "mono")
+  foot.addSpacer()
+  if (hidden > 0) text(foot, `另有 ${hidden} 项 ↗`, 7.5, C.ink, "monob")
 }
 
 function buildExtraLarge(data, state) {
   const area = extraLargeArea()
-  const pad = 14, gap = 10
-  const cw = Math.floor((area.w - pad * 2 - gap * 2) / 3)
-  const ch = Math.floor((area.h - pad * 2 - gap) / 2)
-  const w = baseWidget(pad)
+  const iw = area.w - INSET * 2
+  const ih = area.h - INSET * 2 - 1
+  const cw = Math.floor((iw - GAP * 2) / 3)
+  const ch = Math.floor((ih - GAP) / 2)
+  const w = baseWidget(INSET)
   const calls = activeCalls(data.open_calls || [], "deadline")
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
@@ -569,13 +546,13 @@ function buildExtraLarge(data, state) {
     const line = wrap.addStack()
     for (let c = 0; c < 3; c++) {
       const idx = r * 3 + c          // 0 是刊头，1–5 是五个机会
-      if (c > 0) line.addSpacer(gap)
+      if (c > 0) line.addSpacer(GAP)
       if (idx === 0) addMastheadCell(line, data, state, calls, hidden, cw, ch)
-      else if (shown[idx - 1]) addGridCard(line, shown[idx - 1], cw, ch, gridRadii(idx))
+      else if (shown[idx - 1]) addGridCard(line, shown[idx - 1], cw, ch, idx, calls.length)
       else { const blank = line.addStack(); blank.size = new Size(cw, ch) }   // 不足五项时占位，保持对齐
     }
     wrap.addSpacer()
-    if (r === 0) w.addSpacer(gap)
+    if (r === 0) w.addSpacer(GAP)
   }
   w.addSpacer()
   return w
