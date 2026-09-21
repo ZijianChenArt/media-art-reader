@@ -29,16 +29,16 @@ const C = {
 // 注意：这些 const 必须写在下面的执行入口之前——const 不会提升，
 // 放在入口之后会在中号、大号里触发 "before initialization" 而整块空白。
 // ============================================================
-const WIDGET_R = 22                    // iOS 组件外框圆角（估值）
+const WIDGET_R = 26                    // iOS 组件外框圆角（实测：iPhone 17 Pro Max 真机截图量得 25.8–26.3pt）
 const INSET = 12                       // 组件内边距（四边相同）
 const GAP = 6                          // 相邻块的间距（横竖相同）
-const CARD_R = WIDGET_R - INSET        // 10：卡片圆角，与外框同心
+const CARD_R = WIDGET_R - INSET        // 14：卡片圆角，与外框同心
 const PAD_IN = 10                      // 块内文字与块边缘的距离
 const BW = 1.2                         // 描边宽度
 
 // 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
 const WIDGET_SIZES = {
-  956: { small: 170, mw: 364, lh: 382 },   // iPhone 16 / 17 Pro Max（440×956），按同档 6.9 英寸机型取值
+  956: { small: 176, mw: 378, lh: 393 },   // iPhone 17 Pro Max（440×956）：真机截图实测 377.9×176.3 / 377.9×393.2。其余机型仍是 Apple 旧规格，尺寸不准时内容也会自适应撑满宽度
   932: { small: 170, mw: 364, lh: 382 },
   926: { small: 170, mw: 364, lh: 382 },
   896: { small: 169, mw: 360, lh: 379 },
@@ -245,7 +245,7 @@ function keyColumn(parent, item, w, base, labelSize) {
 // 一个机会 = 一张独立的黑描边卡：[日期柱] | 名称 + 分类 | 关键数字。
 // 中号与大号共用；不主推任何一个，不写地点，不写「申请截止」——只留最要紧的三样。
 function addOppCard(parent, item, s) {
-  const c = card(parent, s.w, s.h)
+  const c = card(parent, 0, s.h)          // 宽度 0 = 自适应：靠卡内的弹性空白撑满父容器，组件实际尺寸与预估有出入也不会错位
   c.url = item.url || SITE_URL
   c.layoutHorizontally()
   c.centerAlignContent()
@@ -256,7 +256,6 @@ function addOppCard(parent, item, s) {
   c.addSpacer(PAD_IN)
   const col = c.addStack()
   col.layoutVertically()
-  col.size = new Size(s.colW, 0)
   text(col, splitTitle(item.title).title, s.title, C.ink, "bold", 1)
   col.addSpacer(3)
   text(col, `${glyphOf(item)} ${categoryLabel(item, true)}`, s.meta, C.dim, "monob", 1)
@@ -299,7 +298,7 @@ function buildSmall(data, state) {
   const item = calls[0]
   const BODY_H = 33                                   // 标题一行 + 间距 + 说明 / 关键数字一行
   const panelH = ch - GAP - BODY_H                    // 卡片撑满：上下内边距相等
-  const panel = card(w, cw, panelH)                   // 上边两角贴组件边角：圆角 = 外框 − 内边距（同心）
+  const panel = card(w, 0, panelH)                    // 宽度自适应；上边两角贴组件边角：圆角 = 外框 − 内边距（同心）
   panel.url = item.url || SITE_URL
   panel.setPadding(PAD_IN, PAD_IN, PAD_IN, PAD_IN)
   const top = panel.addStack()
@@ -353,8 +352,8 @@ function buildMedium(data, state) {
   const pw = tight ? 46 : 52, kw = tight ? 46 : 58
   const rows = innerH >= 3 * 38 + 2 * GAP ? 3 : 2
   const cardH = (innerH - (rows - 1) * GAP) / rows      // 三张（或两张）正好填满整列
-  const s = { w: listW, h: cardH, pillarW: pw, date: tight ? 15 : 17, tn: 7.5,
-    colW: listW - pw - BW - PAD_IN - kw - PAD_IN - 4, keyW: kw, title: 10.5, meta: 7.5, hl: tight ? 14 : 16 }
+  const s = { h: cardH, pillarW: pw, date: tight ? 15 : 17, tn: 7.5,
+    keyW: kw, title: 10.5, meta: 7.5, hl: tight ? 14 : 16 }
   const n = Math.min(calls.length, rows)
 
   const outer = w.addStack()
@@ -390,7 +389,7 @@ function addMasthead(parent, data, calls) {
   top.bottomAlignContent()
   text(top, "MEDIA ART", 10, C.ink, "bold")
   top.addSpacer(6)
-  text(top, "Radar ↗", 18, C.ink, "didot")
+  text(top, "Radar", 18, C.ink, "didot")
   top.addSpacer()
   text(top, two(calls.length), 26, C.red, "didot")
   top.addSpacer(4)
@@ -417,8 +416,8 @@ function buildLarge(data, state) {
   const tight = cw < 320
   const pw = tight ? 62 : 72, kw = tight ? 64 : 80
   const plan = planRows(area, 46, 60, calls.length, GAP + 10)
-  const s = { w: cw, h: plan.h, pillarW: pw, date: tight ? 19 : 21, tn: 8,
-    colW: cw - pw - BW - PAD_IN - kw - PAD_IN - 4, keyW: kw, title: 12.5, meta: 8, hl: tight ? 15 : 17 }
+  const s = { h: plan.h, pillarW: pw, date: tight ? 19 : 21, tn: 8,
+    keyW: kw, title: 12.5, meta: 8, hl: tight ? 15 : 17 }
   for (let i = 0; i < plan.n; i++) {
     addOppCard(w, calls[i], s)
     if (i < plan.n - 1) w.addSpacer(GAP)
@@ -509,7 +508,7 @@ function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
   top.addSpacer(6)
   hairLine(top)
   top.addSpacer(6)
-  text(top, "Radar ↗", 11, C.ink, "didot")
+  text(top, "Radar", 11, C.ink, "didot")
 
   cell.addSpacer()
   text(cell, two(calls.length), Math.round(64 * sc), C.red, "didot")
@@ -522,7 +521,7 @@ function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
   const fresh = state === "LIVE" && !isStale(data)
   text(foot, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 7.5, fresh ? C.dim : C.soon, "mono")
   foot.addSpacer()
-  if (hidden > 0) text(foot, `另有 ${hidden} 项 ↗`, 7.5, C.ink, "monob")
+  if (hidden > 0) text(foot, `另有 ${hidden} 项`, 7.5, C.ink, "monob")
 }
 
 function buildExtraLarge(data, state) {
@@ -572,7 +571,7 @@ function footer(parent, data, state) {
 function addEmptyState(parent, state, compact = false) {
   text(parent, state === "OFFLINE" ? "等待首次同步" : "暂无开放机会", compact ? 13 : 16, C.ink, "semi")
   parent.addSpacer(4)
-  text(parent, state === "OFFLINE" ? "联网后运行脚本" : "点击查看本期周刊 ↗", 9, C.dim, "mono", 2)
+  text(parent, state === "OFFLINE" ? "联网后运行脚本" : "点击查看本期周刊", 9, C.dim, "mono", 2)
 }
 
 function isStale(data) {
