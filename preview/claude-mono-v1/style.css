@@ -39,10 +39,8 @@ img{display:block;max-width:100%}
 
 /* ============ 左栏：一份目录，不是一排色块 ============ */
 .rail{height:100%;min-height:0;display:flex;flex-direction:column;padding:32px 24px 24px 30px;border-right:1px solid var(--hair);overflow-y:auto}
-.brand{display:flex;flex-direction:column;align-items:flex-start;margin:0 0 28px}
-.mark{width:32px;height:32px;margin:0 0 16px}
-.brand-a{font-size:1.02rem;font-weight:700;letter-spacing:-.02em;line-height:1}
-.brand-b{margin:4px 0 0 -.03em;font-family:var(--display);font-weight:600;font-size:3.9rem;line-height:.86;letter-spacing:-.05em}
+.brand{display:block;height:var(--title-h,63px);margin:0 0 34px}
+.brand-t{display:block;font-family:var(--serif);font-size:3.8rem;line-height:1;letter-spacing:-.02em;white-space:nowrap}
 
 .index{flex:1 1 auto;min-height:0;display:grid;grid-template-rows:minmax(340px,1fr) 52px 52px 42px;gap:10px}
 .nav{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;cursor:pointer;font-size:.95rem}
@@ -249,6 +247,10 @@ img{display:block;max-width:100%}
 .wg .pl-ink{background:var(--ink);color:#fff}
 .wg .pl-inv{background:#fff;color:var(--ink);border-color:#fff}
 .wg .pl-line{color:#fff;border-color:#fff}
+.wg .pil{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:0 0 auto;border-right:1.2px solid var(--ink);margin:0}
+.wg .opp{display:flex;align-items:center;border:1.2px solid var(--ink);background:#fff;overflow:hidden;flex:0 0 auto}
+.wg .opp .col{display:flex;flex-direction:column;min-width:0}
+.wg .cnt{display:flex;flex-direction:column;background:var(--ink);color:#fff;flex:0 0 auto}
 .wg-row{display:flex;align-items:center;min-width:0}
 .wg-row .col{display:flex;flex-direction:column;min-width:0}
 .wg-row .r1,.wg-row .r2{display:flex;align-items:center;min-width:0}
@@ -261,9 +263,8 @@ img{display:block;max-width:100%}
 /* ============ 窄一点的桌面 ============ */
 @media(max-width:1250px){
   .app{grid-template-columns:232px minmax(0,1fr)}
-  .rail{padding:28px 18px 20px 24px}
+  .rail{padding:32px 18px 20px 24px}
   .stage{padding:0 32px}
-  .brand-b{font-size:3.3rem}
 }
 @media(max-width:1180px){
   .call{grid-template-columns:204px minmax(0,1fr)}
@@ -273,28 +274,27 @@ img{display:block;max-width:100%}
   .focus-layout{gap:28px}
 }
 
-/* ============ 手机与竖屏平板：顶部固定三个胶囊 ============ */
+/* ============ 手机与竖屏平板：顶部一行 = Media Art + 三个胶囊（固定） ============ */
 .mobile-filters{display:none}
 @media(max-width:860px){
   html{overflow:auto}
   html,body{height:auto}
   .app{display:block;width:auto;height:auto;overflow:visible}
   .rail{
-    position:sticky;top:0;z-index:20;height:auto;display:block;padding:12px 16px;overflow:visible;
+    position:sticky;top:0;z-index:20;height:auto;display:flex;flex-direction:row;align-items:center;gap:10px;padding:10px 14px;overflow:visible;
     background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-right:0;border-bottom:1px solid var(--hair);
   }
-  .brand{flex-direction:row;align-items:center;gap:8px;margin:0}
-  .mark{width:26px;height:26px;margin:0}
-  .brand-a{font-size:.9rem}
-  .brand-b{margin:0;font-size:1.9rem;line-height:1}
-  .index{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:none;gap:8px;margin-top:10px}
+  /* 一行：Media Art + 三个胶囊 */
+  .brand{flex:0 0 auto;height:auto;margin:0}
+  .brand-t{font-size:1.6rem!important;margin:0!important}
+  .index{flex:1 1 auto;min-width:0;display:flex;justify-content:flex-end;gap:6px;margin:0}
   .group{display:contents}
   .group .tile,.mini-status,.nav .n,.nav .c,.mini i{display:none}
-  .nav{justify-content:center;height:42px;min-height:0;padding:0 6px;border:1.5px solid var(--ink)!important;border-radius:999px!important}
-  .nav strong{flex:none;font-size:.8rem;white-space:nowrap;letter-spacing:-.02em}
+  .nav{flex:0 1 auto;width:auto;min-width:0;justify-content:center;height:36px;min-height:0;padding:0 9px;border:1.5px solid var(--ink)!important;border-radius:999px!important}
+  .nav strong{flex:none;font-size:.74rem;white-space:nowrap;letter-spacing:-.03em}
   .nav:hover{box-shadow:none}
   .nav.in-section{background:var(--ink);color:#fff}
-  .call{scroll-margin-top:96px}
+  .call{scroll-margin-top:64px}
 
   .stage{height:auto;overflow:visible;padding:0 16px}
   .view{padding:26px 0 56px}
@@ -310,13 +310,8 @@ img{display:block;max-width:100%}
   .mobile-filter.is-empty{opacity:.4}
   .toolbar{display:none}
 
-  /* 时间轴：手机上只留日期，标题隐藏 */
-  .legend{display:none}
-  .plot{height:166px}
-  .axis,.win,.tick,.today,.blip{top:75px}
-  .blip .lab{height:58px}
-  .lab b{display:none}
-  .lab i u{display:none}
+  /* 手机不要时间轴 */
+  .radar{display:none}
 
   .ledger{gap:18px}
   .call{grid-template-columns:1fr;border-radius:30px 6px 30px 6px}
@@ -335,5 +330,4 @@ img{display:block;max-width:100%}
   .panel{padding:22px 20px}
 }
 @media(max-height:820px){.tile .tl em{display:none}.tile .g{font-size:1.3rem}}
-@media(max-height:800px) and (min-width:861px){.mark{display:none}.brand{margin-bottom:20px}.brand-b{font-size:3rem}.rail{padding-top:26px}}
 @media(prefers-reduced-motion:reduce){.blip,.blip .g{transition:none}}

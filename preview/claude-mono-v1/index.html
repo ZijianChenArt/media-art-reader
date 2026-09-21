@@ -16,12 +16,8 @@
 <a class="skip" href="#stage">跳到内容</a>
 <div class="app">
   <aside class="rail">
-    <!-- 字标：雷达标记 + 两行字。标记 = 同心圆 + 一个亮点（一个「信号」） -->
-    <a class="brand" href="#opportunities" aria-label="Media Art Radar">
-      <svg class="mark" viewBox="0 0 34 34" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="17" cy="17" r="15.2"/><circle cx="17" cy="17" r="8.6"/></g><path d="M17 17 28.4 7.2" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="25.4" cy="9.8" r="2.9" fill="currentColor"/></svg>
-      <span class="brand-a">Media Art</span>
-      <span class="brand-b">Radar</span>
-    </a>
+    <!-- 字标：只有 Media Art。宽度 = 下方方块的宽度，高度 = 右侧标题的高度，基线与标题对齐（由 app.js 精确拟合） -->
+    <a class="brand" href="#opportunities" aria-label="Media Art Radar"><span class="brand-t" id="brand-t">Media Art</span></a>
 
     <nav class="index" aria-label="主要内容">
       <!-- 国际机会精选 = 展览 + 驻留 + 奖项 + 学术会议：一个整体，四个大块 -->
