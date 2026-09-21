@@ -126,7 +126,10 @@
       k.style.marginLeft = titleCtx.measureText(k.textContent).actualBoundingBoxLeft + 'px';
     });
   }
-  document.fonts.ready.then(() => { fitBrand(); alignTitle(); });
+  document.fonts.ready.then(() => {
+    fitBrand(); alignTitle();
+    if (data && document.body.dataset.route === 'widget') { const y = $('#stage').scrollTop; render('widget', 'all', false); $('#stage').scrollTop = y; }
+  });
   addEventListener('resize', () => { fitBrand(); alignTitle(); });
 
   // ---------- 雷达：截止日时间轴 ----------
@@ -278,12 +281,16 @@
     </section>`;
   }
 
-  // ---------- 小组件页：预览按 Media-Art-Radar.js（Edition 10）同一套「等角、等距」规则绘制 ----------
-  // 圆角：全部等角；卡片 14（= 组件外框 26 − 内边距 12；26 与尺寸 378×176 / 378×393 都是 iPhone 17 Pro Max 真机截图实测）。
-  // 间距：组件四边内边距 12；相邻块之间 6；块内文字距块边缘 10。
-  // 预览里的日期用 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。
-  const WG = { inset: 12, gap: 6, cardR: 14, padIn: 10, bw: 1.2 };
-  // iOS 的描边是覆盖在内边距上的，CSS 的描边会占位；预览里给带描边的块扣掉一个描边宽，文字位置才与真机一致
+  // ---------- 小组件页：预览按 Media-Art-Radar.js（Edition 10）同一套规则绘制，iPhone 与 Mac 两组尺寸 ----------
+  // 圆角：全部等角；卡片 14（= 组件外框 26 − 内边距 12）。间距：组件四边内边距 12；相邻块之间 6；块内文字距块边缘 10。
+  // 线条：真机上 iOS 会把描边的外半圈裁掉，卡片外框的有效粗细只有约 0.6pt；卡里的竖分隔线是一块 1.2pt 宽的黑条。所以外细内粗，预览照此绘制。
+  // 尺寸（iPhone 17 Pro Max 与 Mac 桌面）都是真机截图实测。预览里的日期用 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。
+  const WG = { inset: 12, gap: 6, cardR: 14, padIn: 10, bw: 0.6 };
+  const SIZES = {
+    phone: { small: 176, mw: 378, lh: 393 },
+    mac: { small: 162, mw: 341, lh: 342, xl: { w: 701, h: 342 } }
+  };
+  // iOS 的描边覆盖在内边距上、不占位；CSS 的描边占位，预览里给带描边的块扣掉一个描边宽，文字位置才与真机一致
   const bp = v => (v - WG.bw).toFixed(1);
   function hlHtml(item, base) {
     const v = item.highlight;
@@ -296,6 +303,16 @@
   const catTag = (item, fs, color) => `<span class="mono" style="font-size:${fs}px;font-weight:700;color:${color};display:inline-flex;align-items:center;gap:.4em">${glyph(item.category)}${esc(catShort[item.category] || '')}</span>`;
   const daysPillOn = (label, fs, h) =>
     `<span class="pl" style="font-size:${fs}px;height:${h}px;border-radius:${h / 2}px">${esc(label)}</span>`;
+  // 文字先缩小再截断：与 Scriptable 的 minimumScaleFactor 0.8 一致（真机上长名称是先缩到 80% 才出现省略号）
+  const fitCtx = document.createElement('canvas').getContext('2d');
+  const fitSize = (text, size, avail) => {
+    fitCtx.font = `700 ${size}px Grotesk, sans-serif`;
+    const w = fitCtx.measureText(text).width;
+    return w <= avail ? size : Math.max(size * .8, size * avail / w);
+  };
+  const subOf = item => titleParts(item.title).slice(1).join(' / ');
+  const nameOf = item => titleParts(item.title)[0] || item.title;
+  const clamp = n => `display:-webkit-box;-webkit-line-clamp:${n};-webkit-box-orient:vertical;overflow:hidden`;
 
   // 一列卡片的排法：与脚本里的 planRows 一致
   const planRows = (avail, minH, maxH, total, extra = 0) => {
@@ -306,7 +323,7 @@
     return { n, h: Math.min(maxH, (room - (n - 1) * WG.gap) / n) };
   };
 
-  // 日期柱：日期 + T-n（右边一条 1.2 的线是分隔）
+  // 日期柱：日期 + T-n（右边一条 1.2 的黑条是分隔）
   const pillarHtml = (item, w, h, ds, ts) =>
     `<div class="pil" style="width:${w + 1.2}px;height:${h}px"><span class="it" style="font-size:${ds}px;line-height:1">${esc(fmtDate(item))}</span><span class="mono" style="font-size:${ts}px;font-weight:700;color:#d71921">${esc(tnOf(item))}</span></div>`;
   // 关键数字列
@@ -314,11 +331,10 @@
     const label = item.highlight_label ? `<span class="mono clip dim" style="font-size:${ls}px;text-align:right">${esc(item.highlight_label)}</span>` : '';
     return `<div style="width:${w}px;display:flex;flex-direction:column;align-items:flex-end;flex:0 0 auto;gap:2px">${hlHtml(item, base)}${label}</div>`;
   };
-  // 一张机会卡（中号 / 大号共用）：[日期柱] | 名称 + 分类 | 关键数字
+  // 一张机会卡（中号 / 大号共用）：[日期柱] | 名称（主角，粗体）+ 分类 | 关键数字
   const oppCard = (item, s) => `<div class="opp" style="width:${s.w}px;height:${s.h}px;border-radius:${WG.cardR}px">
-      ${pillarHtml(item, s.pillarW, s.h - 2.4, s.date, s.tn)}
-      <div class="col" style="width:${s.colW}px;margin-left:${WG.padIn}px;flex:0 0 auto"><b class="clip" style="font-size:${s.title}px">${esc(titleParts(item.title)[0] || item.title)}</b><span class="mono dim clip" style="font-size:${s.meta}px;font-weight:700;margin-top:3px;display:flex;align-items:center;gap:.4em">${glyph(item.category)}${esc(catShort[item.category] || '')}</span></div>
-      <div class="grow"></div>
+      ${pillarHtml(item, s.pillarW, s.h - WG.bw * 2, s.date, s.tn)}
+      <div class="col" style="flex:1 1 auto;min-width:0;margin-left:${WG.padIn}px"><b class="clip" style="font-size:${fitSize(nameOf(item), s.title, s.w - s.pillarW - 1.2 - WG.padIn * 2 - s.keyW - 4).toFixed(2)}px">${esc(nameOf(item))}</b><span class="mono dim clip" style="font-size:${s.meta}px;font-weight:700;margin-top:3px;display:flex;align-items:center;gap:.4em">${glyph(item.category)}${esc(catShort[item.category] || '')}</span></div>
       ${keyHtml2(item, s.keyW, s.hl, s.meta - 1)}
       <div style="width:${WG.padIn}px;flex:0 0 auto"></div>
     </div>`;
@@ -328,59 +344,71 @@
     const first = calls[0];
     const issue = esc((data.issue_id || '').replace(/^\d{4}-/, ''));
     const total = two(calls.length);
-    const fig = (cls, name, size, note, inner) => `<figure class="wg-item" style="margin:0">
+    const fig = (cls, name, size, note, inner, w, h) => `<figure class="wg-item" style="margin:0">
       <figcaption class="wg-cap"><b>${name}</b><span>${size}</span></figcaption>
-      <div class="wg-scroll"><div class="wg ${cls}" role="img" aria-label="${name}小组件预览：${esc(note)}">${inner}</div></div></figure>`;
+      <div class="wg-scroll"><div class="wg ${cls}" style="width:${w}px;height:${h}px" role="img" aria-label="${name}小组件预览：${esc(note)}">${inner}</div></div></figure>`;
 
-    // 小号：一张撑满的卡（分类 · 共 N 项 · 巨型日期 · T-n）+ 标题与关键数字
-    const sCw = 176 - WG.inset * 2, sCh = 176 - WG.inset * 2 - 1, sBody = 33, sPanelH = sCh - WG.gap - sBody;
-    const small = first ? `<div class="pnl" style="width:${sCw}px;height:${sPanelH}px;border-radius:${WG.cardR}px;padding:${bp(WG.padIn)}px">
+    // 小号：一张撑满的卡 —— 分类 · 共 N 项 / 名称（主角，最多两行）/ 日期 + T-n / 关键数字
+    const smallHtml = sz => {
+      if (!first) return '';
+      const ch = sz.small - WG.inset * 2 - 1, cw = sz.small - WG.inset * 2, sc = Math.min(1, (ch - WG.padIn * 2) / 117);
+      return `<div class="pnl" style="width:${cw}px;height:${ch}px;border-radius:${WG.cardR}px;padding:${bp(WG.padIn)}px">
         <div class="row">${catTag(first, 7.5, '#0a0a0a')}<span class="grow"></span><span class="mono" style="font-size:7.5px;font-weight:700;color:#6d6d6d">共 ${total} 项</span></div>
+        <div style="height:4px"></div>
+        <b style="font-size:${(16 * sc).toFixed(1)}px;line-height:1.22;${clamp(2)}">${esc(nameOf(first))}</b>
         <div class="grow"></div>
-        <div class="row" style="align-items:flex-end"><span class="it" style="font-size:41px;line-height:.9">${esc(fmtDate(first))}</span><span class="grow"></span>${daysPillOn(tnOf(first), 8, 14)}</div>
-      </div>
-      <div style="height:${WG.gap}px"></div>
-      <div style="padding:0 ${WG.padIn}px"><b class="clip" style="font-size:12px;display:block">${esc(titleParts(first.title)[0])}</b>
-        <div class="row" style="margin-top:3px"><span class="mono dim" style="font-size:8px">申请截止</span><span class="grow"></span>${hlHtml(first, 13)}</div></div>` : '';
+        <div class="row" style="align-items:flex-end"><span class="it" style="font-size:${Math.round(28 * sc)}px;line-height:.9">${esc(fmtDate(first))}</span><span class="grow"></span>${daysPillOn(tnOf(first), 8, 14)}</div>
+        <div style="height:4px"></div><div class="hair"></div><div style="height:4px"></div>
+        <div class="row"><span class="mono dim" style="font-size:8px">申请截止</span><span class="grow"></span>${hlHtml(first, Math.round(16 * sc))}</div>
+      </div>`;
+    };
 
     // 中号：左边「总数」卡，右边三张机会卡，整列正好填满
-    const mInnerH = 176 - WG.inset * 2 - 1, mPanelW = 74, mListW = 378 - WG.inset * 2 - mPanelW - WG.gap;
-    const mRows = 3, mCardH = (mInnerH - (mRows - 1) * WG.gap) / mRows;
-    const mS = { w: mListW, h: mCardH, pillarW: 52, date: 17, tn: 7.5, colW: mListW - 52 - 1.2 - WG.padIn - 58 - WG.padIn - 4, keyW: 58, title: 10.5, meta: 7.5, hl: 16 };
-    const mN = Math.min(mRows, calls.length), mHidden = calls.length - mN;
-    const med = `<div class="row" style="align-items:flex-start;height:${mInnerH}px">
-      <div class="cnt" style="width:${mPanelW}px;height:${mInnerH}px;border-radius:${WG.cardR}px;padding:${bp(WG.padIn)}px">
-        <span class="mono" style="font-size:7px;font-weight:700">${issue}</span><div class="grow"></div>
-        <span class="it" style="font-size:46px;line-height:.9;color:#d71921">${total}</span>
-        <span class="mono" style="font-size:7.5px;color:#6d6d6d;margin-top:3px">项机会</span>
-        <div style="height:6px"></div>
-        <span class="mono" style="font-size:7px;${mHidden > 0 ? 'font-weight:700' : 'color:#6d6d6d'}">${mHidden > 0 ? `另有 ${mHidden} 项` : '已同步'}</span>
-      </div>
-      <div style="width:${WG.gap}px;flex:0 0 auto"></div>
-      <div style="display:flex;flex-direction:column;gap:${WG.gap}px">${calls.slice(0, mN).map(c => oppCard(c, mS)).join('')}</div>
-    </div>`;
+    const mediumHtml = sz => {
+      const innerH = sz.small - WG.inset * 2 - 1, panelW = 74, listW = sz.mw - WG.inset * 2 - panelW - WG.gap;
+      const tight = listW < 250, rows = innerH >= 3 * 38 + 2 * WG.gap ? 3 : 2;
+      const cardH = (innerH - (rows - 1) * WG.gap) / rows;
+      const s = { w: listW, h: cardH, pillarW: tight ? 44 : 52, date: tight ? 14 : 16, tn: 7, keyW: tight ? 44 : 58, title: tight ? 12.5 : 13.5, meta: 7.5, hl: tight ? 14 : 16 };
+      const n = Math.min(rows, calls.length), hidden = calls.length - n;
+      return `<div class="row" style="align-items:flex-start;height:${innerH}px">
+        <div class="cnt" style="width:${panelW}px;height:${innerH}px;border-radius:${WG.cardR}px;padding:${bp(WG.padIn)}px">
+          <span class="mono" style="font-size:7px;font-weight:700">${issue}</span><div class="grow"></div>
+          <span class="it" style="font-size:46px;line-height:.9;color:#d71921">${total}</span>
+          <span class="mono" style="font-size:7.5px;color:#6d6d6d;margin-top:3px">项机会</span>
+          <div style="height:6px"></div>
+          <span class="mono" style="font-size:7px;${hidden > 0 ? 'font-weight:700' : 'color:#6d6d6d'}">${hidden > 0 ? `另有 ${hidden} 项` : '已同步'}</span>
+        </div>
+        <div style="width:${WG.gap}px;flex:0 0 auto"></div>
+        <div style="display:flex;flex-direction:column;gap:${WG.gap}px">${calls.slice(0, n).map(c => oppCard(c, s)).join('')}</div>
+      </div>`;
+    };
 
     // 大号：刊头写明总数 + 五张同样的卡 + 页脚；刊头、卡片、页脚之间一律 6
-    const lCw = 378 - WG.inset * 2, lChh = 393 - WG.inset * 2 - 1, lMast = 32, lFoot = 10;
-    const lArea = lChh - lMast - WG.gap - WG.gap - 1 - WG.gap - lFoot;
-    const lPlan = planRows(lArea, 46, 60, calls.length, WG.gap + 10);
-    const lS = { w: lCw, h: lPlan.h, pillarW: 72, date: 21, tn: 8, colW: lCw - 72 - 1.2 - WG.padIn - 80 - WG.padIn - 4, keyW: 80, title: 12.5, meta: 8, hl: 17 };
-    const lg = `<div class="row" style="align-items:flex-end;height:${lMast}px"><b style="font-size:10px">MEDIA ART</b><span class="it" style="margin-left:6px;font-size:18px">Radar</span><span class="grow"></span><span class="it" style="font-size:26px;line-height:1;color:#d71921">${total}</span><div style="margin-left:4px;display:flex;flex-direction:column;line-height:1.15"><span class="mono" style="font-size:8.5px;font-weight:700">项机会</span><span class="mono dim" style="font-size:7.5px">${issue}</span></div></div><div style="height:${WG.gap}px"></div>`
-      + `<div style="display:flex;flex-direction:column;gap:${WG.gap}px">${calls.slice(0, lPlan.n).map(c => oppCard(c, lS)).join('')}</div>`
-      + `<div class="grow"></div><div class="hair"></div><div style="height:${WG.gap}px"></div><div class="row mono faint" style="font-size:8px;height:${lFoot}px"><span>核验 ${esc(String(first && first.verified_at || '').slice(5, 10).replace('-', '.'))}</span><span class="grow"></span><span>已同步</span></div>`;
+    const largeHtml = sz => {
+      const cw = sz.mw - WG.inset * 2, chh = sz.lh - WG.inset * 2 - 1, MAST = 32, FOOT = 10;
+      const area = chh - MAST - WG.gap - WG.gap - 1 - WG.gap - FOOT, tight = cw < 330;
+      const plan = planRows(area, 46, 62, calls.length, WG.gap + 10);
+      const s = { w: cw, h: plan.h, pillarW: tight ? 62 : 72, date: tight ? 18 : 20, tn: 8, keyW: tight ? 64 : 80, title: plan.h >= 54 ? 15 : 14, meta: 8, hl: tight ? 15 : 17 };
+      return `<div class="row" style="align-items:flex-end;height:${MAST}px"><b style="font-size:10px">MEDIA ART</b><span class="it" style="margin-left:6px;font-size:18px">Radar</span><span class="grow"></span><span class="it" style="font-size:26px;line-height:1;color:#d71921">${total}</span><div style="margin-left:4px;display:flex;flex-direction:column;line-height:1.15"><span class="mono" style="font-size:8.5px;font-weight:700">项机会</span><span class="mono dim" style="font-size:7.5px">${issue}</span></div></div><div style="height:${WG.gap}px"></div>`
+        + `<div style="display:flex;flex-direction:column;gap:${WG.gap}px">${calls.slice(0, plan.n).map(c => oppCard(c, s)).join('')}</div>`
+        + `<div class="grow"></div><div class="hair"></div><div style="height:${WG.gap}px"></div><div class="row mono faint" style="font-size:8px;height:${FOOT}px"><span>核验 ${esc(String(first && first.verified_at || '').slice(5, 10).replace('-', '.'))}</span><span class="grow"></span><span>已同步</span></div>`;
+    };
 
-    // 超大号：3×2，每格一张同样圆角的卡；格间距 6，文字距格边 12。排版偏「酸性」：超大斜体数字、等宽小标、发丝线，不铺色块
-    const xCw = Math.floor((701 - WG.inset * 2 - WG.gap * 2) / 3), xCh = Math.floor((342 - WG.inset * 2 - 1 - WG.gap) / 2);
+    // 超大号（只出现在 Mac 桌面）：3×2，五个机会各一格 + 刊头格。名称与日期同等重要：名称 16 粗体 + 副标题，日期 32 斜体
+    const xl = SIZES.mac.xl;
+    const xCw = Math.floor((xl.w - WG.inset * 2 - WG.gap * 2) / 3), xCh = Math.floor((xl.h - WG.inset * 2 - 1 - WG.gap) / 2);
     const xTop = (left, right) => `<div class="row" style="gap:6px"><span class="mono" style="font-size:7.5px;font-weight:700">${left}</span><span style="flex:1;height:1px;background:#ececec"></span>${right}</div>`;
     const cell = (c, i) => `<div class="wg-card" style="width:${xCw}px;height:${xCh}px;border-radius:${WG.cardR}px;padding:${bp(WG.inset)}px">
       ${xTop(`${two(i + 1)}/${total}`, catTag(c, 7.5, '#0a0a0a'))}
+      <div style="height:4px"></div>
+      <b class="clip" style="font-size:16px;line-height:1.22">${esc(nameOf(c))}</b>
+      ${subOf(c) ? `<span class="clip dim" style="font-size:7.5px;margin-top:1px">${esc(subOf(c))}</span>` : ''}
       <div class="grow"></div>
-      <div class="row" style="align-items:flex-end"><span class="it" style="font-size:50px;line-height:.9">${esc(fmtDate(c))}</span><span class="grow"></span>${daysPillOn(tnOf(c) + ' DAYS', 7, 13)}</div>
-      <div style="height:4px"></div><div class="hair"></div><div style="height:5px"></div>
-      <div class="row" style="height:22px"><b class="clip" style="font-size:12px">${esc(titleParts(c.title)[0])}</b><span class="grow"></span>${hlHtml(c, 18)}</div>
-      ${c.highlight && c.highlight_label ? `<div class="row"><span class="grow"></span><span class="mono dim clip" style="font-size:7px">${esc(c.highlight_label)}</span></div>` : ''}</div>`;
+      <div class="row" style="align-items:flex-end"><span class="it" style="font-size:32px;line-height:.9">${esc(fmtDate(c))}</span><span class="grow"></span>${daysPillOn(tnOf(c) + ' DAYS', 7, 13)}</div>
+      <div style="height:4px"></div><div class="hair"></div><div style="height:4px"></div>
+      <div class="row" style="height:22px">${hlHtml(c, 18)}${c.highlight_label ? `<span class="mono dim clip" style="font-size:7.5px;margin-left:6px">${esc(c.highlight_label)}</span>` : ''}<span class="grow"></span></div></div>`;
     const xlHidden = Math.max(0, calls.length - 5);
-    const xl = `<div class="wg-grid">
+    const xlHtml = `<div class="wg-grid" style="grid-template-columns:repeat(3,${xCw}px);grid-template-rows:repeat(2,${xCh}px)">
       <div class="wg-card" style="width:${xCw}px;height:${xCh}px;border-radius:${WG.cardR}px;padding:${bp(WG.inset)}px">
         ${xTop('MEDIA ART', '<span class="it" style="font-size:11px">Radar</span>')}
         <div class="grow"></div>
@@ -388,6 +416,10 @@
         <div style="height:4px"></div><div class="hair"></div><div style="height:5px"></div>
         <div class="row mono" style="font-size:7.5px"><span style="color:#6d6d6d">${issue} · 已同步</span><span class="grow"></span>${xlHidden ? `<b>另有 ${xlHidden} 项</b>` : ''}</div></div>
       ${calls.slice(0, 5).map((c, i) => cell(c, i)).join('')}</div>`;
+
+    const P = SIZES.phone, M = SIZES.mac;
+    const small = smallHtml(P), med = mediumHtml(P), lg = largeHtml(P);
+    const smallMac = smallHtml(M), medMac = mediumHtml(M), lgMac = largeHtml(M);
 
     return `<section class="view">
       <header class="page-head">
@@ -405,7 +437,7 @@
             <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
             <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
             <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=18" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-primary" href="Media-Art-Radar.js?v=19" download><span>下载脚本</span><span>↓</span></a>
               <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
             </div>
           </div>
@@ -415,10 +447,16 @@
       <section class="sec">
         <div class="sec-h"><h2>四个尺寸</h2><em>Four sizes</em><span class="sec-n">04</span></div>
         <div class="wg-list">
-          ${fig('wg-s', '小号', '176 × 176', '下一个截止', small)}
-          ${fig('wg-m', '中号', '378 × 176', '三个机会', med)}
-          ${fig('wg-l', '大号', '378 × 393', '五个机会', lg)}
-          ${fig('wg-xl', '超大号', 'Mac / iPad · 3 × 2 · 701 × 342（Mac 实测）', '五个机会加刊头', xl)}
+          ${fig('wg-s', '小号 · iPhone', '176 × 176', '下一个截止', small, P.small, P.small)}
+          ${fig('wg-m', '中号 · iPhone', '378 × 176', '三个机会', med, P.mw, P.small)}
+          ${fig('wg-l', '大号 · iPhone', '378 × 393', '五个机会', lg, P.mw, P.lh)}
+        </div>
+        <div class="sec-h" style="margin-top:var(--sec)"><h2>在 Mac 桌面上</h2><em>On the Mac</em><span class="sec-n">iPhone 组件 · macOS Tahoe</span></div>
+        <div class="wg-list">
+          ${fig('wg-s', '小号 · Mac', '162 × 162', '下一个截止', smallMac, M.small, M.small)}
+          ${fig('wg-m', '中号 · Mac', '341 × 162', '三个机会', medMac, M.mw, M.small)}
+          ${fig('wg-l', '大号 · Mac', '342 × 342', '五个机会', lgMac, M.mw, M.lh)}
+          ${fig('wg-xl', '超大号 · Mac', '3 × 2 · 701 × 342', '五个机会加刊头', xlHtml, xl.w, xl.h)}
         </div>
       </section>
 
@@ -438,9 +476,11 @@
           <p><b>与网站同一套语言。</b>整体黑白、白为主，只有一个红：倒计时 T-n、关键数字（资助金额等）和总数用红字；分类用符号区分（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）。</p>
           <p><b>每个机会是一张独立的卡。</b>左边日期柱只写日期和 T-n，中间是名称和分类，右边是关键数字。地点、「申请截止」这些次要信息都拿掉了，只留最要紧的三样。</p>
           <p><b>总数写在最显眼的地方。</b>中号左侧的黑块用大号数字写明一共几项开放机会，放不下的写「另有 n 项」；小号右上角写「共 N 项」；大号刊头、超大号刊头格同样写明。</p>
-          <p><b>圆角与间距。</b>所有形状都是等角圆角（四个角同一个半径），并且同心：卡片圆角 14 = 组件外框 26 − 内边距 12（外框圆角与小、中、大号的尺寸都是在 iPhone 17 Pro Max 上实测的）。组件四边内边距都是 12，相邻块之间一律 6，块内文字距块边缘 10（超大号格子里是 12）。iOS 组件原生只支持等角圆角，所以这样画最贴近系统。</p>
-          <p><b>关于尺寸。</b>上面小、中、大号按 iPhone 17 Pro Max 的组件点数绘制；<b>Mac 上尺寸不同</b>（实测：小 162×162、中 341×162、大 342×342、超大 701×342），脚本会自动识别 iPad / Mac 并换成对应尺寸，日期柱与数字列会收窄，五个机会照样放得下。其他 iPhone 机型取最接近的一档。超大号只有 Mac 与 iPad 才有；iPad 的面积没有实测。</p>
-          <p><b>关于字体。</b>日期与英文在 iPhone 上用系统自带的 Didot 斜体，网页用 Bodoni Moda 斜体，形态接近但不完全相同。</p>
+          <p><b>放在 Mac 桌面上。</b>macOS Tahoe 可以把 iPhone 上的小组件放到 Mac 桌面（「来自 iPhone 的小组件」）。脚本仍然在 iPhone 上运行，看不出自己被显示在哪里，而 Mac 桌面上的组件尺寸和 iPhone 不同（上面「在 Mac 桌面上」是实测尺寸）。<b>超大号只会出现在 Mac 桌面上，脚本会自动按 Mac 排</b>；小、中、大号请这样告诉脚本：编辑那个组件，把 Parameter 填成 <code>mac</code>；如果编辑不了，把脚本复制一份改名，把开头的 <code>FORCE_HOST</code> 改成 <code>"mac"</code>，Mac 桌面上的组件选这一份。不设置时按 iPhone 尺寸排。</p>
+          <p><b>名称是主角。</b>日期只是一根窄柱里的两行小字，名称用粗体、比日期大一号；小号名称最多两行，超大号名称下面还有副标题，一眼就能知道这是什么机会。</p>
+          <p><b>圆角与间距。</b>所有形状都是等角圆角（四个角同一个半径），并且同心：卡片圆角 14 = 组件外框 26 − 内边距 12（外框圆角实测约 26）。组件四边内边距都是 12，相邻块之间一律 6，块内文字距块边缘 10（超大号格子里是 12）。</p>
+          <p><b>线条粗细。</b>真机上卡片的外框线很细（约 0.6pt），只有卡里面的竖分隔线是粗的（1.2pt）。原因是 iOS 画描边时把外侧那半圈裁掉了，而竖线是一块实心的窄黑条。预览已按真机画成外细内粗。</p>
+          <p><b>关于尺寸。</b>iPhone 组件按 iPhone 17 Pro Max 的组件点数绘制，其他 iPhone 机型取最接近的一档，小屏机型上字号会等比缩小。</p>
           <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
           <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>
         </div>

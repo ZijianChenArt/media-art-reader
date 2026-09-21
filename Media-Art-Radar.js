@@ -36,10 +36,14 @@ const CARD_R = WIDGET_R - INSET        // 14：卡片圆角，与外框同心
 const PAD_IN = 10                      // 块内文字与块边缘的距离
 const BW = 1.2                         // 描边宽度
 
-// Mac / iPad 上的组件（Scriptable 以 iPad 应用身份运行）：尺寸不随屏幕变，按用户 Mac 的截图实测。
-// 实测（≈1.80 像素/pt，由固定宽度的元素与文字宽度两种方法互相印证）：小 162×162，中 341×162，大 342×342，超大 701×342。
-// 之前把 Mac 当成 iPhone 套 378×176 / 378×393，大号比实际高 51pt，顶部刊头被裁掉；超大号又被当成「小 iPad」按 640×304 排，格子缩了 10%、四周空一大圈。
-const TABLET_SIZES = { small: 162, mw: 341, lh: 342, xl: { w: 701, h: 342 } }
+// 组件显示在 Mac 桌面上（macOS Tahoe 的「来自 iPhone 的小组件」）：脚本仍然是在 iPhone 上运行的，
+// 所以 Device 里读到的永远是 iPhone，脚本看不出自己被放在哪里——只能靠下面几个线索判断（见 hostIsMac）。
+// Mac 桌面上的组件尺寸与 iPhone 不同，按用户 Mac 的截图实测（≈1.80 像素/pt，两种独立办法互相印证）：
+//   小 162×162，中 341×162，大 342×342，超大 701×342（超大号只会出现在 Mac 桌面上）。
+const MAC_SIZES = { small: 162, mw: 341, lh: 342, xl: { w: 701, h: 342 } }
+// 手动开关：把这份脚本复制一份改名（例如「Media Art Radar · Mac」），把下面改成 "mac"，放到 Mac 桌面上的组件就选这份。
+// 也可以不复制，直接在组件的「编辑小组件」里把 Parameter 填成 mac。都不设时按 iPhone 尺寸排。
+const FORCE_HOST = null                // null | "mac" | "phone"
 
 // 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
 const WIDGET_SIZES = {
@@ -108,15 +112,26 @@ Script.complete()
 // ============================================================
 // 尺寸
 // ============================================================
-// 是不是 iPad / Mac：优先问系统；再退一步用屏幕短边判断（iPhone 最大 440，iPad mini 起 744，Mac 更大）
-function isTablet() {
+// 这个组件是不是显示在 Mac 桌面上。线索按可靠程度：
+//   1. 组件参数 mac / phone（编辑小组件 → Parameter）        2. 常量 FORCE_HOST
+//   3. 尺寸是超大号 —— 只有 Mac 桌面才有（iPhone 没有）        4. 脚本就是在 iPad / Mac 上原生运行的
+// 都没有线索时按 iPhone 处理（这是实测正常的那一档）。
+function hostIsMac() {
+  let param = ""
+  try { param = String(args.widgetParameter || "") } catch (_) {}
+  if (/mac/i.test(param)) return true
+  if (/phone/i.test(param)) return false
+  if (FORCE_HOST === "mac") return true
+  if (FORCE_HOST === "phone") return false
+  if (family === "extraLarge") return true
   try { if (Device.isPad()) return true } catch (_) {}
-  try { const s = Device.screenSize(); return Math.min(s.width, s.height) >= 600 } catch (_) { return false }
+  try { const sz = Device.screenSize(); if (Math.min(sz.width, sz.height) >= 600) return true } catch (_) {}
+  return false
 }
 
 function widgetMetrics() {
-  if (isTablet()) {
-    const t = TABLET_SIZES
+  if (hostIsMac()) {
+    const t = MAC_SIZES
     return { small: { w: t.small, h: t.small }, medium: { w: t.mw, h: t.small }, large: { w: t.mw, h: t.lh } }
   }
   let h = 852
@@ -222,7 +237,7 @@ function highlightSpec(value, base) {
   return { size: base, weight: "didot", color: C.red }
 }
 // ============================================================
-// 日期柱 · 与网站机会卡同一条规则：白底，日期墨黑，T-n 红字；只写两样
+// 日期柱 · 白底，日期墨黑，T-n 红字；只写两样。日期只是配角——名称才是主角
 // ============================================================
 function pillar(parent, item, w, h, dateSize, tnSize) {
   const st = parent.addStack()
@@ -258,9 +273,9 @@ function keyColumn(parent, item, w, base, labelSize) {
 }
 
 // 一个机会 = 一张独立的黑描边卡：[日期柱] | 名称 + 分类 | 关键数字。
-// 中号与大号共用；不主推任何一个，不写地点，不写「申请截止」——只留最要紧的三样。
+// 名称是主角（粗体、比日期大一号）；日期与 T-n 收在窄柱里。
 function addOppCard(parent, item, s) {
-  const c = card(parent, 0, s.h)          // 宽度 0 = 自适应：靠卡内的弹性空白撑满父容器，组件实际尺寸与预估有出入也不会错位
+  const c = card(parent, 0, s.h)          // 宽度 0 = 自适应：靠卡内的弹性空白撑满父容器
   c.url = item.url || SITE_URL
   c.layoutHorizontally()
   c.centerAlignContent()
@@ -299,11 +314,10 @@ function restText(calls, shown, max = 3) {
 }
 
 // ============================================================
-// SMALL · 下一个截止：一块卡（分类 · 共 N 项 · 巨型日期 · 倒计时）+ 标题与关键数字
+// SMALL · 一张撑满的卡：分类 · 共 N 项 / 名称（大、粗，最多两行）/ 日期 + T-n / 关键数字
 // ============================================================
 function buildSmall(data, state) {
   const m = widgetMetrics().small
-  const cw = m.w - INSET * 2
   const ch = m.h - INSET * 2 - 1
   const w = baseWidget(INSET)
   const calls = activeCalls(data.open_calls || [], "deadline")
@@ -311,41 +325,41 @@ function buildSmall(data, state) {
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
 
   const item = calls[0]
-  const BODY_H = 33                                   // 标题一行 + 间距 + 说明 / 关键数字一行
-  const panelH = ch - GAP - BODY_H                    // 卡片撑满：上下内边距相等
-  const panel = card(w, 0, panelH)                    // 宽度自适应；上边两角贴组件边角：圆角 = 外框 − 内边距（同心）
-  panel.url = item.url || SITE_URL
-  panel.setPadding(PAD_IN, PAD_IN, PAD_IN, PAD_IN)
-  const top = panel.addStack()
+  const sc = Math.min(1, (ch - PAD_IN * 2) / 117)        // 矮的机型（含 Mac 上的 162）按内容高等比缩小字号
+  const c = card(w, 0, ch)                               // 宽度自适应；上边两角贴组件边角：圆角 = 外框 − 内边距（同心）
+  c.url = item.url || SITE_URL
+  c.setPadding(PAD_IN, PAD_IN, PAD_IN, PAD_IN)
+
+  const top = c.addStack()
   top.centerAlignContent()
   categoryTag(top, item, 7.5, C.ink)
   top.addSpacer()
   text(top, `共 ${two(calls.length)} 项`, 7.5, C.dim, "monob")
-  panel.addSpacer()
-  const fig = panel.addStack()
+
+  c.addSpacer(4)
+  text(c, splitTitle(item.title).title, Math.round(16 * sc * 10) / 10, C.ink, "bold", 2)     // 名称：主角
+
+  c.addSpacer()
+  const fig = c.addStack()
   fig.bottomAlignContent()
-  text(fig, deadlineLabel(item), panelH >= 100 ? 41 : 36, C.ink, "didot")
+  text(fig, deadlineLabel(item), Math.round(28 * sc), C.ink, "didot")
   fig.addSpacer()
   const d = daysRemaining(item)
   daysPill(fig, d === null ? "TBA" : `T-${d}`, 8, 14)
 
-  w.addSpacer(GAP)
-  const body = w.addStack()
-  body.layoutVertically()
-  body.setPadding(0, PAD_IN, 0, PAD_IN)               // 与卡内文字同一条左线
-  text(body, splitTitle(item.title).title, 12, C.ink, "bold", 1)
-  body.addSpacer(3)
-  const meta = body.addStack()
+  c.addSpacer(4)
+  rule(c)
+  c.addSpacer(4)
+  const meta = c.addStack()
   meta.centerAlignContent()
   const fresh = state === "LIVE" && !isStale(data)
   text(meta, fresh ? "申请截止" : statusText(state, data), 8, fresh ? C.dim : C.soon, "mono")
   meta.addSpacer()
   const hl = highlightOf(item)
   if (hl) {
-    const spec = highlightSpec(hl.value, 13)
+    const spec = highlightSpec(hl.value, Math.round(16 * sc))
     text(meta, hl.value, spec.size, spec.color || C.ink, spec.weight)
   }
-  w.addSpacer()
   return w
 }
 
@@ -363,12 +377,12 @@ function buildMedium(data, state) {
   const panelW = 74
   const innerH = m.h - INSET * 2 - 1
   const listW = m.w - INSET * 2 - panelW - GAP
-  const tight = listW < 240              // 小屏机型：日期柱与数字列收窄，把宽度让给标题
+  const tight = listW < 250              // 窄的组件（Mac 上只有 341）：日期柱与数字列收窄，把宽度让给名称
   const pw = tight ? 44 : 52, kw = tight ? 44 : 58
   const rows = innerH >= 3 * 38 + 2 * GAP ? 3 : 2
   const cardH = (innerH - (rows - 1) * GAP) / rows      // 三张（或两张）正好填满整列
-  const s = { h: cardH, pillarW: pw, date: tight ? 15 : 17, tn: 7.5,
-    keyW: kw, title: tight ? 10 : 10.5, meta: 7.5, hl: tight ? 14 : 16 }
+  const s = { h: cardH, pillarW: pw, date: tight ? 14 : 16, tn: 7,
+    keyW: kw, title: tight ? 12.5 : 13.5, meta: 7.5, hl: tight ? 14 : 16 }
   const n = Math.min(calls.length, rows)
 
   const outer = w.addStack()
@@ -428,11 +442,11 @@ function buildLarge(data, state) {
 
   const MAST = 32, FOOT = 10           // 刊头（26pt 数字）与页脚一行字的高度
   const area = chh - MAST - GAP - GAP - 1 - GAP - FOOT      // 刊头 | 卡片区 | 间距 | 线 | 间距 | 页脚
-  const tight = cw < 320
+  const tight = cw < 330               // Mac 上只有 342 宽
   const pw = tight ? 62 : 72, kw = tight ? 64 : 80
-  const plan = planRows(area, 46, 60, calls.length, GAP + 10)
-  const s = { h: plan.h, pillarW: pw, date: tight ? 19 : 21, tn: 8,
-    keyW: kw, title: 12.5, meta: 8, hl: tight ? 15 : 17 }
+  const plan = planRows(area, 46, 62, calls.length, GAP + 10)
+  const s = { h: plan.h, pillarW: pw, date: tight ? 18 : 20, tn: 8,
+    keyW: kw, title: plan.h >= 54 ? 15 : 14, meta: 8, hl: tight ? 15 : 17 }
   for (let i = 0; i < plan.n; i++) {
     addOppCard(w, calls[i], s)
     if (i < plan.n - 1) w.addSpacer(GAP)
@@ -449,11 +463,11 @@ function buildLarge(data, state) {
 }
 
 // ============================================================
-// EXTRA LARGE · iPad / Mac 的超大组件：3×2 网格，五个机会各占一格，第六格是刊头（写明总数）
+// EXTRA LARGE · 3×2 网格，五个机会各占一格，第六格是刊头（写明总数）。XL 只会出现在 Mac 桌面上
 // ============================================================
-// 超大号只存在于 iPad / Mac，面积用 Mac 上的实测值 701×342；真实 iPad 的面积没实测，若不同会居中留白或被缩小，不会溢出。
+// 面积用 Mac 桌面上的实测值 701×342（横向）。
 function extraLargeArea() {
-  return { w: TABLET_SIZES.xl.w, h: TABLET_SIZES.xl.h }
+  return { w: MAC_SIZES.xl.w, h: MAC_SIZES.xl.h }
 }
 
 // 一条自适应宽度的发丝线（放在横排里，把两端的字隔开）
@@ -464,13 +478,13 @@ function hairLine(parent) {
   l.addSpacer()
 }
 
-// 超大号的一格：顶行「01/05 ── ● 展览」，中间超大号日期 + T-n，一条线，底行标题 + 红色关键数字。
-// 排版语言偏「酸性」：超大斜体数字、等宽小标、发丝线；不铺色块，只有红字。
+// 超大号的一格：顶行「01/05 ── ● 展览」，然后是名称（大、粗）与副标题，日期 + T-n，一条线，底行关键数字。
+// 名称与日期同等重要：名称 16pt 粗体、日期 32pt 斜体；不铺色块，只有红字。
 function addGridCard(parent, item, cw, ch, idx, total) {
   const c = card(parent, cw, ch)       // 六个格子都是同一个等角圆角；文字距格边一律 INSET
   c.url = item.url || SITE_URL
   c.setPadding(INSET, INSET, INSET, INSET)
-  const sc = Math.min(1, (ch - INSET * 2) / 130)     // 小 iPad 的假定面积更矮：数字按格高等比缩小，装得下
+  const sc = Math.min(1, (ch - INSET * 2) / 130)
 
   const top = c.addStack()
   top.centerAlignContent()
@@ -480,32 +494,32 @@ function addGridCard(parent, item, cw, ch, idx, total) {
   top.addSpacer(6)
   categoryTag(top, item, 7.5, C.ink)
 
+  c.addSpacer(4)
+  const parts = splitTitle(item.title)
+  text(c, parts.title, Math.round(16 * sc), C.ink, "bold", 1)
+  if (parts.subtitle) { c.addSpacer(1); text(c, parts.subtitle, 7.5, C.dim, "regular", 1) }
+
   c.addSpacer()
   const fig = c.addStack()
   fig.bottomAlignContent()
-  text(fig, deadlineLabel(item), Math.round(50 * sc), C.ink, "didot")
+  text(fig, deadlineLabel(item), Math.round(32 * sc), C.ink, "didot")
   fig.addSpacer()
   const d = daysRemaining(item)
   daysPill(fig, d === null ? "TBA" : `T-${d} DAYS`, 7, 13)
 
   c.addSpacer(4)
   rule(c)
-  c.addSpacer(5)
+  c.addSpacer(4)
   const row = c.addStack()
   row.centerAlignContent()
-  row.size = new Size(0, Math.round(1.22 * Math.max(14, 18 * sc)))   // 固定行高：各格的标题行才在同一条线上，不随关键数字大小上下浮动
-  text(row, splitTitle(item.title).title, 12, C.ink, "bold", 1)
-  row.addSpacer()
+  row.size = new Size(0, Math.round(1.22 * 18))          // 固定行高：各格底行才在同一条线上
   const hl = highlightOf(item)
   if (hl) {
-    const spec = highlightSpec(hl.value, Math.max(14, 18 * sc))
+    const spec = highlightSpec(hl.value, 18)
     text(row, hl.value, spec.size, spec.color || C.ink, spec.weight)
-    if (hl.label) {
-      const lab = c.addStack()
-      lab.addSpacer()
-      text(lab, hl.label, 7, C.dim, "mono", 1)
-    }
+    if (hl.label) { row.addSpacer(6); text(row, hl.label, 7.5, C.dim, "mono", 1) }
   }
+  row.addSpacer()
 }
 
 // 第六格：刊头。同一套骨架，红色超大总数写明一共几项
@@ -549,7 +563,7 @@ function buildExtraLarge(data, state) {
   const shown = calls.slice(0, 5)
   const hidden = calls.length - shown.length
 
-  w.addSpacer()                      // 上下各一个弹性空白：设备比假定面积更大时，网格居中
+  w.addSpacer()                      // 上下各一个弹性空白：组件比假定面积更大时，网格居中
   for (let r = 0; r < 2; r++) {
     const wrap = w.addStack()        // 居中：两侧弹性空白
     wrap.addSpacer()
