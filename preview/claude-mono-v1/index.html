@@ -24,25 +24,18 @@
     </a>
 
     <nav class="index" aria-label="主要内容">
-      <button class="nav nav-main" type="button" data-route="opportunities" data-filter="all">
-        <span class="n">01</span><strong>国际机会精选</strong><span class="c" data-count="all">—</span>
-      </button>
-      <div class="subs">
-        <button class="nav sub" type="button" data-route="opportunities" data-filter="exhibition"><i class="g" data-g="exhibition"></i><span class="lb">展览征集</span><span class="c" data-count="exhibition">—</span></button>
-        <button class="nav sub" type="button" data-route="opportunities" data-filter="residency"><i class="g" data-g="residency"></i><span class="lb">驻留</span><span class="c" data-count="residency">—</span></button>
-        <button class="nav sub" type="button" data-route="opportunities" data-filter="prize"><i class="g" data-g="prize"></i><span class="lb">奖项</span><span class="c" data-count="prize">—</span></button>
-        <button class="nav sub" type="button" data-route="opportunities" data-filter="conference"><i class="g" data-g="conference"></i><span class="lb">学术会议</span><span class="c" data-count="conference">—</span></button>
-      </div>
-      <button class="nav nav-main" type="button" data-route="focus"><span class="n">02</span><strong>本周关注</strong></button>
-      <button class="nav nav-main" type="button" data-route="widget"><span class="n">03</span><strong>小组件</strong></button>
+      <!-- 国际机会精选 = 展览 + 驻留 + 奖项 + 学术会议：一个整体，四个大块 -->
+      <section class="group" aria-label="国际机会精选">
+        <button class="nav nav-main" type="button" data-route="opportunities" data-filter="all"><span class="n">01</span><strong>国际机会精选</strong><span class="c" data-count="all">—</span></button>
+        <button class="nav tile" type="button" data-route="opportunities" data-filter="exhibition"><i class="g" data-g="exhibition"></i><span class="c" data-count="exhibition">—</span><span class="tl"><strong>展览征集</strong><em>Exhibitions</em></span></button>
+        <button class="nav tile" type="button" data-route="opportunities" data-filter="residency"><i class="g" data-g="residency"></i><span class="c" data-count="residency">—</span><span class="tl"><strong>驻留</strong><em>Residencies</em></span></button>
+        <button class="nav tile" type="button" data-route="opportunities" data-filter="prize"><i class="g" data-g="prize"></i><span class="c" data-count="prize">—</span><span class="tl"><strong>奖项</strong><em>Prizes</em></span></button>
+        <button class="nav tile" type="button" data-route="opportunities" data-filter="conference"><i class="g" data-g="conference"></i><span class="c" data-count="conference">—</span><span class="tl"><strong>学术会议</strong><em>Conferences</em></span></button>
+      </section>
+      <button class="nav mini" type="button" data-route="focus"><span class="n">02</span><strong>本周关注</strong><i>↗</i></button>
+      <button class="nav mini" type="button" data-route="widget"><span class="n">03</span><strong>小组件</strong><i>↗</i></button>
+      <div class="mini-status" aria-label="期号与核验时间"><span class="live"></span><span id="status-issue">—</span><small id="status-verified"></small></div>
     </nav>
-
-    <!-- 下一个截止 + 极坐标雷达：由 app.js 填入 -->
-    <div class="rail-mid"><div id="nextup"></div><div class="polar" id="polar"></div></div>
-
-    <div class="status" aria-label="期号与核验时间">
-      <span class="live"></span><span id="status-issue">—</span><small id="status-verified"></small>
-    </div>
   </aside>
 
   <main class="stage" id="stage" tabindex="-1">
