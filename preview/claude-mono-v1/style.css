@@ -19,6 +19,8 @@
   --display:Bodoni,"Bodoni Moda",Didot,Georgia,serif;  /* 日期、数字、英文大标题 */
   --mono:Mono,ui-monospace,Menlo,Consolas,monospace;
   --shape:30px 6px 30px 6px;
+  /* 三个页面共用的节奏：卡片间距 / 章节间距 / 卡片内边距 */
+  --gap:22px;--sec:52px;--pad:28px;--card:34px 6px 34px 6px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;background:#fff;color:var(--ink)}
@@ -91,17 +93,9 @@ img{display:block;max-width:100%}
 .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;padding:0 0 34px}
 .page-head h1{margin:0;font-size:clamp(2.6rem,4.3vw,4.2rem);line-height:.94;letter-spacing:-.06em;font-weight:700;display:flex;align-items:baseline;gap:.22em;flex-wrap:wrap}
 .page-head h1 em{font-family:var(--display);font-weight:500;letter-spacing:-.045em;font-size:1.08em}
-.page-head h1 sup{font-family:var(--mono);font-size:.2em;font-weight:700;letter-spacing:.04em;align-self:flex-start;margin-top:.5em;padding:.3em .8em;border:1.5px solid var(--ink);border-radius:999px}
 .page-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding-top:6px;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);text-align:right}
-.pill-row{display:flex;gap:10px;flex-wrap:wrap}
-.pill{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 20px;border:1.5px solid var(--ink);border-radius:999px;background:#fff;font-size:.86rem;font-weight:700;cursor:pointer}
-.pill.solid{background:var(--ink);color:#fff}
-.pill:hover{opacity:.78}
 
 /* ============ 雷达：截止日时间轴 ============ */
-.radar{margin:0 0 40px}
-.radar-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin:0 0 4px}
-.radar-head b{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
 .legend{display:flex;gap:6px 18px;flex-wrap:wrap;font-family:var(--serif);font-size:1.02rem;color:var(--mute)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend .g{font-size:.66em;color:var(--ink)}
@@ -131,17 +125,24 @@ img{display:block;max-width:100%}
 .blip.is-dim{opacity:.2}
 .blip.is-past{color:var(--faint)}
 
-.toolbar{display:flex;justify-content:space-between;align-items:center;min-height:34px;margin:0 0 14px}
-.filter-status{font-size:.9rem;font-weight:700}
-.filter-status span{margin-left:8px;font-family:var(--mono);font-size:.78rem;color:var(--mute);font-weight:400}
+/* ============ 三个页面共用：章节标题 + 卡片 ============ */
+.sec{margin-top:var(--sec);scroll-margin-top:24px}
+.page-head + .sec,.mobile-filters + .sec{margin-top:0}
+.sec-h{display:flex;align-items:baseline;gap:6px 12px;flex-wrap:wrap;padding:0 0 12px;margin:0 0 var(--gap);border-bottom:1.5px solid var(--ink)}
+.sec-h h2{margin:0;font-size:1.5rem;font-weight:700;letter-spacing:-.05em;line-height:1}
+.sec-h em{font-family:var(--display);font-weight:500;font-size:1.7rem;letter-spacing:-.04em;line-height:1}
+.sec-n{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--mute)}
+.sec-x{margin-left:auto;align-self:center}
 .reset-filter{display:none;border:0;background:none;padding:0;font-size:.86rem;font-weight:700;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 .reset-filter.show{display:block}
+.card{border:1.5px solid var(--ink);border-radius:var(--card);overflow:hidden;background:#fff}
+.card.pad{padding:var(--pad)}
+.stack{display:flex;flex-direction:column;gap:var(--gap)}
 
-/* ============ 每个机会是一张独立的黑框卡：左边日期柱，中间名称，右边资助 ============ */
-.ledger{display:flex;flex-direction:column;gap:22px}
+.ledger{display:flex;flex-direction:column;gap:var(--gap)}
 .call{
   display:grid;grid-template-columns:236px minmax(0,1fr) 208px;align-items:start;
-  border:1.5px solid var(--ink);border-radius:34px 6px 34px 6px;overflow:hidden;background:#fff;
+  border:1.5px solid var(--ink);border-radius:var(--card);overflow:hidden;background:#fff;
   scroll-margin-top:24px;
 }
 .call.is-closed{opacity:.5}
@@ -196,33 +197,27 @@ img{display:block;max-width:100%}
 .foot-note{margin:36px 0 0;max-width:62ch;font-family:var(--mono);font-size:.7rem;line-height:1.8;color:var(--mute)}
 
 /* ============ 本周关注 ============ */
-.focus-layout{display:grid;grid-template-columns:1fr 1fr;gap:44px}
-.fi{display:flex;flex-direction:column}
-.fi-img{overflow:hidden;border-radius:34px 6px 34px 6px;background:#111}
-.fi-img img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;filter:grayscale(1) contrast(1.06)}
-.fi-type{margin:22px 0 0;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.fi h2{margin:10px 0 0;font-family:var(--serif);font-weight:400;font-size:clamp(2.3rem,3.6vw,3.2rem);line-height:.98;letter-spacing:-.02em}
-.fi .author{margin:12px 0 0;font-size:.92rem;font-weight:700}
-.fi .sum{margin:10px 0 0;max-width:46ch;font-size:.94rem;line-height:1.7;color:var(--mute)}
-.fi .pill{align-self:flex-start;margin-top:20px}
+/* 左柱 + 主体，两列版（本周关注、安装说明与机会卡同一骨架；左柱在关注页是图，在安装页是期号柱） */
+.call.two{grid-template-columns:236px minmax(0,1fr)}
+.c-img{grid-row:1;align-self:stretch;position:relative;min-height:236px;border-right:1.5px solid var(--ink);background:#111}
+.c-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:grayscale(1) contrast(1.06)}
+.c-author{margin:12px 0 0;font-size:.92rem;font-weight:700}
+.call.two .c-title.serif{font-family:var(--serif);font-weight:400;font-size:clamp(2.2rem,3.2vw,3rem);line-height:.98;letter-spacing:-.02em}
+.c-note{margin:12px 0 0;font-size:.9rem;line-height:1.7;color:var(--mute)}
 
-/* ============ 小组件页 ============ */
-.sec-h{display:flex;align-items:baseline;gap:.4em;margin:56px 0 18px;scroll-margin-top:32px}
-.sec-h h2{margin:0;font-size:clamp(1.7rem,2.6vw,2.2rem);letter-spacing:-.05em;line-height:1}
-.sec-h em{font-family:var(--display);font-weight:500;font-size:clamp(1.9rem,2.9vw,2.5rem);letter-spacing:-.04em;line-height:1}
-.note{margin:14px 0 0;font-size:.9rem;color:var(--mute)}
-.panel{margin:34px 0 0;padding:26px 28px;border:1.5px solid var(--ink);border-radius:28px 6px 28px 6px;font-size:.9rem;line-height:1.85;max-width:860px}
-.panel p{margin:0}
-.panel p + p{margin-top:12px}
-.panel code{font-family:var(--mono);font-size:.82em;background:var(--hair);padding:1px 6px;border-radius:6px}
-.panel a{text-decoration:underline;text-underline-offset:3px}
-.steps{list-style:none;margin:0;padding:0;counter-reset:s;max-width:860px}
-.steps li{counter-increment:s;position:relative;padding:16px 0 16px 56px;border-bottom:1px solid var(--hair);font-size:.95rem;line-height:1.75}
-.steps li::before{content:counter(s);position:absolute;left:0;top:10px;font-family:var(--display);font-style:italic;font-weight:500;font-size:2rem;line-height:1.2}
+/* 步骤与说明：一张卡里若干行，行与行之间发丝线 */
+.rows{list-style:none;margin:0;padding:0;counter-reset:s}
+.rows > li,.rows > p{margin:0;padding:18px var(--pad);border-bottom:1px solid var(--hair);font-size:.92rem;line-height:1.8}
+.rows > :last-child{border-bottom:0}
+.rows b{font-weight:700}
+.rows code{font-family:var(--mono);font-size:.82em;background:var(--hair);padding:1px 6px;border-radius:6px}
+.rows a{text-decoration:underline;text-underline-offset:3px}
+.steps > li{counter-increment:s;display:grid;grid-template-columns:72px minmax(0,1fr);align-items:baseline}
+.steps > li::before{content:counter(s);font-family:var(--display);font-style:italic;font-weight:500;font-size:2.2rem;line-height:1}
 
-.wg-list{display:flex;flex-wrap:wrap;gap:28px 24px;align-items:flex-start}
-.wg-item{max-width:100%}
-.wg-cap{display:flex;align-items:baseline;gap:12px;margin:0 0 10px}
+.wg-list{display:flex;flex-wrap:wrap;gap:var(--gap);align-items:flex-start}
+.wg-item{max-width:100%;padding:16px 18px 6px;border:1.5px solid var(--ink);border-radius:var(--card);background:#fff}
+.wg-cap{display:flex;align-items:baseline;gap:12px;margin:0 0 8px 8px}
 .wg-cap b{font-size:1rem}
 .wg-cap span{font-family:var(--mono);font-size:.72rem;color:var(--mute)}
 .wg-scroll{max-width:100%;overflow-x:auto;padding:4px 4px 16px}
@@ -267,11 +262,10 @@ img{display:block;max-width:100%}
   .stage{padding:0 32px}
 }
 @media(max-width:1180px){
-  .call{grid-template-columns:204px minmax(0,1fr)}
+  .call,.call.two{grid-template-columns:204px minmax(0,1fr)}
   .c-main{padding:24px 28px 22px}
   .c-key{grid-column:2;grid-row:2;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:16px 28px 20px;border-left:0;border-top:1px solid var(--hair)}
   .facts{grid-row:3;padding:4px 28px 16px}
-  .focus-layout{gap:28px}
 }
 
 /* ============ 手机与竖屏平板：顶部一行 = Media Art + 三个胶囊（固定） ============ */
@@ -308,10 +302,12 @@ img{display:block;max-width:100%}
   .mobile-filter span{font-family:var(--mono);font-size:.68rem;font-weight:400;opacity:.65}
   .mobile-filter.is-active{background:var(--ink);color:#fff}
   .mobile-filter.is-empty{opacity:.4}
-  .toolbar{display:none}
+  .sec{margin-top:40px}
+  .sec-x .reset-filter{display:none}
 
   /* 手机不要时间轴 */
-  .radar{display:none}
+  .sec-radar{display:none}
+  .sec-radar + .sec{margin-top:0}
 
   .ledger{gap:18px}
   .call{grid-template-columns:1fr;border-radius:30px 6px 30px 6px}
@@ -324,10 +320,14 @@ img{display:block;max-width:100%}
   .c-key:empty{display:none}
   .facts{grid-column:1;grid-row:auto;grid-template-columns:1fr;padding:4px 22px 16px}
   .btn-primary,.btn-ghost{flex:1 1 100%}
-  .focus-layout{grid-template-columns:1fr;gap:44px}
+  .call.two{grid-template-columns:1fr}
+  .c-img{grid-row:auto;border-right:0;border-bottom:1.5px solid var(--ink);min-height:0;height:230px}
   .wg-list{gap:26px}
-  .sec-h{margin-top:44px}
-  .panel{padding:22px 20px}
+  .card.pad{padding:22px}
+  .rows > li,.rows > p{padding:16px 20px}
+  .steps > li{grid-template-columns:52px minmax(0,1fr)}
+  .wg-item{padding:14px 12px 4px}
+  .wg-m,.wg-l{zoom:.84}
 }
 @media(max-height:820px){.tile .tl em{display:none}.tile .g{font-size:1.3rem}}
 @media(prefers-reduced-motion:reduce){.blip,.blip .g{transition:none}}

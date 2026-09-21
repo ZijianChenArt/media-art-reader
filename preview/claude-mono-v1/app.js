@@ -140,15 +140,17 @@
     }).join('');
 
     const legend = Object.keys(labels).map(k => `<span>${glyph(k)}${enLabels[k]}</span>`).join('');
-    return `<figure class="radar" style="margin-inline:0">
-      <div class="radar-head"><b>Deadlines · next ${Math.max(...open.map(daysLeft))} days</b><div class="legend" aria-hidden="true">${legend}</div></div>
+    return `<section class="sec sec-radar">
+      <div class="sec-h"><h2>截止时间轴</h2><em>Timeline</em><span class="sec-n">NEXT ${Math.max(...open.map(daysLeft))} DAYS</span><div class="sec-x legend" aria-hidden="true">${legend}</div></div>
+      <div class="card pad radar">
       <div class="plot">
         ${ticks}
         <div class="axis"></div><div class="win" style="width:${at(SOON_DAYS)}%"></div>
         <div class="today"><span>今天 ${two(now.getMonth() + 1)}.${two(now.getDate())}</span></div>
         ${blips}
       </div>
-    </figure>`;
+      </div>
+    </section>`;
   }
 
   // ---------- 台账里的一行 ----------
@@ -217,19 +219,19 @@
     const calls = sorted();
     const shown = filter === 'all' ? calls : calls.filter(x => x.category === filter);
     const label = filter === 'all' ? '全部机会' : (labels[filter] || filter);
+    const en = filter === 'all' ? 'All calls' : (enLabels[filter] || '');
     const rows = shown.length ? shown.map(renderRow).join('') : `<div class="empty">本期暂无${esc(label)}。</div>`;
     return `<section class="view">
       <header class="page-head">
-        <h1><span>国际机会精选</span><em>Open calls.</em><sup>${two((data.open_calls || []).length)}</sup></h1>
+        <h1><span>国际机会精选</span><em>Open calls.</em></h1>
         <div class="page-meta"><span>01 / Opportunities</span><span>${esc(data.issue_id || '')}</span></div>
       </header>
       ${mobileFilters(filter)}
       ${radarHtml(calls, filter)}
-      <div class="toolbar">
-        <div class="filter-status">${esc(label)}<span>${two(shown.length)}</span></div>
-        <button class="reset-filter ${filter !== 'all' ? 'show' : ''}" type="button">全部机会</button>
-      </div>
-      <div class="ledger">${rows}</div>
+      <section class="sec">
+        <div class="sec-h"><h2>${esc(label)}</h2><em>${esc(en)}</em><span class="sec-n">${two(shown.length)}</span><div class="sec-x"><button class="reset-filter ${filter !== 'all' ? 'show' : ''}" type="button">全部机会</button></div></div>
+        <div class="ledger">${rows}</div>
+      </section>
       <p class="foot-note">按截止日期排列，摘要与推荐理由为编辑判断，不是官方排名。信息核验自各机构官方页面，投稿前请再次确认截止时区与条件。</p>
     </section>`;
   }
@@ -242,16 +244,22 @@
         <h1><span>本周关注</span><em>In focus.</em></h1>
         <div class="page-meta"><span>02 / Weekly radar</span><span>${esc(data.issue_id || '')}</span></div>
       </header>
-      <div class="focus-layout">
-        ${items.map((item, i) => `<article class="fi">
-          <div class="fi-img"><img src="${imgs[i] || imgs[0]}" alt="" loading="lazy"></div>
-          <span class="fi-type">${esc(item.type || 'IN FOCUS')}</span>
-          <h2>${esc(item.title)}</h2>
-          <p class="author">${esc(item.author || '')}</p>
-          <p class="sum">${esc(item.short_title || '')}</p>
-          <a class="pill" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">阅读原文 ↗</a>
-        </article>`).join('')}
-      </div>
+      <section class="sec">
+        <div class="sec-h"><h2>本期关注</h2><em>This week</em><span class="sec-n">${two(items.length)}</span></div>
+        <div class="ledger">
+          ${items.map((item, i) => `<article class="call two">
+            <div class="c-img"><img src="${imgs[i] || imgs[0]}" alt="" loading="lazy"></div>
+            <div class="c-main">
+              <div class="c-meta"><span class="c-cat">${esc(item.type || 'IN FOCUS')}</span><span class="c-idx">${two(i + 1)}</span></div>
+              <h2 class="c-title serif">${esc(item.title)}</h2>
+              <p class="c-author">${esc(item.author || '')}</p>
+              <p class="c-brief">${esc(item.short_title || '')}</p>
+              <div class="actions"><a class="btn btn-primary" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer"><span>阅读原文</span><span>↗</span></a></div>
+            </div>
+          </article>`).join('')}
+        </div>
+      </section>
+      <p class="foot-note">推荐与摘要为编辑判断，来源见各条目的原文链接。</p>
     </section>`;
   }
 
@@ -361,41 +369,56 @@
         <div class="page-meta"><span>03 / Widgets · iPhone · Mac</span><span>${esc(data.issue_id || '')}</span></div>
       </header>
 
-      <div class="sec-h"><h2>安装</h2><em>Install.</em></div>
-      <div class="pill-row">
-        <a class="pill solid" href="Media-Art-Radar.js" download>下载组件脚本 ↓</a>
-        <a class="pill" href="#steps" data-scroll="steps">安装步骤 ↓</a>
-      </div>
-      <p class="note">Scriptable 脚本 · 已装过旧版？整份替换原脚本，保存并运行一次即可。</p>
+      <section class="sec">
+        <div class="sec-h"><h2>安装</h2><em>Install</em><span class="sec-n">SCRIPTABLE</span></div>
+        <article class="call two is-soon">
+          <div class="c-date"><span class="c-lab">EDITION</span><span class="c-d">09</span><span class="c-t">${issue}</span></div>
+          <div class="c-main">
+            <div class="c-meta"><span class="c-cat">${glyph('exhibition')}Scriptable 脚本</span><span class="c-place">iPhone · iPad · Mac</span></div>
+            <h2 class="c-title">下载组件脚本</h2>
+            <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
+            <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
+            <div class="actions">
+              <a class="btn btn-primary" href="Media-Art-Radar.js" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
+            </div>
+          </div>
+        </article>
+      </section>
 
-      <div class="sec-h"><h2>四个尺寸</h2><em>Four sizes.</em></div>
-      <div class="wg-list">
-        ${fig('wg-s', '小号', '170 × 170', '下一个截止', small)}
-        ${fig('wg-m', '中号', '364 × 170', '四个机会', med)}
-        ${fig('wg-l', '大号', '364 × 382', '五个机会', lg)}
-        ${fig('wg-xl', '超大号', 'Mac / iPad · 3 × 2 · 约 715 × 342', '五个机会加刊头', xl)}
-      </div>
+      <section class="sec">
+        <div class="sec-h"><h2>四个尺寸</h2><em>Four sizes</em><span class="sec-n">04</span></div>
+        <div class="wg-list">
+          ${fig('wg-s', '小号', '170 × 170', '下一个截止', small)}
+          ${fig('wg-m', '中号', '364 × 170', '三个机会', med)}
+          ${fig('wg-l', '大号', '364 × 382', '五个机会', lg)}
+          ${fig('wg-xl', '超大号', 'Mac / iPad · 3 × 2 · 约 715 × 342', '五个机会加刊头', xl)}
+        </div>
+      </section>
 
-      <div class="panel">
-        <p><b>与网站同一套语言。</b>只有黑与白：分类用符号区分（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议），14 天内截止的日期柱整柱反黑，其余白底。</p>
-        <p><b>每个机会是一张独立的卡。</b>左边日期柱只写日期和 T-n，中间是名称和分类，右边是关键数字。地点、「申请截止」这些次要信息都拿掉了，只留最要紧的三样。</p>
-        <p><b>总数写在最显眼的地方。</b>中号左侧的黑块用大号数字写明一共几项开放机会，放不下的写「另有 n 项」；小号右上角写「共 N 项」；大号刊头、超大号刊头格同样写明。</p>
-        <p><b>关于尺寸。</b>预览按 iPhone 17 Pro Max 的组件点数绘制，其他机型点数略有差异，脚本会取最接近的一档；小屏机型上日期柱与数字列会收窄，标题过长时截断。超大号只有 Mac 与 iPad 才有。</p>
-        <p><b>关于字体。</b>日期与英文在 iPhone 上用系统自带的 Didot 斜体，网页用 Bodoni Moda 斜体，形态接近但不完全相同。</p>
-      </div>
+      <section class="sec" id="steps">
+        <div class="sec-h"><h2>步骤</h2><em>Steps</em><span class="sec-n">04</span></div>
+        <ol class="card rows steps">
+          <li>在 Scriptable 中新建脚本，把下载文件里的代码完整粘贴进去，运行一次确认能取到数据。</li>
+          <li>长按 iPhone 主屏幕 → 加号 → 选择 Scriptable → 挑尺寸（小 / 中 / 大）添加。在 Mac 或 iPad 上添加 Scriptable 小组件时可以选「超大」，脚本相同。</li>
+          <li>长按刚添加的组件 → 编辑小组件 → Script 选择刚保存的那个脚本。</li>
+          <li>中号、大号和超大号点击每个机会会打开对应的官方页面；小号点击打开本站。</li>
+        </ol>
+      </section>
 
-      <div class="sec-h" id="steps"><h2>步骤</h2><em>Steps.</em></div>
-      <ol class="steps">
-        <li>在 Scriptable 中新建脚本，把下载文件里的代码完整粘贴进去，运行一次确认能取到数据。</li>
-        <li>长按 iPhone 主屏幕 → 加号 → 选择 Scriptable → 挑尺寸（小 / 中 / 大）添加。在 Mac 或 iPad 上添加 Scriptable 小组件时可以选「超大」，脚本相同。</li>
-        <li>长按刚添加的组件 → 编辑小组件 → Script 选择刚保存的那个脚本。</li>
-        <li>中号、大号和超大号点击每个机会会打开对应的官方页面；小号点击打开本站。</li>
-      </ol>
-      <div class="panel">
-        <p><b>已经装过旧版？</b>把新代码完整替换进原来的 Scriptable 脚本，保留脚本名称，保存并运行一次即可。四个尺寸共用同一份脚本。</p>
-        <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
-        <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="../../latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>
-      </div>
+      <section class="sec">
+        <div class="sec-h"><h2>说明</h2><em>Notes</em></div>
+        <div class="card rows">
+          <p><b>与网站同一套语言。</b>只有黑与白：分类用符号区分（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议），14 天内截止的日期柱整柱反黑，其余白底。</p>
+          <p><b>每个机会是一张独立的卡。</b>左边日期柱只写日期和 T-n，中间是名称和分类，右边是关键数字。地点、「申请截止」这些次要信息都拿掉了，只留最要紧的三样。</p>
+          <p><b>总数写在最显眼的地方。</b>中号左侧的黑块用大号数字写明一共几项开放机会，放不下的写「另有 n 项」；小号右上角写「共 N 项」；大号刊头、超大号刊头格同样写明。</p>
+          <p><b>关于尺寸。</b>预览按 iPhone 17 Pro Max 的组件点数绘制，其他机型点数略有差异，脚本会取最接近的一档；小屏机型上日期柱与数字列会收窄，标题过长时截断。超大号只有 Mac 与 iPad 才有。</p>
+          <p><b>关于字体。</b>日期与英文在 iPhone 上用系统自带的 Didot 斜体，网页用 Bodoni Moda 斜体，形态接近但不完全相同。</p>
+          <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
+          <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="../../latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>
+        </div>
+      </section>
+      <p class="foot-note">小组件内容与本站同源，随周刊更新。</p>
     </section>`;
   }
 
