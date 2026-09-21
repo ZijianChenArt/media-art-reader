@@ -224,7 +224,7 @@ img{display:block;max-width:100%}
 .wg-cap b{font-size:1rem}
 .wg-cap span{font-family:var(--mono);font-size:.72rem;color:var(--mute)}
 .wg-scroll{max-width:100%;overflow-x:auto;padding:4px 4px 16px}
-.wg{display:flex;flex-direction:column;background:#fff;border-radius:24px;line-height:1.2;overflow:hidden;color:var(--ink);box-shadow:0 0 0 1px rgba(0,0,0,.14)}
+.wg{display:flex;flex-direction:column;background:#fff;border-radius:22px;line-height:1.2;overflow:hidden;color:var(--ink);box-shadow:0 0 0 1px rgba(0,0,0,.14)}
 .wg *{box-sizing:border-box}
 .wg-s{width:170px;height:170px;padding:10px}
 .wg-m{width:364px;height:170px;padding:12px}
@@ -296,7 +296,8 @@ img{display:block;max-width:100%}
   .stage{height:auto;overflow:visible;padding:0 16px}
   .view{padding:26px 0 56px}
   .page-head{padding-bottom:20px;flex-direction:column;gap:12px}
-  .page-head h1{font-size:clamp(2.4rem,11vw,3.3rem)}
+  /* 三个页面的标题都是两行：中文一行，英文一行 */
+  .page-head h1{font-size:clamp(2.4rem,11vw,3.3rem);flex-direction:column;align-items:flex-start;gap:.04em}
   .page-meta{flex-direction:row;align-items:baseline;gap:12px;text-align:left}
 
   .mobile-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}

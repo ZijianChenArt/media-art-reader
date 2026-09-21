@@ -285,13 +285,15 @@
     return `<div style="width:${w}px;display:flex;flex-direction:column;align-items:flex-end;flex:0 0 auto;gap:2px">${hlHtml(item, base)}${label}</div>`;
   };
   // 一张机会卡（中号 / 大号共用）
-  const oppCard = (item, s) => `<div class="opp" style="width:${s.w}px;height:${s.h}px;border-radius:${s.big}px ${s.small}px ${s.big}px ${s.small}px">
-      ${pillarHtml(item, s.pillarW, s.h - 2.4, `${s.big - 1}px 0 0 ${s.small}px`, s.date, s.tn)}
+  // 四角半径 r = [tl, tr, br, bl]；贴着组件边角的角与外框同心（外框 22 − 内边距），其余角用异形圆角
+  const oppCard = (item, s) => { const r = s.r || [s.big, s.small, s.big, s.small]; return `<div class="opp" style="width:${s.w}px;height:${s.h}px;border-radius:${r[0]}px ${r[1]}px ${r[2]}px ${r[3]}px">
+      ${pillarHtml(item, s.pillarW, s.h - 2.4, `${Math.max(r[0] - 1, 0)}px 0 0 ${r[3]}px`, s.date, s.tn)}
       <div class="col" style="width:${s.colW}px;margin-left:${s.pad}px;flex:0 0 auto"><b class="clip" style="font-size:${s.title}px">${esc(titleParts(item.title)[0] || item.title)}</b><span class="mono dim clip" style="font-size:${s.meta}px;font-weight:700;margin-top:3px;display:flex;align-items:center;gap:.4em">${glyph(item.category)}${esc(catShort[item.category] || '')}</span></div>
       <div class="grow"></div>
       ${keyHtml2(item, s.keyW, s.hl, s.meta - 1)}
       <div style="width:${s.pad}px;flex:0 0 auto"></div>
-    </div>`;
+    </div>`; };
+  const nest = pad => Math.max(22 - pad, 4);
   const restLine = (calls, n) => calls.length > n
     ? `另有 ${calls.length - n} 项 · ` + calls.slice(n, n + 3).map(c => `${fmtDate(c)} ${titleParts(c.title)[0]}`).join(' · ') : '';
 
@@ -305,7 +307,7 @@
       <div class="wg-scroll"><div class="wg ${cls}" role="img" aria-label="${name}小组件预览：${esc(note)}">${inner}</div></div></figure>`;
 
     // 小号：下一个截止。日期块（分类 · 共 N 项 · 巨型日期 · T-n）+ 标题 + 关键数字
-    const small = first ? `<div class="pnl" style="width:150px;height:100px;border-radius:20px 20px 20px 5px;padding:10px 10px 9px 11px">
+    const small = first ? `<div class="pnl" style="width:150px;height:100px;border-radius:${nest(10)}px ${nest(10)}px ${nest(10)}px 5px;padding:10px 10px 9px 11px">
         <div class="row">${catTag(first, 7.5, '#0a0a0a')}<span class="grow"></span><span class="mono" style="font-size:7.5px;font-weight:700;color:#6d6d6d">共 ${total} 项</span></div>
         <div class="grow"></div>
         <div class="row" style="align-items:flex-end"><span class="it" style="font-size:41px;line-height:.9">${esc(fmtDate(first))}</span><span class="grow"></span>${daysPillOn(tnOf(first), 8, 14)}</div>
@@ -316,9 +318,11 @@
 
     // 中号：左边黑色「总数」（红色数字），右边三张卡
     const mS = { w: 256, h: 44, big: 14, small: 5, pillarW: 52, date: 17, tn: 7.5, pad: 9, colW: 256 - 52 - 1.2 - 9 - 58 - 9 - 4, keyW: 58, title: 10.5, meta: 7.5, hl: 16 };
-    const mN = Math.min(3, calls.length), mHidden = calls.length - mN;
+    const mN = Math.min(3, calls.length), mHidden = calls.length - mN, mCr = nest(12);
+    const mTouchBottom = mN * 44 + (mN - 1) * 4 >= 144 - 4;
+    const mCard = (c, i) => oppCard(c, Object.assign({}, mS, { r: [14, i === 0 ? mCr : 5, i === mN - 1 && mTouchBottom ? mCr : 14, 5] }));
     const med = `<div class="row" style="align-items:stretch;height:144px">
-      <div class="cnt" style="width:74px;height:144px;border-radius:22px 5px 22px 5px;padding:10px 9px 9px 8px">
+      <div class="cnt" style="width:74px;height:144px;border-radius:${mCr}px 5px 14px ${mCr}px;padding:10px 9px 9px 8px">
         <span class="mono" style="font-size:7px;font-weight:700">${issue}</span><div class="grow"></div>
         <span class="it" style="font-size:46px;line-height:.9;color:#d71921">${total}</span>
         <span class="mono" style="font-size:7.5px;color:#b9b9bf;margin-top:3px">项机会</span>
@@ -326,7 +330,7 @@
         <span class="mono" style="font-size:7px;${mHidden > 0 ? 'font-weight:700' : 'color:#b9b9bf'}">${mHidden > 0 ? `另有 ${mHidden} 项` : '已同步'}</span>
       </div>
       <div style="width:10px;flex:0 0 auto"></div>
-      <div style="display:flex;flex-direction:column;gap:4px">${calls.slice(0, mN).map(c => oppCard(c, mS)).join('')}</div>
+      <div style="display:flex;flex-direction:column;gap:4px">${calls.slice(0, mN).map(mCard).join('')}</div>
     </div>`;
 
     // 大号：刊头写明总数 + 五张同样的卡
@@ -336,8 +340,11 @@
       + `<div class="grow"></div><div class="hair"></div><div class="row mono faint" style="font-size:8px;margin-top:6px"><span>核验 ${esc(String(first && first.verified_at || '').slice(5, 10).replace('-', '.'))}</span><span class="grow"></span><span>已同步</span></div>`;
 
     // 超大号：3×2，刊头格写明总数
-    const cell = c => `<div class="wg-card" style="width:217px;height:151px;border-radius:26px 6px 26px 6px;padding:8px">
-      <div class="pnl" style="width:201px;height:84px;border-radius:19px 19px 19px 5px;padding:8px 11px 8px 10px">
+    // 3×2 网格里六个格子的四角半径：位于组件四个角上的格子，对应那个角取同心半径
+    const gridR = idx => { const cc = nest(14), r = [22, 6, 22, 6]; if (idx === 0) r[0] = cc; if (idx === 2) r[1] = cc; if (idx === 3) r[3] = cc; if (idx === 5) r[2] = cc; return r; };
+    const px = r => r.map(v => v + 'px').join(' ');
+    const cell = (c, i) => `<div class="wg-card" style="width:217px;height:151px;border-radius:${px(gridR(i + 1))};padding:8px">
+      <div class="pnl" style="width:201px;height:84px;border-radius:${px(gridR(i + 1).map(v => Math.max(v - 8, 4)))};padding:8px 11px 8px 10px">
         <div class="row">${catTag(c, 7.5, '#0a0a0a')}</div>
         <div class="grow"></div>
         <div class="row" style="align-items:flex-end"><span class="it" style="font-size:38px;line-height:.9">${esc(fmtDate(c))}</span><span class="grow"></span>${daysPillOn(tnOf(c) + ' DAYS', 7, 13)}</div>
@@ -347,11 +354,11 @@
         <div class="row" style="margin-top:2px">${hlHtml(c, 14)}<span class="mono dim clip" style="font-size:7px;margin-left:5px">${esc(c.highlight_label || '')}</span></div></div></div>`;
     const xlHidden = Math.max(0, calls.length - 5);
     const xl = `<div class="wg-grid">
-      <div class="wg-card" style="width:217px;height:151px;border-radius:26px 6px 26px 6px;background:#0a0a0a;border-color:#0a0a0a;color:#fff;padding:14px 16px 12px 14px">
+      <div class="wg-card" style="width:217px;height:151px;border-radius:${px(gridR(0))};background:#0a0a0a;border-color:#0a0a0a;color:#fff;padding:14px 16px 12px 14px">
         <b style="font-size:9px">MEDIA ART</b><span class="it" style="font-size:20px;line-height:1.1">Radar ↗</span><div class="grow"></div>
         <span class="it" style="font-size:40px;line-height:.95;color:#d71921">${total}</span><span class="mono" style="font-size:8px;color:#b9b9bf">项机会 · OPEN CALLS</span>
         <div style="height:4px"></div><span class="mono" style="font-size:8px;color:#b9b9bf">${issue} · 已同步</span>${xlHidden ? `<span class="mono" style="font-size:8px;font-weight:700;margin-top:2px">另有 ${xlHidden} 项 · 点击查看 ↗</span>` : ''}</div>
-      ${calls.slice(0, 5).map(cell).join('')}</div>`;
+      ${calls.slice(0, 5).map((c, i) => cell(c, i)).join('')}</div>`;
 
     return `<section class="view">
       <header class="page-head">
@@ -369,7 +376,7 @@
             <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
             <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
             <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=12" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-primary" href="Media-Art-Radar.js?v=13" download><span>下载脚本</span><span>↓</span></a>
               <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
             </div>
           </div>

@@ -20,6 +20,11 @@ const C = {
   soon: "#DE2410"          // 只用于「数据过期」的警示字
 }
 
+// 组件外框的圆角（iOS，估值 22pt）。贴着组件边角的形状，圆角取「外框半径 − 内边距」，与外框同心；
+// 不贴边角的角，才用我们的异形圆角（tl / br 大，tr / bl 小）。内层圆角绝不大于外层，否则边角处会「鼓」出来。
+const WIDGET_R = 22
+function nest(pad) { return Math.max(WIDGET_R - pad, 4) }
+
 // 异形圆角卡是一张固定尺寸的背景图，必须知道组件的真实点数。
 // 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
 // 注意：这个 const 必须写在下面的执行入口之前——const 不会提升，
@@ -272,11 +277,12 @@ function keyColumn(parent, item, w, base, labelSize) {
 // 一个机会 = 一张独立的黑描边卡：[日期柱] | 名称 + 分类 | 关键数字。
 // 中号与大号共用；不主推任何一个，不写地点，不写「申请截止」——只留最要紧的三样。
 function addOppCard(parent, item, s) {
-  const card = cardShape(parent, s.w, s.h, s.big, s.small)
+  const r = s.r || [s.big, s.small, s.big, s.small]      // 四角半径：tl tr br bl
+  const card = shapeStack(parent, s.w, s.h, r, C.card, C.ink, 1.2)
   card.url = item.url || SITE_URL
   card.layoutHorizontally()
   card.centerAlignContent()
-  pillar(card, item, s.pillarW, s.h, [s.big, 0, 0, s.small], s.date, s.tn)
+  pillar(card, item, s.pillarW, s.h, [r[0], 0, 0, r[3]], s.date, s.tn)
   const bar = card.addStack()
   bar.size = new Size(1.2, s.h)
   bar.backgroundColor = new Color(C.ink)
@@ -325,7 +331,7 @@ function buildSmall(data, state) {
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
 
   const item = calls[0]
-  const panel = shapeStack(w, cw, 100, [20, 20, 20, 5], C.card, C.ink, 1.2)
+  const panel = shapeStack(w, cw, 100, [nest(pad), nest(pad), nest(pad), 5], C.card, C.ink, 1.2)   // 上边两角贴组件边角：同心
   panel.url = item.url || SITE_URL
   panel.setPadding(10, 11, 9, 10)
   const top = panel.addStack()
@@ -386,7 +392,8 @@ function buildMedium(data, state) {
   const outer = w.addStack()
   outer.layoutHorizontally()
 
-  const panel = shapeStack(outer, panelW, innerH, [22, 5, 22, 5], C.ink)
+  const cr = nest(pad)                  // 贴着组件边角的那些角
+  const panel = shapeStack(outer, panelW, innerH, [cr, 5, 14, cr], C.ink)   // 左上、左下贴边；右侧两角在内部
   panel.setPadding(10, 9, 9, 8)
   text(panel, compactIssue(data.issue_id) || "—", 7, "#FFFFFF", "monob")
   panel.addSpacer()
@@ -402,7 +409,9 @@ function buildMedium(data, state) {
   const list = outer.addStack()
   list.layoutVertically()
   for (let i = 0; i < n; i++) {
-    addOppCard(list, calls[i], s)
+    const touchBottom = n * s.h + (n - 1) * rgap >= innerH - 4
+    const r = [s.big, i === 0 ? cr : s.small, i === n - 1 && touchBottom ? cr : s.big, s.small]
+    addOppCard(list, calls[i], Object.assign({}, s, { r }))
     if (i < n - 1) list.addSpacer(rgap)
   }
   return w
@@ -473,14 +482,25 @@ function extraLargeArea() {
   return longest >= 1180 ? { w: 700, h: 340 } : { w: 640, h: 304 }
 }
 
-function addGridCard(parent, item, cw, ch) {
-  const card = cardShape(parent, cw, ch, 26, 6)
+// 3×2 网格里 6 个格子的四角半径：位于组件四个角上的格子，对应那个角取同心半径
+function gridRadii(idx) {
+  const big = 22, small = 6, cc = nest(14)
+  const r = [big, small, big, small]
+  if (idx === 0) r[0] = cc      // 左上
+  if (idx === 2) r[1] = cc      // 右上
+  if (idx === 3) r[3] = cc      // 左下
+  if (idx === 5) r[2] = cc      // 右下
+  return r
+}
+
+function addGridCard(parent, item, cw, ch, r) {
+  const card = shapeStack(parent, cw, ch, r, C.card, C.ink, 1.2)
   card.url = item.url || SITE_URL
   card.setPadding(8, 8, 8, 8)
   const iw = cw - 16
 
   const panelH = ch - 16 - 51           // 下面留 51pt：标题 15 + 间距 + 关键数字一行 + 余量
-  const panel = shapeStack(card, iw, panelH, [19, 19, 19, 5], C.card, C.ink, 1.2)
+  const panel = shapeStack(card, iw, panelH, r.map(v => Math.max(v - 8, 4)), C.card, C.ink, 1.2)   // 与外格同心：外格半径 − 内边距 8
   panel.setPadding(8, 11, 8, 10)
   const top = panel.addStack()
   top.centerAlignContent()
@@ -513,7 +533,7 @@ function addGridCard(parent, item, cw, ch) {
 
 // 第六格：刊头。墨黑实底，与五张卡同一个异形圆角；红色大号数字写明一共几项
 function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
-  const cell = shapeStack(parent, cw, ch, [26, 6, 26, 6], C.ink)
+  const cell = shapeStack(parent, cw, ch, gridRadii(0), C.ink)
   cell.setPadding(14, 16, 12, 14)
   text(cell, "MEDIA ART", 9, "#FFFFFF", "bold")
   text(cell, "Radar ↗", 20, "#FFFFFF", "didot")
@@ -551,7 +571,7 @@ function buildExtraLarge(data, state) {
       const idx = r * 3 + c          // 0 是刊头，1–5 是五个机会
       if (c > 0) line.addSpacer(gap)
       if (idx === 0) addMastheadCell(line, data, state, calls, hidden, cw, ch)
-      else if (shown[idx - 1]) addGridCard(line, shown[idx - 1], cw, ch)
+      else if (shown[idx - 1]) addGridCard(line, shown[idx - 1], cw, ch, gridRadii(idx))
       else { const blank = line.addStack(); blank.size = new Size(cw, ch) }   // 不足五项时占位，保持对齐
     }
     wrap.addSpacer()
