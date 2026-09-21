@@ -1,6 +1,6 @@
-// MEDIA ART RADAR · Edition 09（黑白版）
-// 与网站 site-v15 同一套语言：只有黑与白 · 分类靠符号（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）
-// 14 天内截止的日期柱整柱反黑 · 每个机会是一张独立的黑描边卡 · 总数用大号数字写明
+// MEDIA ART RADAR · Edition 10（黑白 + 两个酸性色）
+// 与网站 site-v15 同一套语言：黑白为底 · 分类靠符号（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）
+// 柠檬绿 = 日期柱与总数块，电紫 = 关键数字 · 每个机会是一张独立的黑描边卡 · 总数用大号数字写明 · 不再标记「最近」
 // Scriptable Home Screen widgets：small / medium / large / extraLarge（Mac、iPad）
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
 
@@ -12,13 +12,13 @@ const REFRESH_MINUTES = 60
 const PREVIEW_FAMILY = "large"
 
 // 与网站 site-v15.css 的变量一一对应。改这里之前先改网站，保持两边一致。
-// 没有彩色：紧迫感用「反黑」表示，分类用符号表示。
+// 只有两个酸性色，各司其职：柠檬绿铺日期柱与总数块，电紫只给关键数字；分类用符号表示，不用颜色。
 const C = {
   paper: "#FFFFFF", card: "#FFFFFF", ink: "#040404", sub: "#2B2B2B",
   dim: "#6D6D6D", faint: "#A3A3A3", hair: "#ECECEC", mute: "#B9B9BF",
-  soon: "#DE2410"          // 只用于「数据过期」的警示字；14 天内截止在网站里是整块反黑
+  acid: "#D8FF3D", volt: "#5B3BFF",
+  soon: "#DE2410"          // 只用于「数据过期」的警示字
 }
-const SOON_DAYS = 14       // 与网站 site-v15.js 的阈值一致
 
 // 异形圆角卡是一张固定尺寸的背景图，必须知道组件的真实点数。
 // 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
@@ -210,11 +210,9 @@ function pill(parent, label, size, o) {
   text(st, label, size, o.color || C.ink, o.weight || "monob")
   return st
 }
-// 在日期块里的倒计时胶囊：黑底块里反白，白底块里描边
-function daysPillOn(parent, label, size, h, dark) {
-  return dark
-    ? pill(parent, label, size, { h, fill: "#FFFFFF", color: C.ink })
-    : pill(parent, label, size, { h, stroke: C.ink, color: C.ink })
+// 倒计时胶囊：描边，不再区分「最近」
+function daysPill(parent, label, size, h) {
+  return pill(parent, label, size, { h, stroke: C.ink, color: C.ink })
 }
 // 分类标签：符号 + 名字，不用颜色
 function categoryTag(parent, item, size, color) {
@@ -224,10 +222,6 @@ function categoryTag(parent, item, size, color) {
 // ============================================================
 // 数据 → 展示（规则与网站 site-v15.js / site-v15.css 一致）
 // ============================================================
-function isSoon(item) {
-  const d = daysRemaining(item)
-  return d !== null && d <= SOON_DAYS
-}
 // 关键数字：与网站三档字号一致——短的最大，4 字符以上缩小，纯中文变灰
 function highlightOf(item) {
   const v = item.highlight
@@ -238,23 +232,21 @@ function highlightSpec(value, base) {
   // 下限 9pt：再小就读不出来了（中号里 base 只有 12，按比例会缩到 6pt）
   if (!/\d/.test(value)) return { size: Math.max(base * 0.5, 9), weight: "medium", color: C.dim }
   // 5 个字符以上才缩小，与主页一致：€8,000 / $2,000 缩小，€500 不缩
-  if (value.length >= 5) return { size: Math.max(base * 0.68, 9), weight: "didot", color: null }
-  return { size: base, weight: "didot", color: null }
+  if (value.length >= 5) return { size: Math.max(base * 0.68, 9), weight: "didot", color: C.volt }
+  return { size: base, weight: "didot", color: C.volt }
 }
 // ============================================================
-// 日期柱 · 与网站机会卡同一条规则：14 天内整柱反黑，其余白底；只写两样：日期、T-n
+// 日期柱 · 与网站机会卡同一条规则：一律柠檬绿；只写两样：日期、T-n
 // ============================================================
 function pillar(parent, item, w, h, r, dateSize, tnSize) {
-  const soon = isSoon(item)
-  const st = shapeStack(parent, w, h, r, soon ? C.ink : null)
-  const fg = soon ? "#FFFFFF" : C.ink
+  const st = shapeStack(parent, w, h, r, C.acid)
   st.addSpacer()
   const a = st.addStack()
-  a.addSpacer(); text(a, deadlineLabel(item), dateSize, fg, "didot"); a.addSpacer()
+  a.addSpacer(); text(a, deadlineLabel(item), dateSize, C.ink, "didot"); a.addSpacer()
   st.addSpacer(2)
   const d = daysRemaining(item)
   const b = st.addStack()
-  b.addSpacer(); text(b, d === null ? "TBA" : `T-${d}`, tnSize, soon ? "#FFFFFF" : C.dim, "monob"); b.addSpacer()
+  b.addSpacer(); text(b, d === null ? "TBA" : `T-${d}`, tnSize, C.sub, "monob"); b.addSpacer()
   st.addSpacer()
   return st
 }
@@ -333,23 +325,21 @@ function buildSmall(data, state) {
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
 
   const item = calls[0]
-  const soon = isSoon(item)
-  const fg = soon ? "#FFFFFF" : C.ink
-  const panel = shapeStack(w, cw, 100, [20, 20, 20, 5], soon ? C.ink : C.card, C.ink, 1.2)
+  const panel = shapeStack(w, cw, 100, [20, 20, 20, 5], C.acid, C.ink, 1.2)
   panel.url = item.url || SITE_URL
   panel.setPadding(10, 11, 9, 10)
   const top = panel.addStack()
   top.centerAlignContent()
-  categoryTag(top, item, 7.5, fg)
+  categoryTag(top, item, 7.5, C.ink)
   top.addSpacer()
-  text(top, `共 ${two(calls.length)} 项`, 7.5, soon ? C.mute : C.dim, "monob")
+  text(top, `共 ${two(calls.length)} 项`, 7.5, C.sub, "monob")
   panel.addSpacer()
   const fig = panel.addStack()
   fig.bottomAlignContent()
-  text(fig, deadlineLabel(item), 41, fg, "didot")
+  text(fig, deadlineLabel(item), 41, C.ink, "didot")
   fig.addSpacer()
   const d = daysRemaining(item)
-  daysPillOn(fig, d === null ? "TBA" : `T-${d}`, 8, 14, soon)
+  daysPill(fig, d === null ? "TBA" : `T-${d}`, 8, 14)
 
   w.addSpacer(7)
   const body = w.addStack()
@@ -396,17 +386,17 @@ function buildMedium(data, state) {
   const outer = w.addStack()
   outer.layoutHorizontally()
 
-  const panel = shapeStack(outer, panelW, innerH, [22, 5, 22, 5], C.ink)
+  const panel = shapeStack(outer, panelW, innerH, [22, 5, 22, 5], C.acid)
   panel.setPadding(10, 9, 9, 8)
-  text(panel, compactIssue(data.issue_id) || "—", 7, "#FFFFFF", "monob")
+  text(panel, compactIssue(data.issue_id) || "—", 7, C.ink, "monob")
   panel.addSpacer()
-  text(panel, two(calls.length), 46, "#FFFFFF", "didot")
-  text(panel, "项机会", 7.5, C.mute, "mono")
+  text(panel, two(calls.length), 46, C.ink, "didot")
+  text(panel, "项机会", 7.5, C.sub, "mono")
   panel.addSpacer(6)
   const fresh = state === "LIVE" && !isStale(data)
   const hidden = calls.length - n
-  if (hidden > 0) text(panel, `另有 ${hidden} 项`, 7, "#FFFFFF", "monob")
-  else text(panel, statusText(state, data), 7, fresh ? C.mute : "#FF8A7A", "mono")
+  if (hidden > 0) text(panel, `另有 ${hidden} 项`, 7, C.ink, "monob")
+  else text(panel, statusText(state, data), 7, fresh ? C.sub : C.soon, "mono")
 
   outer.addSpacer(gap)
   const list = outer.addStack()
@@ -484,27 +474,25 @@ function extraLargeArea() {
 }
 
 function addGridCard(parent, item, cw, ch) {
-  const soon = isSoon(item)
-  const fg = soon ? "#FFFFFF" : C.ink
   const card = cardShape(parent, cw, ch, 26, 6)
   card.url = item.url || SITE_URL
   card.setPadding(8, 8, 8, 8)
   const iw = cw - 16
 
   const panelH = ch - 16 - 51           // 下面留 51pt：标题 15 + 间距 + 关键数字一行 + 余量
-  const panel = shapeStack(card, iw, panelH, [19, 19, 19, 5], soon ? C.ink : C.card, C.ink, 1.2)
+  const panel = shapeStack(card, iw, panelH, [19, 19, 19, 5], C.acid, C.ink, 1.2)
   panel.setPadding(8, 11, 8, 10)
   const top = panel.addStack()
   top.centerAlignContent()
-  categoryTag(top, item, 7.5, fg)
+  categoryTag(top, item, 7.5, C.ink)
   top.addSpacer()
   panel.addSpacer()
   const fig = panel.addStack()
   fig.bottomAlignContent()
-  text(fig, deadlineLabel(item), 38, fg, "didot")
+  text(fig, deadlineLabel(item), 38, C.ink, "didot")
   fig.addSpacer()
   const d = daysRemaining(item)
-  daysPillOn(fig, d === null ? "TBA" : `T-${d} DAYS`, 7, 13, soon)
+  daysPill(fig, d === null ? "TBA" : `T-${d} DAYS`, 7, 13)
 
   card.addSpacer(6)
   const body = card.addStack()
@@ -523,21 +511,21 @@ function addGridCard(parent, item, cw, ch) {
   meta.addSpacer()
 }
 
-// 第六格：刊头。墨黑实底，与五张卡同一个异形圆角；大号数字写明一共几项
+// 第六格：刊头。柠檬绿实底，与五张卡同一个异形圆角；大号数字写明一共几项
 function addMastheadCell(parent, data, state, calls, hidden, cw, ch) {
-  const cell = shapeStack(parent, cw, ch, [26, 6, 26, 6], C.ink)
+  const cell = shapeStack(parent, cw, ch, [26, 6, 26, 6], C.acid, C.ink, 1.2)
   cell.setPadding(14, 16, 12, 14)
-  text(cell, "MEDIA ART", 9, "#FFFFFF", "bold")
-  text(cell, "Radar ↗", 20, "#FFFFFF", "didot")
+  text(cell, "MEDIA ART", 9, C.ink, "bold")
+  text(cell, "Radar ↗", 20, C.ink, "didot")
   cell.addSpacer()
-  text(cell, two(calls.length), 40, "#FFFFFF", "didot")
-  text(cell, "项机会 · OPEN CALLS", 8, C.mute, "mono")
+  text(cell, two(calls.length), 40, C.ink, "didot")
+  text(cell, "项机会 · OPEN CALLS", 8, C.sub, "mono")
   cell.addSpacer(4)
   const fresh = state === "LIVE" && !isStale(data)
-  text(cell, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8, fresh ? C.mute : "#FF8A7A", "mono")
+  text(cell, `${compactIssue(data.issue_id) || "—"} · ${statusText(state, data)}`, 8, fresh ? C.sub : C.soon, "mono")
   if (hidden > 0) {
     cell.addSpacer(2)
-    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, "#FFFFFF", "monob")
+    text(cell, `另有 ${hidden} 项 · 点击查看 ↗`, 8, C.ink, "monob")
   }
 }
 
