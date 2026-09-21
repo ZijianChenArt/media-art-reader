@@ -1,11 +1,11 @@
-@font-face{font-family:Grotesk;src:url("../../assets/fonts/space-grotesk-var.woff2") format("woff2");font-weight:400 700;font-display:swap}
-@font-face{font-family:Instrument;src:url("../../assets/fonts/instrument-serif-italic.woff2") format("woff2");font-style:italic;font-weight:400;font-display:swap}
-@font-face{font-family:Bodoni;src:url("../../assets/fonts/bodoni-moda-italic-var.woff2") format("woff2");font-style:italic;font-weight:400 900;font-display:swap}
-@font-face{font-family:Mono;src:url("../../assets/fonts/space-mono-400.woff2") format("woff2");font-weight:400;font-display:swap}
-@font-face{font-family:Mono;src:url("../../assets/fonts/space-mono-700.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:Grotesk;src:url("assets/fonts/space-grotesk-var.woff2") format("woff2");font-weight:400 700;font-display:swap}
+@font-face{font-family:Instrument;src:url("assets/fonts/instrument-serif-italic.woff2") format("woff2");font-style:italic;font-weight:400;font-display:swap}
+@font-face{font-family:Bodoni;src:url("assets/fonts/bodoni-moda-italic-var.woff2") format("woff2");font-style:italic;font-weight:400 900;font-display:swap}
+@font-face{font-family:Mono;src:url("assets/fonts/space-mono-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:Mono;src:url("assets/fonts/space-mono-700.woff2") format("woff2");font-weight:700;font-display:swap}
 
 /* ------------------------------------------------------------
-   Mono v1 —— 不再借 Units 的「饱和色块 + 大圆角卡片」，改用自己的一套语言：
+   Mono v15 —— 不再借 Units 的「饱和色块 + 大圆角卡片」，改用自己的一套语言：
    · 只有黑与白。分类不靠颜色，靠四个几何符号：● 展览  ○ 驻留  ◆ 奖项  ▲ 会议
    · 紧迫感也不靠颜色：14 天内截止的日期块整块反黑，其余只是黑描边
    · 「雷达」不是装饰，是一条真的时间轴：今天在左端，每个截止日是轴上的一个信号点
