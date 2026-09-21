@@ -278,12 +278,12 @@ img{display:block;max-width:100%}
   html,body{height:auto}
   .app{display:block;width:auto;height:auto;overflow:visible}
   .rail{
-    position:sticky;top:0;z-index:20;height:auto;display:flex;flex-direction:row;align-items:center;gap:10px;padding:10px 14px;overflow:visible;
+    position:sticky;top:0;z-index:20;height:auto;display:flex;flex-direction:row;align-items:center;gap:10px;padding:10px 16px;overflow:visible;
     background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-right:0;border-bottom:1px solid var(--hair);
   }
   /* 一行：Media Art + 三个胶囊 */
   .brand{flex:0 0 auto;height:auto;margin:0}
-  .brand-t{font-size:1.6rem!important;margin:0!important}
+  .brand-t{font-size:1.6rem!important;margin:0 0 0 .078em!important;transform:translateY(.07em)}
   .index{flex:1 1 auto;min-width:0;display:flex;justify-content:flex-end;gap:6px;margin:0}
   .group{display:contents}
   .group .tile,.mini-status,.nav .n,.nav .c,.mini i{display:none}
@@ -331,7 +331,7 @@ img{display:block;max-width:100%}
   /* 单张机会卡：顶部一条「关键数字带」= 日期（左）｜资助（右）；下面是名称、摘要与按钮。
      以前日期块、资助数字、两个整行按钮各占一行，一张卡要滑一屏半；现在把最要紧的两个数字放在同一行 */
   .call:not(.two){grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
-  .call:not(.two) .c-date{grid-row:1;grid-column:1;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;justify-content:flex-start;gap:0;min-height:0;padding:16px 16px 16px 20px;border-right:0;border-bottom:1.5px solid var(--ink)}
+  .call:not(.two) .c-date{grid-row:1;grid-column:1;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;justify-content:flex-start;gap:0;min-height:0;padding:16px 16px 16px 22px;border-right:0;border-bottom:1.5px solid var(--ink)}
   .call:not(.two) .c-lab{flex:none;white-space:nowrap;margin-bottom:12px}
   .call:not(.two) .c-t{margin:12px 0 0}
   .call:not(.two) .c-key{grid-row:1;grid-column:2;align-self:stretch;margin:0;padding:16px 18px 16px 16px;border-left:1px solid var(--hair);border-top:0;border-bottom:1.5px solid var(--ink)}

@@ -109,8 +109,25 @@
     const fA = m.fontBoundingBoxAscent * k, fD = m.fontBoundingBoxDescent * k;
     t.style.marginTop = (baseline - ((size - (fA + fD)) / 2 + fA)) + 'px';
   }
-  document.fonts.ready.then(fitBrand);
-  addEventListener('resize', fitBrand);
+  // ---------- 标题的光学左对齐 ----------
+  // 每个字形的左侧留白不同（英文斜体的 I 往左出头 3px，W 往右缩 5px），行首的字要按真实墨迹补回，
+  // 否则各页标题的左缘参差不齐。手机上中文与英文各占一行，都要补；桌面上英文紧跟中文，只补第一个。
+  const titleCtx = document.createElement('canvas').getContext('2d');
+  function alignTitle() {
+    const h1 = $('.page-head h1');
+    if (!h1) return;
+    const mobile = matchMedia('(max-width:860px)').matches;
+    [...h1.children].forEach((k, i) => {
+      k.style.removeProperty('margin-left');
+      if (!('letterSpacing' in titleCtx) || !(i === 0 || mobile)) return;
+      const cs = getComputedStyle(k);
+      titleCtx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      titleCtx.letterSpacing = cs.letterSpacing;
+      k.style.marginLeft = titleCtx.measureText(k.textContent).actualBoundingBoxLeft + 'px';
+    });
+  }
+  document.fonts.ready.then(() => { fitBrand(); alignTitle(); });
+  addEventListener('resize', () => { fitBrand(); alignTitle(); });
 
   // ---------- 雷达：截止日时间轴 ----------
   // 左端是今天，每个截止日是轴上一个信号点；14 天内的画一圈「回波」并把轴的前 14 天加粗。
@@ -436,6 +453,7 @@
     $('#stage').scrollTop = 0;
     window.scrollTo(0, 0);
     fitBrand();
+    alignTitle();
     if (push) {
       const hash = route === 'opportunities' && filter !== 'all' ? '#opportunities/' + filter : '#' + route;
       if (location.hash !== hash) history.pushState(null, '', hash);
