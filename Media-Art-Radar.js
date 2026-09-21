@@ -36,6 +36,11 @@ const CARD_R = WIDGET_R - INSET        // 14：卡片圆角，与外框同心
 const PAD_IN = 10                      // 块内文字与块边缘的距离
 const BW = 1.2                         // 描边宽度
 
+// Mac / iPad 上的组件（Scriptable 以 iPad 应用身份运行）：尺寸不随屏幕变，按用户 Mac 的截图实测。
+// 实测（≈1.80 像素/pt，由固定宽度的元素与文字宽度两种方法互相印证）：小 162×162，中 341×162，大 342×342，超大 701×342。
+// 之前把 Mac 当成 iPhone 套 378×176 / 378×393，大号比实际高 51pt，顶部刊头被裁掉；超大号又被当成「小 iPad」按 640×304 排，格子缩了 10%、四周空一大圈。
+const TABLET_SIZES = { small: 162, mw: 341, lh: 342, xl: { w: 701, h: 342 } }
+
 // 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
 const WIDGET_SIZES = {
   956: { small: 176, mw: 378, lh: 393 },   // iPhone 17 Pro Max（440×956）：真机截图实测 377.9×176.3 / 377.9×393.2。其余机型仍是 Apple 旧规格，尺寸不准时内容也会自适应撑满宽度
@@ -103,7 +108,17 @@ Script.complete()
 // ============================================================
 // 尺寸
 // ============================================================
+// 是不是 iPad / Mac：优先问系统；再退一步用屏幕短边判断（iPhone 最大 440，iPad mini 起 744，Mac 更大）
+function isTablet() {
+  try { if (Device.isPad()) return true } catch (_) {}
+  try { const s = Device.screenSize(); return Math.min(s.width, s.height) >= 600 } catch (_) { return false }
+}
+
 function widgetMetrics() {
+  if (isTablet()) {
+    const t = TABLET_SIZES
+    return { small: { w: t.small, h: t.small }, medium: { w: t.mw, h: t.small }, large: { w: t.mw, h: t.lh } }
+  }
   let h = 852
   try { const s = Device.screenSize(); h = Math.max(s.width, s.height) } catch (_) {}
   const keys = Object.keys(WIDGET_SIZES).map(Number)
@@ -349,11 +364,11 @@ function buildMedium(data, state) {
   const innerH = m.h - INSET * 2 - 1
   const listW = m.w - INSET * 2 - panelW - GAP
   const tight = listW < 240              // 小屏机型：日期柱与数字列收窄，把宽度让给标题
-  const pw = tight ? 46 : 52, kw = tight ? 46 : 58
+  const pw = tight ? 44 : 52, kw = tight ? 44 : 58
   const rows = innerH >= 3 * 38 + 2 * GAP ? 3 : 2
   const cardH = (innerH - (rows - 1) * GAP) / rows      // 三张（或两张）正好填满整列
   const s = { h: cardH, pillarW: pw, date: tight ? 15 : 17, tn: 7.5,
-    keyW: kw, title: 10.5, meta: 7.5, hl: tight ? 14 : 16 }
+    keyW: kw, title: tight ? 10 : 10.5, meta: 7.5, hl: tight ? 14 : 16 }
   const n = Math.min(calls.length, rows)
 
   const outer = w.addStack()
@@ -436,13 +451,9 @@ function buildLarge(data, state) {
 // ============================================================
 // EXTRA LARGE · iPad / Mac 的超大组件：3×2 网格，五个机会各占一格，第六格是刊头（写明总数）
 // ============================================================
-// 格子尺寸要先假定组件面积。Mac 与 iPad 超大组件的点数我没有官方数据可核对，
-// 所以按屏幕大小保守假定：大屏（Mac、11 / 12.9 英寸 iPad）取 700×340，小 iPad 取 640×304。
-// 真实面积更大时，网格居中，多出来的只是留白；不会溢出。
+// 超大号只存在于 iPad / Mac，面积用 Mac 上的实测值 701×342；真实 iPad 的面积没实测，若不同会居中留白或被缩小，不会溢出。
 function extraLargeArea() {
-  let longest = 0
-  try { const s = Device.screenSize(); longest = Math.max(s.width, s.height) } catch (_) {}
-  return longest >= 1180 ? { w: 700, h: 340 } : { w: 640, h: 304 }
+  return { w: TABLET_SIZES.xl.w, h: TABLET_SIZES.xl.h }
 }
 
 // 一条自适应宽度的发丝线（放在横排里，把两端的字隔开）

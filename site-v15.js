@@ -370,7 +370,7 @@
       + `<div class="grow"></div><div class="hair"></div><div style="height:${WG.gap}px"></div><div class="row mono faint" style="font-size:8px;height:${lFoot}px"><span>核验 ${esc(String(first && first.verified_at || '').slice(5, 10).replace('-', '.'))}</span><span class="grow"></span><span>已同步</span></div>`;
 
     // 超大号：3×2，每格一张同样圆角的卡；格间距 6，文字距格边 12。排版偏「酸性」：超大斜体数字、等宽小标、发丝线，不铺色块
-    const xCw = Math.floor((700 - WG.inset * 2 - WG.gap * 2) / 3), xCh = Math.floor((340 - WG.inset * 2 - 1 - WG.gap) / 2);
+    const xCw = Math.floor((701 - WG.inset * 2 - WG.gap * 2) / 3), xCh = Math.floor((342 - WG.inset * 2 - 1 - WG.gap) / 2);
     const xTop = (left, right) => `<div class="row" style="gap:6px"><span class="mono" style="font-size:7.5px;font-weight:700">${left}</span><span style="flex:1;height:1px;background:#ececec"></span>${right}</div>`;
     const cell = (c, i) => `<div class="wg-card" style="width:${xCw}px;height:${xCh}px;border-radius:${WG.cardR}px;padding:${bp(WG.inset)}px">
       ${xTop(`${two(i + 1)}/${total}`, catTag(c, 7.5, '#0a0a0a'))}
@@ -405,7 +405,7 @@
             <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
             <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
             <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=17" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-primary" href="Media-Art-Radar.js?v=18" download><span>下载脚本</span><span>↓</span></a>
               <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
             </div>
           </div>
@@ -418,7 +418,7 @@
           ${fig('wg-s', '小号', '176 × 176', '下一个截止', small)}
           ${fig('wg-m', '中号', '378 × 176', '三个机会', med)}
           ${fig('wg-l', '大号', '378 × 393', '五个机会', lg)}
-          ${fig('wg-xl', '超大号', 'Mac / iPad · 3 × 2 · 约 700 × 340', '五个机会加刊头', xl)}
+          ${fig('wg-xl', '超大号', 'Mac / iPad · 3 × 2 · 701 × 342（Mac 实测）', '五个机会加刊头', xl)}
         </div>
       </section>
 
@@ -439,7 +439,7 @@
           <p><b>每个机会是一张独立的卡。</b>左边日期柱只写日期和 T-n，中间是名称和分类，右边是关键数字。地点、「申请截止」这些次要信息都拿掉了，只留最要紧的三样。</p>
           <p><b>总数写在最显眼的地方。</b>中号左侧的黑块用大号数字写明一共几项开放机会，放不下的写「另有 n 项」；小号右上角写「共 N 项」；大号刊头、超大号刊头格同样写明。</p>
           <p><b>圆角与间距。</b>所有形状都是等角圆角（四个角同一个半径），并且同心：卡片圆角 14 = 组件外框 26 − 内边距 12（外框圆角与小、中、大号的尺寸都是在 iPhone 17 Pro Max 上实测的）。组件四边内边距都是 12，相邻块之间一律 6，块内文字距块边缘 10（超大号格子里是 12）。iOS 组件原生只支持等角圆角，所以这样画最贴近系统。</p>
-          <p><b>关于尺寸。</b>预览按 iPhone 17 Pro Max 的组件点数绘制，其他机型点数略有差异，脚本会取最接近的一档；小屏机型上日期柱与数字列会收窄，标题过长时截断。超大号只有 Mac 与 iPad 才有。</p>
+          <p><b>关于尺寸。</b>上面小、中、大号按 iPhone 17 Pro Max 的组件点数绘制；<b>Mac 上尺寸不同</b>（实测：小 162×162、中 341×162、大 342×342、超大 701×342），脚本会自动识别 iPad / Mac 并换成对应尺寸，日期柱与数字列会收窄，五个机会照样放得下。其他 iPhone 机型取最接近的一档。超大号只有 Mac 与 iPad 才有；iPad 的面积没有实测。</p>
           <p><b>关于字体。</b>日期与英文在 iPhone 上用系统自带的 Didot 斜体，网页用 Bodoni Moda 斜体，形态接近但不完全相同。</p>
           <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
           <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>

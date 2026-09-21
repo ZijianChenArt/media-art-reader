@@ -229,7 +229,7 @@ img{display:block;max-width:100%}
 .wg-s{width:176px;height:176px;padding:12px}
 .wg-m{width:378px;height:176px;padding:12px}
 .wg-l{width:378px;height:393px;padding:12px}
-.wg-xl{width:700px;height:340px;padding:12px}
+.wg-xl{width:701px;height:342px;padding:12px}
 .wg .row{display:flex;align-items:center;min-width:0}
 .wg .grow{flex:1;min-width:0}
 .wg .mono{font-family:var(--mono)}
