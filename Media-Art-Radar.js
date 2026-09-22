@@ -1,7 +1,7 @@
 // MEDIA ART RADAR · Edition 10（黑白 + 一个红）
 // 与网站 site-v15 同一套语言：黑白为底 · 分类靠符号（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）
 // 整体黑白、白为主，只有一个红：倒计时 T-n、关键数字、总数 · 每个机会是一张独立的黑描边卡 · 总数用大号数字写明 · 不标记「最近」
-// 圆角等角、同心，边距与间距等距（见下面「圆角与间距」）
+// 圆角等角、同心，边距与间距等距；用手画的贝塞尔曲线画圆角（不用系统 cornerRadius，抗锯齿更干净）
 // Scriptable Home Screen widgets：small / medium / large / extraLarge（Mac、iPad）
 // 更新已有组件：将本文件完整替换进原 Scriptable 脚本，保存并运行一次。
 
@@ -37,17 +37,16 @@ const INSET = 12                       // 组件内边距（四边相同）
 const GAP = 6                          // 相邻块的间距（横竖相同）
 const CARD_R = WIDGET_R - INSET        // 18：卡片圆角，与外框同心（已用曲线拟合校正，见上）
 const PAD_IN = 10                      // 块内文字与块边缘的距离
-const BW = 1.2                         // 线宽：卡内竖分隔线（一块 1.2pt 宽的实心黑条）与卡片外框的有效线宽，两者一样粗
-// iOS 画 borderWidth 时，外侧那半圈会被圆角裁掉，只剩里面一半（真机实测：写 1.2 只剩约 0.6pt，比竖线细一半）。
-// 所以外框的 borderWidth 要写成 2 倍，有效线宽才等于 BW，与竖线一样粗。
-const OUTLINE_W = BW * 2
+const BW = 1.2                         // 线宽：卡内竖分隔线（一块 1.2pt 宽的实心黑条）与卡片外框描边，两者一样粗
 
 // 组件既可能显示在 iPhone 主屏，也可能显示在 Mac 桌面上（macOS Tahoe 的「来自 iPhone 的小组件」）。
 // 两种情况下脚本都是在 iPhone 上运行的，Device 里读到的永远是 iPhone，脚本看不出自己被放在哪里；
-// 而 Mac 桌面上的组件比 iPhone 上的矮（实测 ≈1.80 像素/pt）：小 162×162，中 341×162，大 342×342，超大 701×342。
-// 所以排版不去猜宿主：小、中、大号的宽与高都不写死，卡片靠弹性空白撑满整个组件；
-// 只按「已知宿主里最矮的高度」算「放几张」，保证任何宿主里都放得下。超大号只会出现在 Mac 桌面上，面积用实测值。
+// 而 Mac 桌面上的组件比 iPhone 上的矮、也更窄（实测 ≈1.80 像素/pt）：小 162×162，中 341×162，大 342×342，超大 701×342。
+// 所以排版不去猜宿主：卡片按「已知宿主里最小的宽高」定死尺寸（与 iPhone 自己的机型表取交集，见 fitSize），
+// 这样贝塞尔曲线能画出一张对应大小的精确背景图（见下面「圆角矩形」），不再依赖系统的自动拉伸。
+// 比 Mac 更宽/更高的宿主（多数 iPhone）会有多出来的空间，用外层的弹性空白把内容居中，不拉伸卡片本身。
 const MIN_HEIGHT = { small: 162, medium: 162, large: 342 }     // Mac 桌面上的高度（所有已知宿主里最矮）
+const MIN_WIDTH = { small: 162, medium: 341, large: 342 }      // Mac 桌面上的宽度（所有已知宿主里最窄）
 const XL_AREA = { w: 701, h: 342 }
 
 // 表来自 Apple 的 iPhone 组件规格，按屏幕高度（pt）查。
@@ -169,19 +168,66 @@ function rule(parent, color = C.hair) {
   line.addSpacer()
 }
 
-// 一个等角圆角矩形（可填色、可描边）。用 Scriptable 原生的 cornerRadius / borderWidth，不再画背景图，
-// 所以不依赖 DrawContext，也不必知道组件的真实点数就能画对形状。
+// 圆角矩形：手画贝塞尔曲线生成一张背景图（DrawContext），不用系统的 cornerRadius/borderWidth——
+// 那一对属性在小尺寸的小组件上抗锯齿明显更粗糙（拐角与直边的接缝处有锯齿，真机对比过 Apple 自己的小组件）。
+// 四个角同一个半径 r（等角）。w、h 必须是明确的数字：背景图要按精确像素画，不能事后拉伸。
+function shapeImage(w, h, r, fill, stroke, lw) {
+  const k = 0.5523                      // 三次贝塞尔逼近四分之一圆的经典常数
+  const inset = stroke ? lw / 2 : 0     // 内缩半个线宽，描边才不会被裁掉
+  const x0 = inset, y0 = inset, x1 = w - inset, y1 = h - inset
+  const rr = Math.max(0, Math.min(r, w / 2, h / 2))
+  const p = new Path()
+  p.move(new Point(x0 + rr, y0))
+  p.addLine(new Point(x1 - rr, y0))
+  p.addCurve(new Point(x1, y0 + rr), new Point(x1 - rr + k * rr, y0), new Point(x1, y0 + rr - k * rr))
+  p.addLine(new Point(x1, y1 - rr))
+  p.addCurve(new Point(x1 - rr, y1), new Point(x1, y1 - rr + k * rr), new Point(x1 - rr + k * rr, y1))
+  p.addLine(new Point(x0 + rr, y1))
+  p.addCurve(new Point(x0, y1 - rr), new Point(x0 + rr - k * rr, y1), new Point(x0, y1 - rr + k * rr))
+  p.addLine(new Point(x0, y0 + rr))
+  p.addCurve(new Point(x0 + rr, y0), new Point(x0, y0 + rr - k * rr), new Point(x0 + rr - k * rr, y0))
+  p.closeSubpath()
+
+  const ctx = new DrawContext()
+  ctx.size = new Size(w, h)
+  ctx.opaque = false
+  ctx.respectScreenScale = true         // 按设备真实像素密度画，曲线才够清晰
+  if (fill) { ctx.setFillColor(new Color(fill)); ctx.addPath(p); ctx.fillPath() }
+  if (stroke) { ctx.setStrokeColor(new Color(stroke)); ctx.setLineWidth(lw); ctx.addPath(p); ctx.strokePath() }
+  return ctx.getImage()
+}
+// 一块固定尺寸的圆角底；画图失败时退回系统 cornerRadius，组件不会因此空白（只是拐角没那么干净）
 function box(parent, w, h, r, o = {}) {
   const st = parent.addStack()
   st.layoutVertically()
-  if (w || h) st.size = new Size(w || 0, h || 0)
-  st.cornerRadius = r
-  if (o.fill) st.backgroundColor = new Color(o.fill)
-  if (o.stroke) { st.borderColor = new Color(o.stroke); st.borderWidth = OUTLINE_W }
+  st.size = new Size(w, h)
+  try {
+    st.backgroundImage = shapeImage(w, h, r, o.fill, o.stroke, o.lw || BW)
+  } catch (_) {
+    if (o.fill) st.backgroundColor = new Color(o.fill)
+    if (o.stroke) { st.borderColor = new Color(o.stroke); st.borderWidth = o.lw || BW }
+    st.cornerRadius = r
+  }
   return st
 }
 // 卡：白底 + 墨黑描边 + 等角圆角
 function card(parent, w, h, r = CARD_R) { return box(parent, w, h, r, { fill: C.card, stroke: C.ink }) }
+// 卡片实际尺寸：不超过「已知宿主里最小的那个」，与这台 iPhone 自己的机型表取交集——
+// 在 Mac 桌面上得到 Mac 的（更小的）数字，在任何 iPhone 上得到 Mac 与这台手机两者的较小值。
+function fitSize(hostW, hostH, family) {
+  return { w: Math.min(hostW, MIN_WIDTH[family]), h: Math.min(hostH, MIN_HEIGHT[family]) }
+}
+// 把一块固定宽高的内容在父容器里居中：两侧各放一段弹性空白
+function centerH(parent, w) {
+  const row = parent.addStack()          // 自己开一行横排，不管 parent 本身是横是竖，都能正确水平居中
+  row.layoutHorizontally()
+  row.addSpacer()
+  const inner = row.addStack()
+  inner.layoutVertically()
+  inner.size = new Size(w, 0)
+  row.addSpacer()
+  return inner
+}
 
 // 胶囊：高度固定，宽度随文字。用在 T-n 上：日期块是黑底时反白，否则描边。
 function pill(parent, label, size, o) {
@@ -222,12 +268,11 @@ function highlightSpec(value, base) {
 }
 // ============================================================
 // 日期柱 · 白底，日期墨黑，T-n 红字；只写两样。日期只是配角——名称才是主角
-// 高度自适应：上下各有弹性空白，柱子跟着整张卡的高度走
 // ============================================================
-function pillar(parent, item, w, dateSize, tnSize) {
+function pillar(parent, item, w, h, dateSize, tnSize) {
   const st = parent.addStack()
   st.layoutVertically()
-  st.size = new Size(w, 0)
+  st.size = new Size(w, h)
   st.addSpacer()
   const a = st.addStack()
   a.addSpacer(); text(a, deadlineLabel(item), dateSize, C.ink, "didot"); a.addSpacer()
@@ -258,17 +303,16 @@ function keyColumn(parent, item, w, base, labelSize) {
 }
 
 // 一个机会 = 一张独立的黑描边卡：[日期柱] | 名称 + 分类 | 关键数字。
-// 名称是主角（粗体、比日期大一号）；日期与 T-n 收在窄柱里。
-// 宽、高都不写死：宽度靠卡内弹性空白撑满，高度靠柱子里的弹性空白撑满——同一份脚本在 iPhone（高）与 Mac 桌面（矮）上都放得下。
+// 名称是主角（粗体、比日期大一号）；日期与 T-n 收在窄柱里。宽高都是明确的数字（s.w、s.h），曲线才画得干净。
 function addOppCard(parent, item, s) {
-  const c = card(parent, 0, 0)
+  const c = card(parent, s.w, s.h)
   c.url = item.url || SITE_URL
   c.layoutHorizontally()
   c.centerAlignContent()
-  pillar(c, item, s.pillarW, s.date, s.tn)
-  const bar = c.addStack()                // 竖分隔线：一块 1.2pt 宽、随卡高伸缩的实心黑条
+  pillar(c, item, s.pillarW, s.h, s.date, s.tn)
+  const bar = c.addStack()                // 竖分隔线：一块 1.2pt 宽的实心黑条
   bar.layoutVertically()
-  bar.size = new Size(BW, 0)
+  bar.size = new Size(BW, s.h)
   bar.backgroundColor = new Color(C.ink)
   bar.addSpacer()
   c.addSpacer(PAD_IN)
@@ -301,19 +345,22 @@ function restText(calls, shown, max = 3) {
 }
 
 // ============================================================
-// SMALL · 一张撑满的卡：分类 · 共 N 项 / 名称（大、粗，最多两行）/ 日期 + T-n / 关键数字
+// SMALL · 一张卡：分类 · 共 N 项 / 名称（大、粗，最多两行）/ 日期 + T-n / 关键数字
 // ============================================================
 function buildSmall(data, state) {
   const m = widgetMetrics().small
-  const w = baseWidget(INSET)
   const calls = activeCalls(data.open_calls || [], "deadline")
+  const size = fitSize(m.w, m.h, "small")
+  const ch = size.h - INSET * 2 - 1
+  const w = baseWidget(INSET)
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state, true); w.addSpacer(); return w }
 
   const item = calls[0]
-  // 字号按「最矮的宿主」定（Mac 桌面 162）；再矮的机型（iPhone SE 等）按内容高等比缩小
-  const sc = Math.min(1, (Math.min(m.h, MIN_HEIGHT.small) - INSET * 2 - 1 - PAD_IN * 2) / 117)
-  const c = card(w, 0, 0)                                // 宽、高都自适应，撑满组件；上边两角贴组件边角：圆角 = 外框 − 内边距（同心）
+  const sc = Math.min(1, (ch - PAD_IN * 2) / 117)         // 比 137（Mac 内高）矮的机型再按内容高等比缩小
+  w.addSpacer()
+  const wrap = centerH(w, size.w - INSET * 2)
+  const c = card(wrap, size.w - INSET * 2, ch)
   c.url = item.url || SITE_URL
   c.setPadding(PAD_IN, PAD_IN, PAD_IN, PAD_IN)
 
@@ -347,32 +394,39 @@ function buildSmall(data, state) {
     const spec = highlightSpec(hl.value, Math.round(16 * sc))
     text(meta, hl.value, spec.size, spec.color || C.ink, spec.weight)
   }
+  w.addSpacer()
   return w
 }
 
 // ============================================================
 // MEDIUM · 左边一块「总数」，右边三个机会，每个是一张独立的卡；块与块的间距一律 GAP
 // 总数：一共几项开放机会（大号数字）；放不下的写「另有 n 项」。
-// 高度不写死：左边总数卡与右边三张卡都靠弹性空白撑到同一高度。
+// 宽高都按「已知宿主里最小的」定死，比这更宽/更高的宿主（多数 iPhone）用外层弹性空白把整块居中。
 // ============================================================
 function buildMedium(data, state) {
   const m = widgetMetrics().medium
-  const w = baseWidget(INSET)
   const calls = activeCalls(data.open_calls || [], "deadline")
+  const size = fitSize(m.w, m.h, "medium")
+  const innerH = size.h - INSET * 2 - 1
+  const w = baseWidget(INSET)
 
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); return w }
 
   const panelW = 74
-  const availMin = Math.min(m.h, MIN_HEIGHT.medium) - INSET * 2 - 1           // 已知宿主里最矮的可用高度
-  const rows = availMin >= 3 * 38 + 2 * GAP ? 3 : 2
-  // 列宽按 Mac 桌面上最窄的宿主（341）算：日期柱与数字列收窄，把宽度让给名称
-  const s = { pillarW: 44, date: 14, tn: 7, keyW: 44, title: 12.5, meta: 7.5, hl: 14 }
+  const rows = innerH >= 3 * 38 + 2 * GAP ? 3 : 2
   const n = Math.min(calls.length, rows)
+  const cardH = (innerH - (rows - 1) * GAP) / rows
+  const listW = size.w - INSET * 2 - panelW - GAP
+  const tight = listW < 250              // 窄的宿主（Mac 341）：日期柱与数字列收窄，把宽度让给名称
+  const pw = tight ? 44 : 52, kw = tight ? 44 : 58
+  const s = { w: listW, h: cardH, pillarW: pw, date: tight ? 14 : 16, tn: 7, keyW: kw, title: tight ? 12.5 : 13.5, meta: 7.5, hl: tight ? 14 : 16 }
 
-  const outer = w.addStack()
+  w.addSpacer()
+  const row = centerH(w, size.w - INSET * 2)
+  const outer = row.addStack()
   outer.layoutHorizontally()
 
-  const panel = card(outer, panelW, 0)
+  const panel = card(outer, panelW, innerH)
   panel.setPadding(PAD_IN, PAD_IN, PAD_IN, PAD_IN)
   text(panel, compactIssue(data.issue_id) || "—", 7, C.ink, "monob")
   panel.addSpacer()
@@ -391,12 +445,13 @@ function buildMedium(data, state) {
     addOppCard(list, calls[i], s)
     if (i < n - 1) list.addSpacer(GAP)
   }
+  w.addSpacer()
   return w
 }
 
 // ============================================================
 // LARGE · 刊头写明总数，下面五张同样的卡；卡与卡、刊头、页脚之间的间距一律 GAP
-// 卡片高度不写死：刊头、线、页脚是固定高度，其余全部平分给卡片。
+// 卡片宽高都定死（按已知宿主里最小的算），比这更宽/更高的宿主用外层弹性空白把卡片块居中。
 // ============================================================
 function addMasthead(parent, data, calls) {
   const top = parent.addStack()
@@ -417,27 +472,33 @@ function addMasthead(parent, data, calls) {
 
 function buildLarge(data, state) {
   const m = widgetMetrics().large
-  const w = baseWidget(INSET)
   const calls = activeCalls(data.open_calls || [], "deadline")
+  const size = fitSize(m.w, m.h, "large")
+  const w = baseWidget(INSET)
 
   addMasthead(w, data, calls)
   if (!calls.length) { w.addSpacer(); addEmptyState(w, state); w.addSpacer(); footer(w, data, state); return w }
 
   const MAST = 32, FOOT = 10           // 刊头（26pt 数字）与页脚一行字的高度
-  const availMin = Math.min(m.h, MIN_HEIGHT.large) - INSET * 2 - 1           // 已知宿主里最矮的可用高度
-  const area = availMin - MAST - GAP - GAP - 1 - GAP - FOOT                  // 刊头 | 卡片区 | 间距 | 线 | 间距 | 页脚
+  const innerH = size.h - INSET * 2 - 1
+  const area = innerH - MAST - GAP - GAP - 1 - GAP - FOOT                    // 刊头 | 卡片区 | 间距 | 线 | 间距 | 页脚
   const n = rowsThatFit(area, 46, calls.length, GAP + 10)
-  // 列宽按 Mac 桌面上最窄的宿主（342）算
-  const s = { pillarW: 62, date: 18, tn: 8, keyW: 64, title: 14, meta: 8, hl: 15 }
+  const rest = restText(calls, n)
+  const cardH = (area - (rest ? GAP + 10 : 0) - (n - 1) * GAP) / n
+  const cw = size.w - INSET * 2
+  const tight = cw < 330
+  const pw = tight ? 62 : 72, kw = tight ? 64 : 80
+  const s = { w: cw, h: cardH, pillarW: pw, date: tight ? 18 : 20, tn: 8, keyW: kw, title: cardH >= 54 ? 15 : 14, meta: 8, hl: tight ? 15 : 17 }
+
+  const list = centerH(w, cw)
   for (let i = 0; i < n; i++) {
-    addOppCard(w, calls[i], s)
-    if (i < n - 1) w.addSpacer(GAP)
+    addOppCard(list, calls[i], s)
+    if (i < n - 1) list.addSpacer(GAP)
   }
 
-  const rest = restText(calls, n)
   if (rest) { w.addSpacer(GAP); text(w, rest, 8, C.faint, "mono", 1) }
 
-  if (n < 5 && !rest) w.addSpacer()    // 机会不足五个时，弹性空白把页脚推到底；满五个时卡片自己撑满，不需要
+  w.addSpacer()
   w.addSpacer(GAP)
   rule(w)
   w.addSpacer(GAP)
