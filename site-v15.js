@@ -34,6 +34,7 @@
     if (!Number.isFinite(t)) return null;
     return Math.ceil((t - Date.now()) / 86400000);
   };
+  const dateHtml = item => esc(fmtDate(item)).replace('.', '<span class="date-dot">.</span>');
   const isClosed = item => { const d = daysLeft(item); return d !== null && d < 0; };
   const daysText = item => {
     const d = daysLeft(item);
@@ -73,7 +74,7 @@
     });
     $('#status-issue').textContent = String(data.issue_id || '—').replace(/^\d{4}-/, '');
     const ver = (calls.map(c => c.verified_at).filter(Boolean).sort().pop() || '').slice(5, 10).replace('-', '.');
-    $('#status-verified').textContent = ver ? '核验 ' + ver : '';
+    $('#status-verified').innerHTML = ver ? '核验 ' + esc(ver).replace('.', '<span class="date-dot">.</span>') : '';
   }
 
 
@@ -154,7 +155,7 @@
       const dim = filter !== 'all' && c.category !== filter;
       const name = titleParts(c.title)[0] || c.title;
       return `<button class="blip ${i % 2 ? 'dn' : 'up'} ${p > 68 ? 'flip' : ''} ${dim ? 'is-dim' : ''}" type="button" style="left:${p}%" data-id="${esc(c.id)}" data-jump="${esc(c.id)}" aria-label="${esc(fmtDate(c) + ' ' + name + '，' + daysText(c))}">
-        ${glyph(c.category)}<span class="lab"><i>${esc(fmtDate(c))}<u>${esc(tnOf(c))}</u></i><b>${esc(name)}</b></span></button>`;
+        ${glyph(c.category)}<span class="lab"><i>${dateHtml(c)}<u>${esc(tnOf(c))}</u></i><b>${esc(name)}</b></span></button>`;
     }).join('');
 
     const legend = Object.keys(labels).map(k => `<span>${glyph(k)}${enLabels[k]}</span>`).join('');
@@ -164,7 +165,7 @@
       <div class="plot">
         ${ticks}
         <div class="axis"></div>
-        <div class="today"><span>今天 ${two(now.getMonth() + 1)}.${two(now.getDate())}</span></div>
+        <div class="today"><span>今天 ${two(now.getMonth() + 1)}<span class="date-dot">.</span>${two(now.getDate())}</span></div>
         ${blips}
       </div>
       </div>
@@ -184,7 +185,7 @@
       ['资格 · 适合', 'ELIGIBILITY / FIT', fit, 'wide']
     ].filter(g => g[2]);
     const ver = (item.verified_at || '').slice(0, 10);
-    return `<div class="facts" hidden>
+    return `<div class="facts" id="facts-${esc(item.id)}" hidden>
       ${groups.map(g => `<div class="fgrp ${g[3]}"><small>${g[0]}<i>${g[1]}</i></small><p>${esc(g[2])}</p></div>`).join('')}
       <p class="verified">${esc(item.deadline_display || '')}${ver ? ' · 核验于 ' + esc(ver) : ''}</p>
     </div>`;
@@ -205,7 +206,7 @@
     return `<article class="call ${isClosed(item) ? 'is-closed' : ''} ${item.highlight ? '' : 'no-key'}" data-cat="${esc(item.category)}" data-id="${esc(item.id)}" id="call-${esc(item.id)}">
       <div class="c-date">
         <span class="c-lab">申请截止 · DEADLINE</span>
-        <span class="c-d">${esc(fmtDate(item))}</span>
+        <span class="c-d">${dateHtml(item)}</span>
         <span class="c-t">${esc(daysText(item))}</span>
       </div>
       <div class="c-main">
@@ -215,7 +216,7 @@
         ${brief ? `<p class="c-brief">${esc(brief)}。</p>` : ''}
         <div class="actions">
           <a class="btn btn-primary" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer"><span>官方页面</span><span>↗</span></a>
-          <button class="btn btn-ghost" type="button" aria-expanded="false">更多信息 +</button>
+          <button class="btn btn-ghost" type="button" aria-expanded="false" aria-controls="facts-${esc(item.id)}">更多信息 +</button>
         </div>
       </div>
       <div class="c-key">${keyHtml(item)}</div>
@@ -281,14 +282,14 @@
     </section>`;
   }
 
-  // ---------- 小组件页：预览按 Media-Art-Radar.js（Edition 10）同一套规则绘制，iPhone 与 Mac 两组尺寸 ----------
+  // ---------- 小组件页：Edition 12.2，iPhone 与 Mac 两组参考尺寸 ----------
   // 圆角：全部等角；卡片 18（外框是连续圆角，等效圆角 iPhone ≈ 31 / Mac ≈ 27.5；内缩 12 后最贴合的卡片圆角 iPhone 18.6 / Mac 17.2，取 18）。间距：组件四边内边距 12；相邻块之间 6；块内文字距块边缘 10。
-  // 线条：卡片外框与卡里的竖分隔线一样粗（1.2pt）。iOS 画描边会把外侧那半圈裁掉，所以脚本里外框的 borderWidth 写成 2.4，有效线宽才是 1.2。
+  // 脚本按卡片最终尺寸绘制 1.2pt 描边，并向内偏移半个线宽，避免边缘裁切。
   // 尺寸（iPhone 17 Pro Max 与 Mac 桌面）都是真机截图实测。预览里的日期用 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。
   const WG = { inset: 12, gap: 6, cardR: 18, padIn: 10, bw: 1.2 };
   const SIZES = {
     phone: { small: 176, mw: 378, lh: 393 },
-    mac: { small: 162, mw: 341, lh: 342, xl: { w: 701, h: 342 } }
+    mac: { small: 162, mw: 341, lw: 342, lh: 342, xl: { w: 701, h: 342 } }
   };
   // 已知宿主里最矮的高度（Mac 桌面）：只用来决定「放几张」；卡片高度不写死，撑满整个组件（与脚本一致）
   const MINH = { small: 162, medium: 162, large: 342 };
@@ -297,9 +298,9 @@
   function hlHtml(item, base) {
     const v = item.highlight;
     if (!v) return '';
-    if (!/\d/.test(v)) return `<span style="font-size:${Math.max(base * .5, 9)}px;color:#6d6d6d;font-weight:500">${esc(v)}</span>`;
-    const size = v.length >= 5 ? Math.max(base * .68, 9) : base;
-    return `<span class="it" style="font-size:${size}px;color:#d71921">${esc(v)}</span>`;
+    if (!/\d/.test(v)) return `<span style="font-size:${Math.max(base * .65, 10)}px;color:#505050;font-weight:600">${esc(v)}</span>`;
+    const size = v.length >= 5 ? Math.max(base * .88, 12) : base;
+    return `<span class="ed-benefit" style="font-size:${size}px;color:#040404">${esc(v)}</span>`;
   }
   const catShort = { exhibition: '展览', residency: '驻留', prize: '奖项', conference: '学术会议' };
   const catTag = (item, fs, color) => `<span class="mono" style="font-size:${fs}px;font-weight:700;color:${color};display:inline-flex;align-items:center;gap:.4em">${glyph(item.category)}${esc(catShort[item.category] || '')}</span>`;
@@ -326,10 +327,10 @@
 
   // 日期柱：日期 + T-n（右边一条 1.2 的黑条是分隔）；高度跟着整张卡走
   const pillarHtml = (item, w, ds, ts) =>
-    `<div class="pil" style="width:${w + 1.2}px;align-self:stretch"><span class="it" style="font-size:${ds}px;line-height:1">${esc(fmtDate(item))}</span><span class="mono" style="font-size:${ts}px;font-weight:700;color:#d71921">${esc(tnOf(item))}</span></div>`;
+    `<div class="pil" style="width:${w + 1.2}px;align-self:stretch"><span class="num" style="font-size:${ds}px;line-height:1">${esc(fmtDate(item))}</span><span class="mono" style="font-size:${ts}px;font-weight:700;color:#d71921">${esc(tnOf(item))}</span></div>`;
   // 关键数字列
   const keyHtml2 = (item, w, base, ls) => {
-    const label = item.highlight_label ? `<span class="mono clip dim" style="font-size:${ls}px;text-align:right">${esc(item.highlight_label)}</span>` : '';
+    const label = item.highlight_label ? `<span class="clip dim" style="font-size:${ls}px;font-weight:600;text-align:right">${esc(item.highlight_label)}</span>` : '';
     return `<div style="width:${w}px;display:flex;flex-direction:column;align-items:flex-end;flex:0 0 auto;gap:2px">${hlHtml(item, base)}${label}</div>`;
   };
   // 一张机会卡（中号 / 大号共用）：[日期柱] | 名称（主角，粗体）+ 分类 | 关键数字。宽高都不写死：撑满父容器，最矮不低于 minH
@@ -350,52 +351,54 @@
       <div class="wg-scroll"><div class="wg ${cls}" style="width:${w}px;height:${h}px" role="img" aria-label="${name}小组件预览：${esc(note)}">${inner}</div></div></figure>`;
 
     // 小号：一张撑满的卡 —— 分类 · 共 N 项 / 名称（主角，最多两行）/ 日期 + T-n / 关键数字
+function titleLines(value, width, size) {
+  const str = String(value || "Untitled").replace(/\s+/g, " ").trim()
+  const measure = text => Array.from(text).reduce((sum, ch) => sum +
+    (/[^\x00-\x7F]/.test(ch) ? 1 : /[MW@]/.test(ch) ? .85 : /[ilI1.,' ]/.test(ch) ? .28 : /[A-Z]/.test(ch) ? .66 : .54), 0) * size
+  if (measure(str) <= width - 4) return [str]
+  let choices = []
+  for (let i = 1; i < str.length; i++) if (str[i] === " ") choices.push(i)
+  if (!choices.length) choices = Array.from({length: Math.max(0, str.length - 1)}, (_, i) => i + 1)
+  let best = choices[0] || str.length, score = Infinity
+  for (const i of choices) {
+    const a = measure(str.slice(0, i).trim()), b = measure(str.slice(i).trim())
+    // Keep line one within the column; line two can shrink/truncate if needed.
+    const next = Math.max(a, b) + Math.max(0, a - width + 4) * 10
+    if (next < score) { score = next; best = i }
+  }
+  return [str.slice(0, best).trim(), str.slice(best).trim()].filter(Boolean)
+}
+
+    const editorialDate = item => Array.from(fmtDate(item), ch => `<span${ch === '.' ? ' class="ed-dot"' : ''}>${esc(ch)}</span>`).join('');
+    const editorialTimer = item => `<span class="ed-timer ${daysLeft(item) !== null && daysLeft(item) <= 14 ? 'ed-urgent' : ''}">${esc(tnOf(item))}</span>`;
+    const editorialHeader = () => `<div class="ed-head"><em>Media Art Radar</em><i>${total}</i></div>`;
+    const editorialEmpty = '<div class="ed-empty">暂无开放机会</div>';
     const smallHtml = sz => {
-      if (!first) return '';
-      const ch = sz.small - WG.inset * 2 - 1, cw = sz.small - WG.inset * 2;
-      const sc = Math.min(1, (Math.min(sz.small, MINH.small) - WG.inset * 2 - 1 - WG.padIn * 2) / 117);      // 字号按最矮的宿主定
-      return `<div class="pnl" style="width:${cw}px;height:${ch}px;border-radius:${WG.cardR}px;padding:${bp(WG.padIn)}px">
-        <div class="row">${catTag(first, 7.5, '#0a0a0a')}<span class="grow"></span><span class="mono" style="font-size:7.5px;font-weight:700;color:#6d6d6d">共 ${total} 项</span></div>
-        <div style="height:4px"></div>
-        <b style="font-size:${(16 * sc).toFixed(1)}px;line-height:1.22;${clamp(2)}">${esc(nameOf(first))}</b>
-        <div class="grow"></div>
-        <div class="row" style="align-items:flex-end"><span class="it" style="font-size:${Math.round(28 * sc)}px;line-height:.9">${esc(fmtDate(first))}</span><span class="grow"></span>${daysPillOn(tnOf(first), 8, 14)}</div>
-        <div style="height:4px"></div><div class="hair"></div><div style="height:4px"></div>
-        <div class="row"><span class="mono dim" style="font-size:8px">申请截止</span><span class="grow"></span>${hlHtml(first, Math.round(16 * sc))}</div>
-      </div>`;
+      if (!first) return editorialEmpty;
+      const sc = Math.min(1, (sz.small - 25) / 137);
+      return `<div class="ed-small"><div class="ed-meta"><b>${issue}</b><span>${catTag(first,9,'#505050')}</span></div>
+        <div class="ed-date ed-hero" style="font-size:${(44/1.4)*sc}px">${editorialDate(first)}</div>
+        <b class="ed-small-title" style="font-size:${17*sc}px">${esc(nameOf(first))}</b>
+        ${sz.small >= 162 ? `<em class="ed-sub clip">${esc(subOf(first) || 'Open call')}</em>` : ''}
+        <div class="ed-foot">${editorialTimer(first)}<span>共 ${total} 项</span></div></div>`;
     };
-
-    // 中号：左边「总数」卡，右边三张机会卡；高度都撑满整个组件（左右两块自动等高）
     const mediumHtml = sz => {
-      const innerH = sz.small - WG.inset * 2 - 1, panelW = 74, listW = sz.mw - WG.inset * 2 - panelW - WG.gap;
-      const rows = Math.min(MINH.medium, sz.small) - WG.inset * 2 - 1 >= 3 * 38 + 2 * WG.gap ? 3 : 2;
-      const s = { w: listW, minH: 28, pillarW: 44, date: 14, tn: 7, keyW: 44, title: 12.5, meta: 7.5, hl: 14 };
-      const n = Math.min(rows, calls.length), hidden = calls.length - n;
-      return `<div class="row" style="align-items:stretch;height:${innerH}px">
-        <div class="cnt" style="width:${panelW}px;border-radius:${WG.cardR}px;padding:${bp(WG.padIn)}px">
-          <span class="mono" style="font-size:7px;font-weight:700">${issue}</span><div class="grow"></div>
-          <span class="it" style="font-size:46px;line-height:.9;color:#d71921">${total}</span>
-          <span class="mono" style="font-size:7.5px;color:#6d6d6d;margin-top:3px">项机会</span>
-          <div style="height:6px"></div>
-          <span class="mono" style="font-size:7px;${hidden > 0 ? 'font-weight:700' : 'color:#6d6d6d'}">${hidden > 0 ? `另有 ${hidden} 项` : '已同步'}</span>
-        </div>
-        <div style="width:${WG.gap}px;flex:0 0 auto"></div>
-        <div style="display:flex;flex-direction:column;gap:${WG.gap}px;flex:1 1 0;min-width:0">${calls.slice(0, n).map(c => oppCard(c, s)).join('')}</div>
-      </div>`;
+      if (!first) return editorialEmpty;
+      const slots = sz.mw - 24 < 290 ? 2 : 3;
+      const compact = sz.small - 58 < 100;
+      return `<div class="ed-medium ${compact ? 'ed-compact' : ''}">${editorialHeader()}
+        <div class="ed-columns" style="grid-template-columns:repeat(${slots},minmax(0,1fr))">${Array.from({length:slots},(_,i)=>{
+          const item=calls[i];return item ? `<div class="ed-column"><div class="ed-date">${editorialDate(item)}</div><b>${titleLines(nameOf(item),(sz.mw-24-(slots-1)*12)/slots,compact?12:13).map(esc).join("<br>")}</b>${compact ? '' : `<span class="ed-category">${catTag(item,10,'#505050')}</span>`}${editorialTimer(item)}</div>` : '<div class="ed-column"></div>';
+        }).join('')}</div></div>`;
     };
-
-    // 大号：刊头写明总数 + 五张同样的卡 + 页脚；刊头、线、页脚是固定高度，其余全部平分给卡片
     const largeHtml = sz => {
-      const cw = sz.mw - WG.inset * 2, MAST = 32, FOOT = 10;
-      const availMin = Math.min(MINH.large, sz.lh) - WG.inset * 2 - 1;
-      const area = availMin - MAST - WG.gap - WG.gap - 1 - WG.gap - FOOT;
-      const n = rowsThatFit(area, 46, calls.length, WG.gap + 10);
-      const s = { w: cw, minH: 34, pillarW: 62, date: 18, tn: 8, keyW: 64, title: 14, meta: 8, hl: 15 };
-      return `<div class="row" style="align-items:flex-end;height:${MAST}px;flex:0 0 auto"><b style="font-size:10px">MEDIA ART</b><span class="it" style="margin-left:6px;font-size:18px">Radar</span><span class="grow"></span><span class="it" style="font-size:26px;line-height:1;color:#d71921">${total}</span><div style="margin-left:4px;display:flex;flex-direction:column;line-height:1.15"><span class="mono" style="font-size:8.5px;font-weight:700">项机会</span><span class="mono dim" style="font-size:7.5px">${issue}</span></div></div><div style="height:${WG.gap}px;flex:0 0 auto"></div>`
-        + `<div style="display:flex;flex-direction:column;gap:${WG.gap}px;flex:${n >= 5 ? '1 1 0' : '0 0 auto'};min-height:0">${calls.slice(0, n).map(c => oppCard(c, s)).join('')}</div>`
-        + `${n >= 5 ? '' : '<div class="grow"></div>'}<div style="height:${WG.gap}px;flex:0 0 auto"></div><div class="hair"></div><div style="height:${WG.gap}px;flex:0 0 auto"></div><div class="row mono faint" style="font-size:8px;height:${FOOT}px;flex:0 0 auto"><span>核验 ${esc(String(first && first.verified_at || '').slice(5, 10).replace('-', '.'))}</span><span class="grow"></span><span>已同步</span></div>`;
+      if (!first) return editorialEmpty;
+      const area = sz.lh - 25 - 62;
+      const capacity = Math.max(1,Math.min(5,Math.floor((area+1)/50)));
+      const n=Math.min(calls.length,capacity),hidden=calls.length-n;
+      const rh=(area-capacity+1)/capacity;
+      return `<div class="ed-large">${editorialHeader()}<div class="ed-ledger">${calls.slice(0,n).map(item=>`<div class="ed-entry" style="height:${rh}px"><div><div class="ed-date">${editorialDate(item)}</div>${editorialTimer(item)}</div><div class="ed-body"><b class="clip">${esc(nameOf(item))}</b><div class="ed-detail">${catTag(item,10,'#505050')}<em class="clip ${/\d/.test(String(item.highlight||'')) ? '' : 'ed-plain'}">${esc(item.highlight||'')}</em></div></div></div>`).join('')}</div><div class="ed-foot"><span>${issue} / 核验 ${esc(String(data.generated_at||'').slice(5,10).replace('-','.'))}</span><span>${hidden ? `另有 ${hidden} 项 · ` : ''}已同步</span></div></div>`;
     };
-
     // 超大号（只出现在 Mac 桌面）：3×2，五个机会各一格 + 刊头格。名称与日期同等重要：名称 16 粗体 + 副标题，日期 32 斜体
     const xl = SIZES.mac.xl;
     const xCw = Math.floor((xl.w - WG.inset * 2 - WG.gap * 2) / 3), xCh = Math.floor((xl.h - WG.inset * 2 - 1 - WG.gap) / 2);
@@ -406,13 +409,13 @@
       <b class="clip" style="font-size:16px;line-height:1.22">${esc(nameOf(c))}</b>
       ${subOf(c) ? `<span class="clip dim" style="font-size:7.5px;margin-top:1px">${esc(subOf(c))}</span>` : ''}
       <div class="grow"></div>
-      <div class="row" style="align-items:flex-end"><span class="it" style="font-size:32px;line-height:.9">${esc(fmtDate(c))}</span><span class="grow"></span>${daysPillOn(tnOf(c) + ' DAYS', 7, 13)}</div>
+      <div class="row" style="align-items:flex-end"><span class="ed-date" style="font-size:26px;line-height:1">${editorialDate(c)}</span><span class="grow"></span>${daysPillOn(tnOf(c) + ' DAYS', 7, 13)}</div>
       <div style="height:4px"></div><div class="hair"></div><div style="height:4px"></div>
       <div class="row" style="height:22px">${hlHtml(c, 18)}${c.highlight_label ? `<span class="mono dim clip" style="font-size:7.5px;margin-left:6px">${esc(c.highlight_label)}</span>` : ''}<span class="grow"></span></div></div>`;
     const xlHidden = Math.max(0, calls.length - 5);
     const xlHtml = `<div class="wg-grid" style="grid-template-columns:repeat(3,${xCw}px);grid-template-rows:repeat(2,${xCh}px)">
       <div class="wg-card" style="width:${xCw}px;height:${xCh}px;border-radius:${WG.cardR}px;padding:${bp(WG.inset)}px">
-        ${xTop('MEDIA ART', '<span class="it" style="font-size:11px">Radar</span>')}
+        <em class="ed-brand-cell">Media Art Radar</em>
         <div class="grow"></div>
         <span class="it" style="font-size:64px;line-height:.95;color:#d71921">${total}</span><span class="mono" style="font-size:8px;color:#6d6d6d">项机会 · OPEN CALLS</span>
         <div style="height:4px"></div><div class="hair"></div><div style="height:5px"></div>
@@ -432,14 +435,14 @@
       <section class="sec">
         <div class="sec-h"><h2>安装</h2><em>Install</em><span class="sec-n">SCRIPTABLE</span></div>
         <article class="call two">
-          <div class="c-date"><span class="c-lab">EDITION</span><span class="c-d">10</span><span class="c-t">${issue}</span></div>
+          <div class="c-date"><span class="c-lab">EDITION</span><span class="c-d">12.2</span><span class="c-t">${issue}</span></div>
           <div class="c-main">
             <div class="c-meta"><span class="c-cat">${glyph('exhibition')}Scriptable 脚本</span><span class="c-place">iPhone · iPad · Mac</span></div>
             <h2 class="c-title">下载组件脚本</h2>
             <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
             <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
             <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=22" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-primary" href="Media-Art-Radar.js?v=28" download><span>下载脚本</span><span>↓</span></a>
               <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
             </div>
           </div>
@@ -457,7 +460,7 @@
         <div class="wg-list">
           ${fig('wg-s', '小号 · Mac', '162 × 162', '下一个截止', smallMac, M.small, M.small)}
           ${fig('wg-m', '中号 · Mac', '341 × 162', '三个机会', medMac, M.mw, M.small)}
-          ${fig('wg-l', '大号 · Mac', '342 × 342', '五个机会', lgMac, M.mw, M.lh)}
+          ${fig('wg-l', '大号 · Mac', '342 × 342', '五个机会', lgMac, M.lw, M.lh)}
           ${fig('wg-xl', '超大号 · Mac', '3 × 2 · 701 × 342', '五个机会加刊头', xlHtml, xl.w, xl.h)}
         </div>
       </section>
@@ -475,14 +478,14 @@
       <section class="sec">
         <div class="sec-h"><h2>说明</h2><em>Notes</em></div>
         <div class="card rows">
-          <p><b>与网站同一套语言。</b>整体黑白、白为主，只有一个红：倒计时 T-n、关键数字（资助金额等）和总数用红字；分类用符号区分（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）。</p>
-          <p><b>每个机会是一张独立的卡。</b>左边日期柱只写日期和 T-n，中间是名称和分类，右边是关键数字。地点、「申请截止」这些次要信息都拿掉了，只留最要紧的三样。</p>
-          <p><b>总数写在最显眼的地方。</b>中号左侧的黑块用大号数字写明一共几项开放机会，放不下的写「另有 n 项」；小号右上角写「共 N 项」；大号刊头、超大号刊头格同样写明。</p>
-          <p><b>放在 Mac 桌面上。</b>macOS Tahoe 可以把 iPhone 上的小组件放到 Mac 桌面（「来自 iPhone 的小组件」）。脚本仍然在 iPhone 上运行，看不出自己被显示在哪里，而 Mac 桌面上的组件比 iPhone 上矮（上面「在 Mac 桌面上」是实测尺寸）。所以<b>同一份脚本不需要任何设置</b>：卡片的宽和高都不写死，会撑满组件的实际大小；放几张则按较矮的那个尺寸算，保证哪里都放得下。超大号只会出现在 Mac 桌面上，面积用实测值。</p>
-          <p><b>名称是主角。</b>日期只是一根窄柱里的两行小字，名称用粗体、比日期大一号；小号名称最多两行，超大号名称下面还有副标题，一眼就能知道这是什么机会。</p>
-          <p><b>圆角与间距。</b>所有形状都是等角圆角（四个角同一个半径）。组件外框是苹果的「连续圆角」，拟合真机截图得到等效圆角 iPhone 约 31、Mac 约 27.5；卡片内缩 12 之后，最贴合外框曲线的圆角是 iPhone 18.6、Mac 17.2，所以卡片圆角取 18（不是简单的「外框半径 − 内边距」，那样拐角处会显得太紧）。组件四边内边距都是 12，相邻块之间一律 6，块内文字距块边缘 10（超大号格子里是 12）。</p>
-          <p><b>线条粗细。</b>卡片外框与卡里的竖分隔线一样粗（1.2pt）。iOS 画描边时会把外侧那半圈裁掉，只剩里面一半，所以脚本里外框的描边宽度写成 2.4，有效才是 1.2；竖线是一块实心窄黑条，直接写 1.2。</p>
-          <p><b>关于尺寸。</b>预览按 iPhone 17 Pro Max 与 Mac 桌面的实测尺寸绘制；其他 iPhone 机型比 Mac 桌面还矮时，会少放几张、字号等比缩小。</p>
+          <p><b>与网站同一套语言。</b>白底黑字，花体与无衬线字体形成层次，红色只做点缀；分类用符号区分（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）。</p>
+          <p><b>三个尺寸，同一套刊物语言。</b>小号突出下一个截止日期；中号以三列并排展示近期机会；大号以细线台账呈现日期、名称、分类与资助。小屏幕会减少列数或行数。</p>
+          <p><b>红色是点缀。</b>日期中间的点和机会总数用红色；14 天内截止的倒计时用红色，其余信息以黑灰色呈现。</p>
+          <p><b>放在 Mac 桌面上。</b>Mac 使用 iPhone 提供的同一份小组件脚本，无需另装一个版本。默认按 iPhone 尺寸排版；如果 Mac 上的边距与这里的参考预览不一致，可以在该组件的 Parameter 中填写 <code>mac</code>，使用 Mac 参考尺寸。这是可选校准，不是安装必填项。</p>
+          <p><b>字体各有分工。</b>Media Art Radar 刊头与日期使用花体斜体，名称用无衬线粗体，期号和倒计时用等宽字体，金额使用衬线斜体。</p>
+          <p><b>圆角与间距。</b>保留系统小组件外框圆角，内部取消重复的厚描边圆角卡片，以留白与细线区分信息。超大号延续六格排版。</p>
+          <p><b>清晰的日期。</b>脚本单独绘制花体日期与红色小数点，避免原生文字堆叠挤压日期。中、大号的机会仍可分别点击。</p>
+          <p><b>关于尺寸。</b>预览以 iPhone 17 Pro Max 与 Mac 桌面的参考尺寸绘制；脚本按 iPhone 机型分配卡片尺寸，较小的组件会少放几张。刊头使用 Georgia 斜体，日期使用 Georgia 常规斜体，名称使用系统无衬线，金额使用 Georgia 斜体；网页与 iOS 的字形会略有差异。iPad、显示缩放或未收录机型可在 Parameter 中填写实际尺寸，例如 <code>{"width":378,"height":176}</code>（单位为点，示例对应中号）。</p>
           <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
           <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>
         </div>
@@ -529,6 +532,29 @@
   }
   document.addEventListener('click', e => { const j = e.target.closest('[data-jump]'); if (j) jumpTo(j.dataset.jump); });
 
+  const detailAnimations = new WeakMap();
+  function revealFacts(panel, open) {
+    // Capture the current visual state so rapid clicks reverse without jumping.
+    const current = getComputedStyle(panel);
+    const start = { height: `${panel.getBoundingClientRect().height}px`, opacity: panel.hidden ? 0 : current.opacity,
+      paddingTop: panel.hidden ? '0px' : current.paddingTop, paddingBottom: panel.hidden ? '0px' : current.paddingBottom,
+      borderTopWidth: panel.hidden ? '0px' : current.borderTopWidth };
+    detailAnimations.get(panel)?.cancel();
+    panel.hidden = false;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !panel.animate) {
+      panel.hidden = !open; detailAnimations.delete(panel); return;
+    }
+    const natural = getComputedStyle(panel);
+    const end = open ? { height: `${panel.getBoundingClientRect().height}px`, opacity: 1,
+      paddingTop: natural.paddingTop, paddingBottom: natural.paddingBottom, borderTopWidth: natural.borderTopWidth }
+      : { height: '0px', opacity: 0, paddingTop: '0px', paddingBottom: '0px', borderTopWidth: '0px' };
+    const animation = panel.animate([start, end], { duration: 320, easing: 'cubic-bezier(.22,1,.36,1)' });
+    detailAnimations.set(panel, animation);
+    animation.onfinish = () => {
+      if (detailAnimations.get(panel) !== animation) return;
+      panel.hidden = !open; detailAnimations.delete(panel);
+    };
+  }
   $('#view').addEventListener('click', e => {
     const reset = e.target.closest('.reset-filter');
     if (reset) { render('opportunities', 'all', true); return; }
@@ -547,7 +573,7 @@
     const open = btn.getAttribute('aria-expanded') !== 'true';
     btn.setAttribute('aria-expanded', String(open));
     btn.textContent = open ? '收起 −' : '更多信息 +';
-    $('.facts', row).hidden = !open;
+    revealFacts($('.facts', row), open);
   });
 
   $$('.nav').forEach(btn => btn.addEventListener('click', () => {

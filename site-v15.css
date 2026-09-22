@@ -189,6 +189,9 @@ img{display:block;max-width:100%}
 /* 详情：四组，展开在名称与资助的下面 */
 .facts{grid-column:2/-1;grid-row:2;margin:0;padding:4px 32px 16px;border-top:1.5px solid var(--ink);display:grid;grid-template-columns:1fr 1fr;column-gap:32px}
 .facts[hidden]{display:none}
+.facts{box-sizing:border-box;overflow:hidden}
+.date-dot{color:var(--red)}
+.btn{transition:background-color .18s ease,color .18s ease,border-color .18s ease}
 .fgrp{padding:14px 0 12px;border-bottom:1px solid var(--hair)}
 .fgrp.wide{grid-column:1/-1}
 .fgrp small{display:flex;align-items:baseline;gap:10px;margin:0 0 6px;font-size:.78rem;font-weight:700}
@@ -235,8 +238,9 @@ img{display:block;max-width:100%}
 .wg .mono{font-family:var(--mono)}
 .wg .it{font-family:var(--display);font-weight:500;letter-spacing:-.03em}
 .wg .clip{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
-.wg .dim{color:var(--mute)}
-.wg .faint{color:#a3a3a3}
+.wg .num{font-family:var(--mono);font-style:normal;font-weight:700;letter-spacing:-.03em}
+.wg .dim{color:#505050}
+.wg .faint{color:#6d6d6d}
 .wg .hair{height:1px;background:var(--hair);flex:0 0 auto}
 .wg .pnl{display:flex;flex-direction:column;flex:0 0 auto;border:1.2px solid var(--ink)}
 .wg .chipb{display:flex;align-items:center;justify-content:center;flex:0 0 auto;border:1.2px solid var(--ink)}
@@ -257,6 +261,47 @@ img{display:block;max-width:100%}
 .wg-card{border:1.2px solid var(--ink);background:#fff;flex:0 0 auto;display:flex;flex-direction:column}
 .wg-l .wg-card{flex-direction:row;align-items:center}
 .wg-grid{display:grid;grid-template-columns:repeat(3,221px);grid-template-rows:repeat(2,154px);gap:6px;margin:auto}
+
+/* Edition 12: editorial widgets. These rules are scoped to the widget previews. */
+.wg .ed-small,.wg .ed-medium,.wg .ed-large{height:100%;width:100%;display:flex;flex-direction:column;min-height:0}
+.wg .ed-head{display:flex;align-items:center;justify-content:space-between;height:27px;flex:none;border-bottom:1px solid var(--ink)}
+.wg .ed-head em{font-family:Georgia,serif;font-size:22px;line-height:1;font-weight:500;letter-spacing:-.045em;white-space:nowrap}
+.wg .ed-head i{font-family:Georgia,serif;font-size:24px;line-height:1;color:var(--red)}
+.wg .ed-date{font-family:Georgia,serif;font-weight:400;font-style:italic;letter-spacing:0;white-space:nowrap;line-height:1.4;font-size:24px;padding-left:calc(2px + .08em)}
+.wg .ed-date>span{display:inline-block;width:.64em}
+.wg .ed-date>.ed-dot{width:.31em}
+.wg .ed-entry .ed-date{font-size:25.5px;line-height:36px}
+.wg .ed-entry .ed-timer{font-size:10px}
+.wg .ed-dot{color:var(--red)}
+.wg .ed-timer{font-family:var(--mono);font-size:9px;color:#505050;white-space:nowrap}
+.wg .ed-urgent{color:var(--red);font-weight:700}
+.wg .ed-meta{display:flex;justify-content:space-between;align-items:center;font:9px var(--mono);height:12px;flex:none}
+.wg .ed-hero{margin-top:4px}
+.wg .ed-small-title{font-size:16px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wg .ed-sub{font-family:Georgia,serif;font-size:9px;color:#505050;margin-top:3px}
+.wg .ed-foot{display:flex;justify-content:space-between;gap:4px;align-items:center;height:19px;padding-top:6px;border-top:1px solid var(--ink);font:8px var(--mono);color:#505050;flex:none;margin-top:auto;white-space:nowrap}
+.wg .ed-small .ed-foot{border-top-color:var(--hair);font-size:9px}
+.wg .ed-columns{display:grid;gap:12px;flex:1;min-height:0;padding-top:6px}
+.wg .ed-column{min-width:0;display:flex;flex-direction:column;position:relative}
+.wg .ed-column+.ed-column:before{content:"";position:absolute;left:-6px;top:0;bottom:0;width:1px;background:var(--hair)}
+.wg .ed-column>b{font-size:13px;line-height:19px;height:38px;flex:none;margin:2px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wg .ed-category{height:12px;display:flex;align-items:center;flex:none}
+.wg .ed-column>.ed-timer{margin-top:auto;line-height:12px}
+.wg .ed-compact .ed-date{font-size:18.5px}
+.wg .ed-compact .ed-column>b{font-size:12px;line-height:14px;height:28px;margin:2px 0}
+.wg .ed-large .ed-head{height:37px}
+.wg .ed-large .ed-head em{font-size:24px}
+.wg .ed-large .ed-head i{font-size:27px}
+.wg .ed-ledger{flex:1;min-height:0;padding-top:6px}
+.wg .ed-entry{display:grid;grid-template-columns:82px minmax(0,1fr);gap:8px;align-items:center;box-sizing:content-box}
+.wg .ed-entry+.ed-entry{border-top:1px solid var(--hair)}
+.wg .ed-body{min-width:0}
+.wg .ed-body>b{font-size:15px;line-height:22px;display:block}
+.wg .ed-detail{display:flex;align-items:baseline;justify-content:space-between;gap:5px;margin-top:4px;height:18px}
+.wg .ed-detail>em,.wg .ed-benefit{font-family:Georgia,serif;font-size:15px;font-weight:400;font-style:italic;color:var(--ink)}
+.wg .ed-detail>em.ed-plain{font-family:var(--sans);font-size:10px;font-style:normal;color:#505050}
+.wg .ed-empty{margin:auto;font-size:14px}
+.wg .ed-brand-cell{font-family:var(--display);font-size:16px;line-height:1}
 
 /* ============ 窄一点的桌面 ============ */
 @media(max-width:1250px){
@@ -353,4 +398,8 @@ img{display:block;max-width:100%}
   .wg-m,.wg-l{zoom:.84}
 }
 @media(max-height:820px){.tile .tl em{display:none}.tile .g{font-size:1.3rem}}
-@media(prefers-reduced-motion:reduce){.blip,.blip .g{transition:none}}
+@media(prefers-reduced-motion:reduce){.blip,.blip .g,.btn{transition:none}}
+
+/* Widget text follows iOS system typography; the rest of the site keeps its web fonts. */
+.wg .ed-body,.wg .ed-column>b,.wg .ed-small-title{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","PingFang SC",sans-serif}
+.wg .ed-timer,.wg .ed-meta,.wg .ed-foot{font-family:ui-monospace,Menlo,monospace}
