@@ -122,9 +122,11 @@ function textPositions(node, textWidth, origin = 0) {
   for (const mmdd of ['09.28','10.15','11.06','12.01','12.15']) {
     const mark = api.dateMark(new Node(), {deadline_date:'2099-'+mmdd.replace('.','-')},78,30,23);
     const runs = collect(mark);
-    assert.equal(runs.map(t=>t.value).join(''),mmdd);
+    assert.equal(runs.map(t=>t.value).join(''),mmdd.replace('.',''));
     assert(runs.every(t=>t.font.name==='boldSystemFont'));
-    assert.equal(runs[1].textColor.hex,'#D71921');
+    const descendants = n => [n,...n.children.filter(c=>c instanceof Node).flatMap(descendants)];
+    const dot = descendants(mark).find(n=>n.backgroundColor?.hex === '#D71921');
+    assert(dot && dot.size.width >= 3 && dot.cornerRadius === dot.size.width/2, 'date separator must be a visible geometric circle');
     inspect(mark);
   }
   const localized = api.buildWidget({ ...fixture(1), open_calls:[{ ...fixture(1).open_calls[0],category:'exhibition'}] },'LIVE','medium',api.widgetMetrics('medium'));

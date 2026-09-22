@@ -308,7 +308,23 @@ img{display:block;max-width:100%}
 .wg .nc{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;height:100%;display:flex;flex-direction:column;font-style:normal}
 .nc-head{display:flex;align-items:center;justify-content:space-between;height:26px;flex:none;margin-bottom:6px}
 .nc-head>b{font-size:17px}.nc-head>strong{font-size:26px;color:var(--red)}
-.nc-card{border:1px solid var(--ink);border-radius:14px;padding:7px;min-width:0;display:flex;flex-direction:column;flex:1}
+.nc-card{border:2.5px solid var(--ink);border-radius:14px;padding:5.5px;min-width:0;display:flex;flex-direction:column;flex:1}
+.nc-date .date-dot{display:inline-block;width:.15em;height:.15em;margin:0 .045em;border-radius:50%;background:var(--red);font-size:inherit;color:transparent;line-height:0;vertical-align:baseline}
+.nc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px;flex:1;min-height:0}
+.nc-grid .nc-card{padding:7.5px}
+.nc-grid .nc-date{font-size:29px;line-height:32px;margin-bottom:2px}
+.nc-grid .nc-title{font-size:17px;line-height:21px;height:42px;flex:none}
+.nc-deadline{display:block;font-size:8px;line-height:10px;flex:none;color:#505050}
+.nc-grid .nc-deadline{font-size:9px;line-height:11px}
+.nc-medium .nc-date{font-size:25px;line-height:26px}
+.nc-medium .nc-title{font-size:15px}
+.nc-support{font-size:11px;line-height:14px;height:14px;flex:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.nc-small .nc-title{font-size:17px}
+.nc-tight .nc-date{font-size:22px;line-height:24px}
+.nc-tight .nc-title{font-size:14px;line-height:16px;height:32px}
+.nc-grid .nc-kind{font-size:10px;line-height:14px}
+.nc-grid .nc-bottom{height:16px}.nc-grid .nc-bottom>b{font-size:13px;max-width:60%}
+.wg .wg-card{border-width:2.5px}
 .nc-date{font-size:28px;font-weight:700;line-height:30px;white-space:nowrap;letter-spacing:-.04em}
 .nc-title{font-size:14px;line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:36px}
 .nc-bottom{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:9px;line-height:14px;margin-top:auto;white-space:nowrap}

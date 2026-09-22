@@ -282,7 +282,7 @@
     </section>`;
   }
 
-  // ---------- 小组件页：Edition 13，iPhone 与 Mac 两组参考尺寸 ----------
+  // ---------- 小组件页：Edition 14，iPhone 与 Mac 两组参考尺寸 ----------
   // 圆角：全部等角；卡片 18（外框是连续圆角，等效圆角 iPhone ≈ 31 / Mac ≈ 27.5；内缩 12 后最贴合的卡片圆角 iPhone 18.6 / Mac 17.2，取 18）。间距：组件四边内边距 12；相邻块之间 6；块内文字距块边缘 10。
   // 脚本按卡片最终尺寸绘制 1.2pt 描边，并向内偏移半个线宽，避免边缘裁切。
   // 尺寸（iPhone 17 Pro Max 与 Mac 桌面）都是真机截图实测。预览里的日期用 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。
@@ -375,12 +375,12 @@ function titleLines(value, width, size) {
     const editorialEmpty = '<div class="ed-empty">暂无开放机会</div>';
     const nativeDate = item => esc(fmtDate(item)).replace('.', '<span class="date-dot">.</span>');
     const nativeHead = '<div class="nc-head"><b>Media Art Radar</b><strong>'+total+'</strong></div>';
-    const smallHtml = sz => !first ? editorialEmpty : `<div class="nc nc-small"><div class="nc-card"><small>${issue} / ${esc(catShort[first.category] || '')}</small><div class="nc-date">${nativeDate(first)}</div><b class="nc-title">${esc(nameOf(first))}</b><div class="nc-bottom"><b class="red">${esc(tnOf(first))}</b><span>${total} 项</span></div></div></div>`;
-    const mediumHtml = sz => !first ? editorialEmpty : `<div class="nc nc-medium">${nativeHead}<div class="nc-columns">${calls.slice(0,2).map(item=>`<div class="nc-card"><div class="nc-date">${nativeDate(item)}</div><b class="nc-title">${titleLines(nameOf(item),(sz.mw-32)/2-16,14).map(esc).join('<br>')}</b><div class="nc-bottom"><span>${catTag(item,9,'#505050')}</span><b class="${daysLeft(item)<=14?'red':''}">${esc(tnOf(item))}</b></div></div>`).join('')}</div></div>`;
+    const smallHtml = sz => !first ? editorialEmpty : `<div class="nc nc-small"><div class="nc-card"><small>${issue} / ${esc(catShort[first.category] || '')}</small><small class="nc-deadline">申请截止</small><div class="nc-date">${nativeDate(first)}</div><b class="nc-title">${esc(nameOf(first))}</b><div class="nc-bottom"><b class="red">${esc(tnOf(first))}</b><span>${total} 项</span></div></div></div>`;
+    const mediumHtml = sz => !first ? editorialEmpty : `<div class="nc nc-medium">${nativeHead}<div class="nc-columns">${calls.slice(0,2).map(item=>`<div class="nc-card"><small class="nc-deadline">申请截止</small><div class="nc-date">${nativeDate(item)}</div><b class="nc-title">${titleLines(nameOf(item),(sz.mw-32)/2-16,15).map(esc).join('<br>')}</b>${sz.small>=173&&item.highlight?`<b class="nc-support">${esc(item.highlight)}</b>`:''}<div class="nc-bottom"><span>${catTag(item,9,'#505050')}</span><b class="${daysLeft(item)<=14?'red':''}">${esc(tnOf(item))}</b></div></div>`).join('')}</div></div>`;
     const largeHtml = sz => {
       if(!first) return editorialEmpty;
-      const area=sz.lh-25-58, capacity=Math.max(1,Math.min(4,Math.floor((area+7)/65))),hidden=Math.max(0,calls.length-capacity);
-      return `<div class="nc nc-large">${nativeHead}<div class="nc-list" style="grid-template-rows:repeat(${capacity},1fr)">${calls.slice(0,capacity).map(item=>`<div class="nc-row"><div class="nc-tile"><div class="nc-date">${nativeDate(item)}</div><b>${esc(tnOf(item))}</b></div><div class="nc-body"><b class="nc-title">${titleLines(nameOf(item),sz.mw-24-98,14).map(esc).join('<br>')}</b><div class="nc-bottom"><span>${catTag(item,9,'#505050')}</span><b>${esc(item.highlight||'')}</b></div></div></div>`).join('')}</div><div class="nc-footer"><span>${issue} / 已同步</span><b>${hidden?'另有 '+hidden+' 项 →':'全部机会'}</b></div></div>`;
+      const capacity=4,hidden=Math.max(0,calls.length-capacity),cw=(sz.mw-32)/2,tight=(sz.lh-25-58-8)/2-20<120;
+      return `<div class="nc nc-large ${tight ? 'nc-tight' : ''}">${nativeHead}<div class="nc-grid">${calls.slice(0,capacity).map(item=>`<div class="nc-card"><small class="nc-deadline">申请截止</small><div class="nc-date">${nativeDate(item)}</div><b class="nc-title">${titleLines(nameOf(item),cw-20,tight?14:17).map(esc).join('<br>')}</b><div class="nc-kind">${catTag(item,10,'#505050')}</div><div class="nc-bottom"><b>${esc(item.highlight||catShort[item.category]||'')}</b><span class="${daysLeft(item)<=14?'red':''}">${esc(tnOf(item))}</span></div></div>`).join('')}</div><div class="nc-footer"><span>${issue} / 已同步</span><b>${hidden?'另有 '+hidden+' 项 →':'全部机会'}</b></div></div>`;
     };
     // 超大号（只出现在 Mac 桌面）：3×2，五个机会各一格 + 刊头格。名称与日期同等重要：名称 16 粗体 + 副标题，日期 32 斜体
     const xl = SIZES.mac.xl;
@@ -418,14 +418,14 @@ function titleLines(value, width, size) {
       <section class="sec">
         <div class="sec-h"><h2>安装</h2><em>Install</em><span class="sec-n">SCRIPTABLE</span></div>
         <article class="call two">
-          <div class="c-date"><span class="c-lab">EDITION</span><span class="c-d">13</span><span class="c-t">${issue}</span></div>
+          <div class="c-date"><span class="c-lab">EDITION</span><span class="c-d">14</span><span class="c-t">${issue}</span></div>
           <div class="c-main">
             <div class="c-meta"><span class="c-cat">${glyph('exhibition')}Scriptable 脚本</span><span class="c-place">iPhone · iPad · Mac</span></div>
             <h2 class="c-title">下载组件脚本</h2>
             <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
             <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
             <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=30" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-primary" href="Media-Art-Radar.js?v=32" download><span>下载脚本</span><span>↓</span></a>
               <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
             </div>
           </div>
@@ -462,13 +462,13 @@ function titleLines(value, width, size) {
         <div class="sec-h"><h2>说明</h2><em>Notes</em></div>
         <div class="card rows">
           <p><b>与网站同一套语言。</b>白底黑字，系统字体以大小和粗细形成层次，红色只做点缀；分类用符号区分（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）。</p>
-          <p><b>三个尺寸，同一套刊物语言。</b>小号突出下一个截止日期；中号用两张卡片展示近期机会；大号以黑色日期块和白色内容卡展示最多四项。</p>
+          <p><b>三个尺寸，同一套刊物语言。</b>小号突出下一个截止日期；中号用两张卡片展示近期机会；大号以两列两行的四张卡片集中呈现日期、名称和资助。</p>
           <p><b>红色是点缀。</b>日期中间的点和机会总数用红色；14 天内截止的倒计时用红色，其余信息以黑灰色呈现。</p>
           <p><b>放在 Mac 桌面上。</b>Mac 使用 iPhone 提供的同一份小组件脚本，无需另装一个版本。默认按 iPhone 尺寸排版；如果 Mac 上的边距与这里的参考预览不一致，可以在该组件的 Parameter 中填写 <code>mac</code>，使用 Mac 参考尺寸。这是可选校准，不是安装必填项。</p>
           <p><b>字体各有分工。</b>小组件全部使用系统字体，以大号日期、粗体名称与较小的辅助文字建立层次。</p>
-          <p><b>圆角与间距。</b>保留系统小组件外框圆角，内部采用细描边卡片；大号的黑色日期块为每条信息建立清晰入口。超大号延续六格排版。</p>
-          <p><b>清晰的日期。</b>日期使用原生系统文字，不再绘制花体图片；月份、红点与日期各有固定空间。中、大号的机会仍可分别点击。</p>
-          <p><b>关于尺寸。</b>预览以 iPhone 17 Pro Max 与 Mac 桌面的参考尺寸绘制；脚本按 iPhone 机型分配卡片尺寸，较小的组件会少放几张。小组件全部使用系统字体，以字号、黑色日期块、细边框卡片和少量红色建立层次；中号展示两项，大号最多四项。网页只是布局参考，最终效果以 iPhone 为准。iPad、显示缩放或未收录机型可在 Parameter 中填写实际尺寸，例如 <code>{"width":378,"height":176}</code>（单位为点，示例对应中号）。</p>
+          <p><b>圆角与间距。</b>保留系统小组件外框圆角，内部采用 2.5pt 黑色描边卡片；大号以四张独立卡片集中呈现日期、名称和资助。超大号延续六格排版。</p>
+          <p><b>清晰的日期。</b>日期使用原生系统文字，不再绘制花体图片；月份、红点与日期各有固定空间，红点是独立圆形，日期上方标明申请截止。中、大号的机会仍可分别点击。</p>
+          <p><b>关于尺寸。</b>预览以 iPhone 17 Pro Max 与 Mac 桌面的参考尺寸绘制；脚本按 iPhone 机型分配卡片尺寸，较小的组件会少放几张。小组件全部使用系统字体，以字号、四宫格、加粗边框和少量红色建立层次；中号展示两项，大号最多四项。网页只是布局参考，最终效果以 iPhone 为准。iPad、显示缩放或未收录机型可在 Parameter 中填写实际尺寸，例如 <code>{"width":378,"height":176}</code>（单位为点，示例对应中号）。</p>
           <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
           <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>
         </div>

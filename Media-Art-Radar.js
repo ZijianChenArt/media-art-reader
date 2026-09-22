@@ -1,4 +1,4 @@
-// Media Art Radar \u00b7 Edition 13 \u2014 replace the entire Scriptable script.
+// Media Art Radar Edition 14 - replace the entire Scriptable script.
 const SITE_URL = "https://zijianchenart.github.io/media-art-reader/"
 const PREVIEW_FAMILY = "large"
 const C = {paper:"#FFFFFF",ink:"#040404",dim:"#505050",hair:"#ECECEC",red:"#D71921"}
@@ -71,12 +71,16 @@ function dateMark(parent,item,w,h,requestedSize,color = C.ink) {
   if (!/^\d{2}\.\d{2}$/.test(value)) return label(row,value,w,h,14,color,"medium")
   const size = Math.min(requestedSize,w/3.15,h*.8)
   label(row,value.slice(0,2),w*.43,h,size,color,"bold","right")
-  label(row,".",w*.14,h,size,C.red,"bold","center")
+  const dotSlot=stack(row,w*.14,h), diameter=Math.max(3,size*.15)
+  dotSlot.addSpacer((h-diameter)/2+size*.2)
+  const dotRow=stack(dotSlot,w*.14,diameter,false);dotRow.addSpacer()
+  const dot=stack(dotRow,diameter,diameter);dot.backgroundColor=new Color(C.red);dot.cornerRadius=diameter/2
+  dotRow.addSpacer();dotSlot.addSpacer()
   label(row,value.slice(3),w*.43,h,size,color,"bold")
   return row
 }
 function outlined(parent,w,h,padding = 8) {
-  const card = stack(parent,w,h); card.borderColor = new Color(C.ink); card.borderWidth = 1
+  const card = stack(parent,w,h); card.borderColor = new Color(C.ink); card.borderWidth = 2.5
   card.cornerRadius = 14; card.setPadding(padding,padding,padding,padding); return card
 }
 
@@ -124,11 +128,12 @@ function buildWidget(data,state,family,area) {
   return widget
 }
 function small(root,calls,data,state,w,h) {
-  const item = calls[0], card = outlined(root,w,h), iw=w-16, ih=h-16, scale=Math.min(1,ih/121)
+  const item = calls[0], card = outlined(root,w,h), iw=w-16, ih=h-16, scale=Math.min(1,(ih-38)/78)
   card.url=item.url || SITE_URL
   label(card,compactIssue(data.issue_id)+" / "+categoryLabel(item,true),iw,12,9,C.dim,"medium")
+  label(card,"\u7533\u8bf7\u622a\u6b62",iw,10,8,C.dim,"medium")
   dateMark(card,item,iw,42*scale,34*scale)
-  twoLineTitle(card,splitTitle(item.title).title,iw,36*scale,16*scale)
+  twoLineTitle(card,splitTitle(item.title).title,iw,36*scale,17*scale)
   card.addSpacer()
   const foot=stack(card,iw,16,false)
   label(foot,timer(item),iw*.5,16,10,C.red,"bold")
@@ -142,10 +147,12 @@ function medium(root,calls,data,state,w,h) {
     const card=outlined(row,cw,ch),item=calls[i],iw=cw-16,ih=ch-16
     if(!item) continue
     card.url=item.url || SITE_URL
-    const tight=ih<85
-    const sc=Math.min(1,(ih-14)/52)
-    dateMark(card,item,Math.min(iw,100),tight?24*sc:30,tight?23*sc:28)
-    twoLineTitle(card,splitTitle(item.title).title,iw,tight?28*sc:36,tight?12:14)
+    const tight=ih<86
+    const sc=Math.min(1,(ih-24)/52)
+    label(card,"\u7533\u8bf7\u622a\u6b62",iw,10,8,C.dim,"medium")
+    dateMark(card,item,Math.min(iw,100),tight?24*sc:26,tight?23*sc:25)
+    twoLineTitle(card,splitTitle(item.title).title,iw,tight?28*sc:36,tight?12:15)
+    if(ih>=100 && item.highlight) label(card,item.highlight,iw,14,11,C.ink,"bold")
     card.addSpacer()
     const foot=stack(card,iw,14,false)
     label(foot,category(item),iw*.62,14,9,C.dim,"medium")
@@ -153,23 +160,28 @@ function medium(root,calls,data,state,w,h) {
   }
 }
 function entry(parent,item,w,h) {
-  const card=outlined(parent,w,h,0); card.layoutHorizontally(); card.url=item.url || SITE_URL
-  const dw=78, tile=stack(card,dw,h); tile.backgroundColor=new Color(C.ink); tile.cornerRadius=13
-  tile.addSpacer(); dateMark(tile,item,dw,30,23,C.paper)
-  label(tile,timer(item),dw,16,10,C.paper,"bold","center"); tile.addSpacer()
-  card.addSpacer(10)
-  const bw=w-dw-20,body=stack(card,bw,h); body.addSpacer()
-  twoLineTitle(body,splitTitle(item.title).title,bw,34,14)
-  const meta=stack(body,bw,16,false)
-  label(meta,category(item),bw*.5,16,9,C.dim,"medium")
-  label(meta,item.highlight || "",bw*.5,16,11,C.ink,"bold","right")
-  body.addSpacer();card.addSpacer(10)
+  const card=outlined(parent,w,h,10);card.url=item.url || SITE_URL
+  const iw=w-20,ih=h-20,tight=ih<120
+  label(card,"\u7533\u8bf7\u622a\u6b62",iw,11,9,C.dim,"medium")
+  const sc=Math.min(1,(ih-29)/56)
+  dateMark(card,item,Math.min(iw,104),tight?24*sc:32,tight?22*sc:29)
+  card.addSpacer(2)
+  twoLineTitle(card,splitTitle(item.title).title,iw,tight?32*sc:42,tight?14:17)
+  if(ih>=99) label(card,category(item),iw,12,10,C.dim,"medium")
+  card.addSpacer()
+  const foot=stack(card,iw,16,false)
+  label(foot,item.highlight || categoryLabel(item,true),iw*.6,16,tight?10:13,C.ink,"bold")
+  label(foot,timer(item),iw*.4,16,9,urgencyColor(item),"bold","right")
 }
 function large(root,calls,data,state,w,h) {
   masthead(root,w,30,calls.length);root.addSpacer(8)
-  const area=h-58, capacity=Math.max(1,Math.min(4,Math.floor((area+7)/65))),rh=(area-(capacity-1)*7)/capacity
+  const area=h-58,capacity=4,rh=(area-8)/2,cw=(w-8)/2
   const list=stack(root,w,area)
-  for(let i=0;i<capacity;i++) { if(i) list.addSpacer(7);if(calls[i]) entry(list,calls[i],w,rh);else stack(list,w,rh) }
+  for(let r=0;r<2;r++) {
+    if(r) list.addSpacer(8)
+    const row=stack(list,w,rh,false)
+    for(let c=0;c<2;c++) {if(c) row.addSpacer(8);const item=calls[r*2+c];if(item) entry(row,item,cw,rh);else stack(row,cw,rh)}
+  }
   root.addSpacer(6)
   const foot=stack(root,w,14,false), hidden=Math.max(0,calls.length-capacity)
   label(foot,compactIssue(data.issue_id)+" / "+statusText(state,data),w*.55,14,9,C.dim,"medium")
@@ -184,7 +196,7 @@ function extraLarge(root,calls,data,state,w,h) {
     for (let c=0;c<3;c++) {
       if (c) row.addSpacer(6)
       const index = r*3+c, cell = stack(row,cw,ch)
-      cell.cornerRadius = 18; cell.borderWidth = .7; cell.borderColor = new Color(C.ink)
+      cell.cornerRadius = 18; cell.borderWidth = 2.5; cell.borderColor = new Color(C.ink)
       cell.setPadding(10,10,10,10)
       const iw = cw-20, ih = ch-20, sc = Math.min(1,ih/117)
       if (!index) {
@@ -196,7 +208,7 @@ function extraLarge(root,calls,data,state,w,h) {
         const item = calls[index-1]; cell.url = item.url || SITE_URL
         label(cell,category(item),iw,12,8,C.dim,"medium")
         twoLineTitle(cell,splitTitle(item.title).title,iw,32*sc,13*sc)
-        cell.addSpacer(); dateMark(cell,item,iw,34*sc,24*sc)
+        cell.addSpacer(); label(cell,"\u7533\u8bf7\u622a\u6b62",iw,10*sc,8,C.dim,"medium");dateMark(cell,item,iw,24*sc,20*sc)
         const foot = stack(cell,iw,18,false)
         label(foot,timer(item),iw*.45,18,8,urgencyColor(item),"mono")
         label(foot,item.highlight || "",iw*.55,18,11,C.ink,"serif","right")
