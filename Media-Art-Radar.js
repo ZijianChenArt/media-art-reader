@@ -217,14 +217,15 @@ function card(parent, w, h, r = CARD_R) { return box(parent, w, h, r, { fill: C.
 function fitSize(hostW, hostH, family) {
   return { w: Math.min(hostW, MIN_WIDTH[family]), h: Math.min(hostH, MIN_HEIGHT[family]) }
 }
-// 把一块固定宽高的内容在父容器里居中：两侧各放一段弹性空白
-function centerH(parent, w) {
-  const row = parent.addStack()          // 自己开一行横排，不管 parent 本身是横是竖，都能正确水平居中
+// 把一块内容在父容器里水平居中：自己开一行横排（不管 parent 本身是横是竖），两侧各放一段弹性空白。
+// 不强行给内容定宽定高——内容自己的卡片已经是定宽定高的（画曲线要用），宽度会从子元素自然撑出来；
+// 高度不定死，是为了让内部如果有弹性间距，能一路把「比 Mac 更高的宿主多出来的空间」吃掉，不憋在一处。
+function centerH(parent) {
+  const row = parent.addStack()
   row.layoutHorizontally()
   row.addSpacer()
   const inner = row.addStack()
   inner.layoutVertically()
-  inner.size = new Size(w, 0)
   row.addSpacer()
   return inner
 }
@@ -359,7 +360,7 @@ function buildSmall(data, state) {
   const item = calls[0]
   const sc = Math.min(1, (ch - PAD_IN * 2) / 117)         // 比 137（Mac 内高）矮的机型再按内容高等比缩小
   w.addSpacer()
-  const wrap = centerH(w, size.w - INSET * 2)
+  const wrap = centerH(w)
   const c = card(wrap, size.w - INSET * 2, ch)
   c.url = item.url || SITE_URL
   c.setPadding(PAD_IN, PAD_IN, PAD_IN, PAD_IN)
@@ -422,7 +423,7 @@ function buildMedium(data, state) {
   const s = { w: listW, h: cardH, pillarW: pw, date: tight ? 14 : 16, tn: 7, keyW: kw, title: tight ? 12.5 : 13.5, meta: 7.5, hl: tight ? 14 : 16 }
 
   w.addSpacer()
-  const row = centerH(w, size.w - INSET * 2)
+  const row = centerH(w)
   const outer = row.addStack()
   outer.layoutHorizontally()
 
@@ -490,15 +491,14 @@ function buildLarge(data, state) {
   const pw = tight ? 62 : 72, kw = tight ? 64 : 80
   const s = { w: cw, h: cardH, pillarW: pw, date: tight ? 18 : 20, tn: 8, keyW: kw, title: cardH >= 54 ? 15 : 14, meta: 8, hl: tight ? 15 : 17 }
 
-  const list = centerH(w, cw)
+  const list = centerH(w)                // 高度不写死：卡片之间的弹性间距会自动吃掉比 Mac 更高的宿主多出来的空间
   for (let i = 0; i < n; i++) {
     addOppCard(list, calls[i], s)
-    if (i < n - 1) list.addSpacer(GAP)
+    if (i < n - 1) list.addSpacer()        // 弹性：Mac 上正好是最小间隔，更高的宿主（多数 iPhone）把多余高度平均分给每条缝，不再堆在页脚前
   }
 
   if (rest) { w.addSpacer(GAP); text(w, rest, 8, C.faint, "mono", 1) }
 
-  w.addSpacer()
   w.addSpacer(GAP)
   rule(w)
   w.addSpacer(GAP)
