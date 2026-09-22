@@ -117,22 +117,18 @@ function textPositions(node, textWidth, origin = 0) {
 }
 (async () => {
   const api = await load();
-  const date = api.dateMark(new Node(), { deadline_date: '2099-09-28' }, 74, 34, 28);
-  const drawn = date.children[0].image.draws;
-  assert.deepEqual(Array.from(drawn, d => d.text), ['0','9', '.', '2','8']);
-  assert.deepEqual(Array.from(drawn, d => d.color), ['#040404','#040404', '#D71921', '#040404','#040404']);
-  assert(drawn.every(d => d.font.name === 'Georgia-Italic'));
-  // Validate the complete draw sequence and a conservative glyph envelope.
-  // This still does not substitute for Core Text rendering on a real iPhone.
-  for (const mmdd of ['09.28','10.15','11.06','12.01','12.15','01.01','08.08']) {
-    for (const [w,h,size] of [[74,34,24],[81,28,20],[110,34,24],[106,34,26],[152,44,34]]) {
-      const mark = api.dateMark(new Node(),{deadline_date:'2099-'+mmdd.replace('.','-')},w,h,size);
-      const glyphs = mark.children[0].image.draws;
-      assert.equal(glyphs.map(d=>d.text).join(''),mmdd);
-      assert(glyphs.every(d=>d.point && d.point.x+d.font.size*.75 < w));
-      assert(glyphs.every(d=>d.point.y+d.font.size*1.35 <= h));
-    }
+  assert(!/[^\x00-\x7f]/.test(source), 'script transport must be ASCII safe');
+  const collect = n => n.children.flatMap(c => c instanceof Node ? collect(c) : 'value' in c ? [c] : []);
+  for (const mmdd of ['09.28','10.15','11.06','12.01','12.15']) {
+    const mark = api.dateMark(new Node(), {deadline_date:'2099-'+mmdd.replace('.','-')},78,30,23);
+    const runs = collect(mark);
+    assert.equal(runs.map(t=>t.value).join(''),mmdd);
+    assert(runs.every(t=>t.font.name==='boldSystemFont'));
+    assert.equal(runs[1].textColor.hex,'#D71921');
+    inspect(mark);
   }
+  const localized = api.buildWidget({ ...fixture(1), open_calls:[{ ...fixture(1).open_calls[0],category:'exhibition'}] },'LIVE','medium',api.widgetMetrics('medium'));
+  assert(collect(localized).some(t=>t.value.includes('展览')), 'Chinese labels must survive source decoding');
   for (const title of ['Technarte Bilbao 2027', 'EMAP Residencies 2027']) {
     const lines = Array.from(api.titleLines(title, 110, 12));
     assert.equal(lines.length, 2, 'long medium titles must have explicit lines');

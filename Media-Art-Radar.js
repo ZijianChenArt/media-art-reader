@@ -1,4 +1,4 @@
-// Media Art Radar · Edition 12.2 — replace the entire Scriptable script.
+// Media Art Radar \u00b7 Edition 13 \u2014 replace the entire Scriptable script.
 const SITE_URL = "https://zijianchenart.github.io/media-art-reader/"
 const PREVIEW_FAMILY = "large"
 const C = {paper:"#FFFFFF",ink:"#040404",dim:"#505050",hair:"#ECECEC",red:"#D71921"}
@@ -6,7 +6,7 @@ const WIDGET_SIZES = {
 956:{small:176,mw:378,lh:393},932:{small:170,mw:364,lh:382},926:{small:170,mw:364,lh:382},896:{small:169,mw:360,lh:379},
 852:{small:158,mw:338,lh:354},844:{small:158,mw:338,lh:354},812:{small:155,mw:329,lh:345},736:{small:159,mw:348,lh:357},667:{small:148,mw:321,lh:324},568:{small:141,mw:292,lh:311}
 }
-const CATEGORY = {exhibition:{short:"展览",full:"展览征集",glyph:"●"},residency:{short:"驻留",full:"驻留",glyph:"○"},conference:{short:"学术会议",full:"学术会议",glyph:"▲"},prize:{short:"奖项",full:"奖项",glyph:"◆"}}
+const CATEGORY = {exhibition:{short:"\u5c55\u89c8",full:"\u5c55\u89c8\u5f81\u96c6",glyph:"\u25cf"},residency:{short:"\u9a7b\u7559",full:"\u9a7b\u7559",glyph:"\u25cb"},conference:{short:"\u5b66\u672f\u4f1a\u8bae",full:"\u5b66\u672f\u4f1a\u8bae",glyph:"\u25b2"},prize:{short:"\u5956\u9879",full:"\u5956\u9879",glyph:"\u25c6"}}
 const fm = FileManager.local(), cachePath = fm.joinPath(fm.documentsDirectory(),"media-art-radar-latest.json")
 let payload, source = "LIVE"
 try {
@@ -50,7 +50,7 @@ function stack(parent,w,h,vertical = true) {
   return s
 }
 function font(size,weight) {
-  if (["display","date","serif"].includes(weight)) return new Font("Georgia-Italic",size)
+  if (["display","date","serif"].includes(weight)) return Font.boldSystemFont(size)
   if (weight === "bold") return Font.boldSystemFont(size)
   if (weight === "mono") return Font.mediumMonospacedSystemFont(size)
   if (weight === "medium") return Font.mediumSystemFont(size)
@@ -65,25 +65,21 @@ function label(parent,value,w,h,size,color = C.ink,weight = "regular",align = "l
   slot.addSpacer(); return slot
 }
 function rule(parent,w,color = C.hair) { const r = stack(parent,w,1); r.backgroundColor = new Color(color); return r }
-// Draw individual glyphs at points: no narrow substring rectangles to wrap/crop digits.
-// Conservative advances reserve space for the italic overhang at both canvas edges.
-function dateMark(parent,item,w,h,requestedSize) {
-  const ctx = new DrawContext(); ctx.size = new Size(w,h); ctx.opaque = false; ctx.respectScreenScale = true
-  const value = deadlineLabel(item), size = Math.min(requestedSize,(w-4)/3.05,h/1.4)
-  ctx.setFont(font(size,"date")); ctx.setTextAlignedLeft()
-  const y = Math.max(0,(h-size*1.35)/2)
-  if (/^\d{2}\.\d{2}$/.test(value)) {
-    let x = 2+size*.08
-    for (const ch of value) {
-      ctx.setTextColor(new Color(ch === "." ? C.red : C.ink)); ctx.drawText(ch,new Point(x,y))
-      x += size*(ch === "." ? .31 : .64)
-    }
-  } else {
-    ctx.setFont(font(Math.min(14,size),"medium")); ctx.setTextColor(new Color(C.dim)); ctx.drawText(value,new Point(2,y))
-  }
-  const frame = stack(parent,w,h), image = frame.addImage(ctx.getImage())
-  image.imageSize = new Size(w,h); image.applyFittingContentMode(); return frame
+// Native system text only. No font names, bitmap text or per-glyph drawing.
+function dateMark(parent,item,w,h,requestedSize,color = C.ink) {
+  const value = deadlineLabel(item), row = stack(parent,w,h,false)
+  if (!/^\d{2}\.\d{2}$/.test(value)) return label(row,value,w,h,14,color,"medium")
+  const size = Math.min(requestedSize,w/3.15,h*.8)
+  label(row,value.slice(0,2),w*.43,h,size,color,"bold","right")
+  label(row,".",w*.14,h,size,C.red,"bold","center")
+  label(row,value.slice(3),w*.43,h,size,color,"bold")
+  return row
 }
+function outlined(parent,w,h,padding = 8) {
+  const card = stack(parent,w,h); card.borderColor = new Color(C.ink); card.borderWidth = 1
+  card.cornerRadius = 14; card.setPadding(padding,padding,padding,padding); return card
+}
+
 function titleLines(value,width,size) {
   const str = String(value || "Untitled").replace(/\s+/g," ").trim()
   const measure = text => Array.from(text).reduce((sum,ch)=>sum+(/[^\x00-\x7F]/.test(ch)?1:/[MW@]/.test(ch)?.85:/[ilI1.,' ]/.test(ch)?.28:/[A-Z]/.test(ch)?.66:.54),0)*size
@@ -108,17 +104,18 @@ function timer(item) { const d = daysRemaining(item); return d === null ? "TBA" 
 function urgencyColor(item) { const d = daysRemaining(item); return d !== null && d<=14 ? C.red : C.dim }
 function category(item) { return `${glyphOf(item)} ${categoryLabel(item,true)}` }
 function masthead(parent,w,h,count) {
-  const row = stack(parent,w,h,false), big = h>30
-  label(row,"Media Art Radar",w-42,h,big?24:22,C.ink,"display")
-  label(row,two(count),42,h,big?27:24,C.red,"display","right")
+  const row = stack(parent,w,h,false)
+  label(row,"Media Art Radar",w-44,h,17,C.ink,"bold")
+  label(row,two(count),44,h,26,C.red,"bold","right")
 }
+
 function buildWidget(data,state,family,area) {
   const widget = new ListWidget(); widget.backgroundColor = new Color(C.paper)
   widget.setPadding(12,12,12,12); widget.spacing = 0; widget.url = SITE_URL
   const w = area.w-24, h = area.h-25, root = stack(widget,w,h), calls = activeCalls(data.open_calls || [],"deadline")
   if (!calls.length) {
-    root.addSpacer(); label(root,state === "OFFLINE"?"等待首次同步":"暂无开放机会",w,24,16,C.ink,"bold")
-    label(root,state === "OFFLINE"?"联网后运行脚本":"点击查看本期周刊",w,18,10,C.dim); root.addSpacer(); return widget
+    root.addSpacer(); label(root,state === "OFFLINE"?"\u7b49\u5f85\u9996\u6b21\u540c\u6b65":"\u6682\u65e0\u5f00\u653e\u673a\u4f1a",w,24,16,C.ink,"bold")
+    label(root,state === "OFFLINE"?"\u8054\u7f51\u540e\u8fd0\u884c\u811a\u672c":"\u70b9\u51fb\u67e5\u770b\u672c\u671f\u5468\u520a",w,18,10,C.dim); root.addSpacer(); return widget
   }
   if (family === "small") small(root,calls,data,state,w,h)
   else if (family === "medium") medium(root,calls,data,state,w,h)
@@ -127,50 +124,58 @@ function buildWidget(data,state,family,area) {
   return widget
 }
 function small(root,calls,data,state,w,h) {
-  const item = calls[0], sc = Math.min(1,h/137); root.url = item.url || SITE_URL
-  const top = stack(root,w,12,false)
-  label(top,compactIssue(data.issue_id),w*.35,12,8,C.dim,"mono")
-  label(top,category(item),w*.65,12,9,C.dim,"medium","right")
-  root.addSpacer(4); dateMark(root,item,w,44*sc,34*sc)
-  twoLineTitle(root,splitTitle(item.title).title,w,38*sc,17*sc)
-  if (h>=137) label(root,splitTitle(item.title).subtitle || "Open call",w,12,9,C.dim,"serif")
-  root.addSpacer(); root.addSpacer(4); rule(root,w); root.addSpacer(6)
-  const foot = stack(root,w,12,false)
-  label(foot,timer(item),w*.45,12,9,urgencyColor(item),"mono")
-  label(foot,state === "LIVE"?`共 ${two(calls.length)} 项`:statusText(state,data),w*.55,12,8,C.dim,"mono","right")
+  const item = calls[0], card = outlined(root,w,h), iw=w-16, ih=h-16, scale=Math.min(1,ih/121)
+  card.url=item.url || SITE_URL
+  label(card,compactIssue(data.issue_id)+" / "+categoryLabel(item,true),iw,12,9,C.dim,"medium")
+  dateMark(card,item,iw,42*scale,34*scale)
+  twoLineTitle(card,splitTitle(item.title).title,iw,36*scale,16*scale)
+  card.addSpacer()
+  const foot=stack(card,iw,16,false)
+  label(foot,timer(item),iw*.5,16,10,C.red,"bold")
+  label(foot,state === "LIVE" ? two(calls.length)+" \u9879" : statusText(state,data),iw*.5,16,9,C.dim,"medium","right")
 }
 function medium(root,calls,data,state,w,h) {
-  masthead(root,w,26,calls.length); rule(root,w,C.ink); root.addSpacer(6)
-  const ch = h-33, compact = ch<100, slots = w<290?2:3, cw = (w-(slots-1)*12)/slots, row = stack(root,w,ch,false)
-  for (let i=0;i<slots;i++) {
-    if (i) { row.addSpacer(5.5); const sep = stack(row,1,ch); sep.backgroundColor = new Color(C.hair); row.addSpacer(5.5) }
-    const col = stack(row,cw,ch), item = calls[i]; if (!item) continue
-    col.url = item.url || SITE_URL; dateMark(col,item,cw,compact?26:34,compact?18.5:24)
-    col.addSpacer(2); twoLineTitle(col,splitTitle(item.title).title,cw,compact?28:38,compact?12:13)
-    col.addSpacer(2); if (!compact) label(col,category(item),cw,12,10,C.dim,"medium")
-    col.addSpacer(); label(col,state !== "LIVE" && i === slots-1?statusText(state,data):timer(item),cw,12,9,urgencyColor(item),"mono")
+  masthead(root,w,26,calls.length); root.addSpacer(6)
+  const ch=h-32,cw=(w-8)/2, row=stack(root,w,ch,false)
+  for(let i=0;i<2;i++) {
+    if(i) row.addSpacer(8)
+    const card=outlined(row,cw,ch),item=calls[i],iw=cw-16,ih=ch-16
+    if(!item) continue
+    card.url=item.url || SITE_URL
+    const tight=ih<85
+    const sc=Math.min(1,(ih-14)/52)
+    dateMark(card,item,Math.min(iw,100),tight?24*sc:30,tight?23*sc:28)
+    twoLineTitle(card,splitTitle(item.title).title,iw,tight?28*sc:36,tight?12:14)
+    card.addSpacer()
+    const foot=stack(card,iw,14,false)
+    label(foot,category(item),iw*.62,14,9,C.dim,"medium")
+    label(foot,timer(item),iw*.38,14,9,urgencyColor(item),"bold","right")
   }
 }
 function entry(parent,item,w,h) {
-  const row = stack(parent,w,h,false); row.url = item.url || SITE_URL
-  const date = stack(row,82,h); date.addSpacer(); dateMark(date,item,82,36,25.5)
-  label(date,timer(item),82,12,10,urgencyColor(item),"mono"); date.addSpacer(); row.addSpacer(8)
-  const bw = w-90, body = stack(row,bw,h); body.addSpacer()
-  label(body,splitTitle(item.title).title,bw,22,15,C.ink,"bold"); body.addSpacer(4)
-  const meta = stack(body,bw,18,false), catw = Math.min(65,bw*.43)
-  label(meta,category(item),catw,18,10,C.dim,"medium")
-  const value = String(item.highlight || ""), numeric = /\d/.test(value)
-  label(meta,value,bw-catw,18,numeric?(value.length>=9?13:15):10,numeric?C.ink:C.dim,numeric?"serif":"medium","right"); body.addSpacer()
+  const card=outlined(parent,w,h,0); card.layoutHorizontally(); card.url=item.url || SITE_URL
+  const dw=78, tile=stack(card,dw,h); tile.backgroundColor=new Color(C.ink); tile.cornerRadius=13
+  tile.addSpacer(); dateMark(tile,item,dw,30,23,C.paper)
+  label(tile,timer(item),dw,16,10,C.paper,"bold","center"); tile.addSpacer()
+  card.addSpacer(10)
+  const bw=w-dw-20,body=stack(card,bw,h); body.addSpacer()
+  twoLineTitle(body,splitTitle(item.title).title,bw,34,14)
+  const meta=stack(body,bw,16,false)
+  label(meta,category(item),bw*.5,16,9,C.dim,"medium")
+  label(meta,item.highlight || "",bw*.5,16,11,C.ink,"bold","right")
+  body.addSpacer();card.addSpacer(10)
 }
 function large(root,calls,data,state,w,h) {
-  masthead(root,w,36,calls.length); rule(root,w,C.ink); root.addSpacer(6)
-  const area = h-62, capacity = Math.max(1,Math.min(5,Math.floor((area+1)/50))), rh = (area-capacity+1)/capacity, list = stack(root,w,area)
-  for (let i=0;i<capacity;i++) { if (i) rule(list,w); if (calls[i]) entry(list,calls[i],w,rh); else stack(list,w,rh) }
-  rule(root,w,C.ink); root.addSpacer(6)
-  const foot = stack(root,w,12,false), hidden = Math.max(0,calls.length-capacity)
-  label(foot,`${compactIssue(data.issue_id)} / 核验 ${numericDate(data.generated_at)}`,w*.6,12,8,C.dim,"mono")
-  label(foot,`${hidden?`另有 ${hidden} 项 · `:""}${statusText(state,data)}`,w*.4,12,8,C.dim,"mono","right")
+  masthead(root,w,30,calls.length);root.addSpacer(8)
+  const area=h-58, capacity=Math.max(1,Math.min(4,Math.floor((area+7)/65))),rh=(area-(capacity-1)*7)/capacity
+  const list=stack(root,w,area)
+  for(let i=0;i<capacity;i++) { if(i) list.addSpacer(7);if(calls[i]) entry(list,calls[i],w,rh);else stack(list,w,rh) }
+  root.addSpacer(6)
+  const foot=stack(root,w,14,false), hidden=Math.max(0,calls.length-capacity)
+  label(foot,compactIssue(data.issue_id)+" / "+statusText(state,data),w*.55,14,9,C.dim,"medium")
+  label(foot,hidden ? "\u53e6\u6709 "+hidden+" \u9879 \u2192" : "\u5168\u90e8\u673a\u4f1a",w*.45,14,9,C.ink,"bold","right")
 }
+
 function extraLarge(root,calls,data,state,w,h) {
   const cw = (w-12)/3, ch = (h-6)/2
   for (let r=0;r<2;r++) {
@@ -185,8 +190,8 @@ function extraLarge(root,calls,data,state,w,h) {
       if (!index) {
         label(cell,"Media Art Radar",iw,22*sc,17*sc,C.ink,"display")
         cell.addSpacer(); label(cell,two(calls.length),iw,46*sc,36*sc,C.red,"display")
-        label(cell,"项机会 · OPEN CALLS",iw,14*sc,8,C.dim,"mono")
-        cell.addSpacer(); label(cell,`${compactIssue(data.issue_id)} · ${statusText(state,data)}`,iw,12,8,C.dim,"mono")
+        label(cell,"\u9879\u673a\u4f1a \u00b7 OPEN CALLS",iw,14*sc,8,C.dim,"mono")
+        cell.addSpacer(); label(cell,`${compactIssue(data.issue_id)} \u00b7 ${statusText(state,data)}`,iw,12,8,C.dim,"mono")
       } else if (calls[index-1]) {
         const item = calls[index-1]; cell.url = item.url || SITE_URL
         label(cell,category(item),iw,12,8,C.dim,"medium")
@@ -205,24 +210,24 @@ function isStale(data) {
   return !Number.isFinite(updated) || Date.now() - updated > 8 * 86400000
 }
 function statusText(state, data) {
-  if (state === "OFFLINE") return "离线"
-  if (isStale(data)) return state === "CACHE" ? "缓存·待更新" : "待更新"
-  return state === "CACHE" ? "离线缓存" : "已同步"
+  if (state === "OFFLINE") return "\u79bb\u7ebf"
+  if (isStale(data)) return state === "CACHE" ? "\u7f13\u5b58\u00b7\u5f85\u66f4\u65b0" : "\u5f85\u66f4\u65b0"
+  return state === "CACHE" ? "\u79bb\u7ebf\u7f13\u5b58" : "\u5df2\u540c\u6b65"
 }
 function numericDate(value) {
   const d = new Date(value)
-  return isNaN(d) ? "—" : `${two(d.getMonth() + 1)}.${two(d.getDate())}`
+  return isNaN(d) ? "\u2014" : `${two(d.getMonth() + 1)}.${two(d.getDate())}`
 }
 function deadlineLabel(item) {
-  // 保留发布方的日历日期，不因手机处在别的时区而整体挪动一天
+  // \u4fdd\u7559\u53d1\u5e03\u65b9\u7684\u65e5\u5386\u65e5\u671f\uff0c\u4e0d\u56e0\u624b\u673a\u5904\u5728\u522b\u7684\u65f6\u533a\u800c\u6574\u4f53\u632a\u52a8\u4e00\u5929
   const raw = String(item.deadline_date || item.deadline_at || "")
   const match = raw.match(/^\d{4}-(\d{2})-(\d{2})/)
-  return match ? `${match[1]}.${match[2]}` : "待定"
+  return match ? `${match[1]}.${match[2]}` : "\u5f85\u5b9a"
 }
 function compactPlace(value) {
   if (!value) return ""
-  // 在分号、间隔号、逗号处截断，只留第一段：「西班牙 Bilbao，Palacio Euskalduna」→「西班牙 Bilbao」
-  return String(value).split(/[；;·，,]/)[0].trim().slice(0, 22)
+  // \u5728\u5206\u53f7\u3001\u95f4\u9694\u53f7\u3001\u9017\u53f7\u5904\u622a\u65ad\uff0c\u53ea\u7559\u7b2c\u4e00\u6bb5\uff1a\u300c\u897f\u73ed\u7259 Bilbao\uff0cPalacio Euskalduna\u300d\u2192\u300c\u897f\u73ed\u7259 Bilbao\u300d
+  return String(value).split(/[\uff1b;\u00b7\uff0c,]/)[0].trim().slice(0, 22)
 }
 function validate(data) {
   if (!data || data.schema_version !== 1) throw new Error("Unsupported data format")
@@ -250,11 +255,11 @@ function activeCalls(items, order) {
 function normalizedCategory(item) {
   const explicit = String(item.category || "").toLowerCase()
   if (CATEGORY[explicit]) return explicit
-  // 兼容旧缓存：没有 category 时按标题和类型推断
+  // \u517c\u5bb9\u65e7\u7f13\u5b58\uff1a\u6ca1\u6709 category \u65f6\u6309\u6807\u9898\u548c\u7c7b\u578b\u63a8\u65ad
   const t = `${item.title || ""} ${item.type || ""}`.toLowerCase()
-  if (/residen|驻留|驻村/.test(t)) return "residency"
-  if (/conference|symposium|cfp|paper|会议|论文/.test(t)) return "conference"
-  if (/prize|award|奖项|大奖/.test(t)) return "prize"
+  if (/residen|\u9a7b\u7559|\u9a7b\u6751/.test(t)) return "residency"
+  if (/conference|symposium|cfp|paper|\u4f1a\u8bae|\u8bba\u6587/.test(t)) return "conference"
+  if (/prize|award|\u5956\u9879|\u5927\u5956/.test(t)) return "prize"
   return "exhibition"
 }
 function categoryLabel(item, short) {
