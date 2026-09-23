@@ -108,7 +108,7 @@ img{display:block;max-width:100%}
 .tick{position:absolute;top:0;bottom:0;border-left:1px solid var(--hair)}
 .tick span{position:absolute;left:6px;bottom:0;font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;color:var(--mute)}
 .today{position:absolute;left:0;top:88px}
-.today span{position:absolute;left:-2px;top:14px;font-family:var(--mono);font-size:.62rem;font-weight:700;letter-spacing:.06em;white-space:nowrap}
+.today > span{position:absolute;left:-2px;top:14px;font-family:var(--mono);font-size:.62rem;font-weight:700;letter-spacing:.06em;white-space:nowrap}
 .today::before{content:"";position:absolute;left:-6px;top:-6px;width:12px;height:12px;border:1.5px solid var(--ink);border-radius:50%;background:var(--red)}
 .blip{position:absolute;top:88px;width:0;height:0;border:0;padding:0;background:none;cursor:pointer;color:var(--ink);font:inherit;transition:opacity .2s}
 .blip .g{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-size:15px;background:#fff;border-radius:50%;box-shadow:0 0 0 4px #fff;transition:transform .15s}

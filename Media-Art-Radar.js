@@ -1,313 +1,803 @@
-// Media Art Radar Edition 14 - replace the entire Scriptable script.
+// ============================================================
+// MEDIA ART RADAR
+// Opportunity Widget · Light / Dark Auto Theme
+// Scriptable for iPhone / iPad / Mac
+// ============================================================
+
+// ------------------------------------------------------------
+// 01 · DATA
+// ------------------------------------------------------------
 const SITE_URL = "https://zijianchenart.github.io/media-art-reader/"
-const PREVIEW_FAMILY = "large"
-const C = {paper:"#FFFFFF",ink:"#040404",dim:"#505050",hair:"#ECECEC",red:"#D71921"}
-const WIDGET_SIZES = {
-956:{small:176,mw:378,lh:393},932:{small:170,mw:364,lh:382},926:{small:170,mw:364,lh:382},896:{small:169,mw:360,lh:379},
-852:{small:158,mw:338,lh:354},844:{small:158,mw:338,lh:354},812:{small:155,mw:329,lh:345},736:{small:159,mw:348,lh:357},667:{small:148,mw:321,lh:324},568:{small:141,mw:292,lh:311}
+const DATA_URL = SITE_URL + "latest.json"
+const OPPORTUNITY_URL = SITE_URL + "#opportunities"
+const REFRESH_MINUTES = 60
+const DEFAULT_PREVIEW = "large"
+
+// ------------------------------------------------------------
+// 02 · LIGHT / DARK THEME
+// ------------------------------------------------------------
+function dynamic(light, dark) {
+  return Color.dynamic(new Color(light), new Color(dark))
 }
-const CATEGORY = {exhibition:{short:"\u5c55\u89c8",full:"\u5c55\u89c8\u5f81\u96c6",glyph:"\u25cf"},residency:{short:"\u9a7b\u7559",full:"\u9a7b\u7559",glyph:"\u25cb"},conference:{short:"\u5b66\u672f\u4f1a\u8bae",full:"\u5b66\u672f\u4f1a\u8bae",glyph:"\u25b2"},prize:{short:"\u5956\u9879",full:"\u5956\u9879",glyph:"\u25c6"}}
-const fm = FileManager.local(), cachePath = fm.joinPath(fm.documentsDirectory(),"media-art-radar-latest.json")
-let payload, source = "LIVE"
+
+const C = {
+  paper: dynamic("#FFFFFF", "#0B0B0B"),
+  ink: dynamic("#050505", "#F2F2EE"),
+  dim: dynamic("#666666", "#A3A3A0"),
+  faint: dynamic("#A8A8A8", "#666666"),
+  hair: dynamic("#E5E5E5", "#292929"),
+  strongHair: dynamic("#111111", "#E7E7E2"),
+  red: dynamic("#D71921", "#FF453A"),
+  redSoft: dynamic("#FBEAEC", "#2B1113")
+}
+
+// ------------------------------------------------------------
+// 03 · CATEGORY
+// ------------------------------------------------------------
+const CAT = {
+  exhibition: { zh: "展览", en: "EXHIBITION", symbol: "●" },
+  residency: { zh: "驻留", en: "RESIDENCY", symbol: "○" },
+  prize: { zh: "奖项", en: "PRIZE", symbol: "◆" },
+  conference: { zh: "学术会议", en: "CONFERENCE", symbol: "▲" }
+}
+
+// ------------------------------------------------------------
+// 04 · CACHE
+// ------------------------------------------------------------
+const fm = FileManager.local()
+const cachePath = fm.joinPath(fm.documentsDirectory(), "media-art-radar-opportunities.json")
+
+let data
+let sourceState = "LIVE"
+
 try {
-  const request = new Request(SITE_URL+"latest.json"); request.timeoutInterval = 15
-  payload = await request.loadJSON(); validate(payload)
-  try { fm.writeString(cachePath,JSON.stringify(payload)) } catch (_) {}
+  const req = new Request(DATA_URL)
+  req.timeoutInterval = 15
+  req.headers = { Accept: "application/json" }
+  data = await req.loadJSON()
+  validateData(data)
+  try {
+    fm.writeString(cachePath, JSON.stringify(data))
+  } catch (_) {}
 } catch (error) {
   try {
-    if (!fm.fileExists(cachePath)) throw error
-    payload = JSON.parse(fm.readString(cachePath)); validate(payload); source = "CACHE"
-  } catch (_) { payload = emptyPayload(error); source = "OFFLINE" }
+    if (!fm.fileExists(cachePath)) {
+      throw error
+    }
+    data = JSON.parse(fm.readString(cachePath))
+    validateData(data)
+    sourceState = "CACHE"
+  } catch (_) {
+    sourceState = "OFFLINE"
+    data = { schema_version: 1, issue_id: "WAITING", generated_at: null, open_calls: [] }
+  }
 }
-const options = readOptions(args.widgetParameter)
-const family = config.runsInWidget ? config.widgetFamily : options.family || PREVIEW_FAMILY
-const metrics = widgetMetrics(family,options), widget = buildWidget(payload,source,family,metrics)
-widget.refreshAfterDate = new Date(Date.now()+3600000)
-if (config.runsInWidget) Script.setWidget(widget)
-else if (family === "small") await widget.presentSmall()
-else if (family === "medium") await widget.presentMedium()
-else if (family === "extraLarge" && typeof widget.presentExtraLarge === "function") await widget.presentExtraLarge()
-else await widget.presentLarge()
+
+// ------------------------------------------------------------
+// 05 · WIDGET OPTIONS
+// ------------------------------------------------------------
+const options = parseOptions(args.widgetParameter)
+const family = config.runsInWidget ? config.widgetFamily : (options.family || DEFAULT_PREVIEW)
+const calls = selectCalls(data.open_calls || [], options.category)
+
+// ------------------------------------------------------------
+// 06 · CREATE
+// ------------------------------------------------------------
+const widget = buildWidget(family, calls, data, sourceState, options)
+widget.refreshAfterDate = new Date(Date.now() + REFRESH_MINUTES * 60 * 1000)
+
+// ------------------------------------------------------------
+// 07 · DISPLAY
+// ------------------------------------------------------------
+if (config.runsInWidget) {
+  Script.setWidget(widget)
+} else {
+  if (family === "small") {
+    await widget.presentSmall()
+  } else if (family === "medium") {
+    await widget.presentMedium()
+  } else if (family === "extraLarge" && typeof widget.presentExtraLarge === "function") {
+    await widget.presentExtraLarge()
+  } else {
+    await widget.presentLarge()
+  }
+}
+
 Script.complete()
 
-function readOptions(raw) {
-  if (raw === "mac") return {host:"mac"}
-  if (["small","medium","large","extraLarge"].includes(raw)) return {family:raw}
-  try { const o = JSON.parse(raw); return o && !Array.isArray(o) && typeof o === "object" ? o : {} } catch (_) { return {} }
-}
-function widgetMetrics(family,options = {}) {
-  let height = 852
-  try { const s = Device.screenSize(); height = Math.max(s.width,s.height) } catch (_) {}
-  const near = Object.keys(WIDGET_SIZES).map(Number).sort((a,b)=>Math.abs(a-height)-Math.abs(b-height)||a-b)[0], t = WIDGET_SIZES[near]
-  let area = family === "small" ? {w:t.small,h:t.small} : family === "medium" ? {w:t.mw,h:t.small} : family === "extraLarge" ? {w:701,h:342} : {w:t.mw,h:t.lh}
-  if (options.host === "mac") area = family === "small" ? {w:162,h:162} : family === "medium" ? {w:341,h:162} : family === "extraLarge" ? {w:701,h:342} : {w:342,h:342}
-  for (const [key,name] of [["w","width"],["h","height"]]) if (Number.isFinite(options[name]) && options[name]>0) area[key] = Math.max(key === "w" && family !== "small" ? 280 : 130,options[name])
-  return area
-}
-function stack(parent,w,h,vertical = true) {
-  const s = parent.addStack(); s.size = new Size(w,h); s.spacing = 0; s.setPadding(0,0,0,0)
-  if (vertical) s.layoutVertically(); else s.layoutHorizontally()
-  return s
-}
-function font(size,weight) {
-  if (["display","date","serif"].includes(weight)) return Font.boldSystemFont(size)
-  if (weight === "bold") return Font.boldSystemFont(size)
-  if (weight === "mono") return Font.mediumMonospacedSystemFont(size)
-  if (weight === "medium") return Font.mediumSystemFont(size)
-  return Font.systemFont(size)
-}
-function label(parent,value,w,h,size,color = C.ink,weight = "regular",align = "left") {
-  const slot = stack(parent,w,h); slot.addSpacer(); const row = stack(slot,w,0,false)
-  if (align !== "left") row.addSpacer()
-  const t = row.addText(String(value)); t.font = font(size,weight); t.textColor = new Color(color)
-  t.lineLimit = 1; t.minimumScaleFactor = size <= 11 ? .9 : .8
-  if (align !== "right") row.addSpacer()
-  slot.addSpacer(); return slot
-}
-function rule(parent,w,color = C.hair) { const r = stack(parent,w,1); r.backgroundColor = new Color(color); return r }
-// Native system text only. No font names, bitmap text or per-glyph drawing.
-function dateMark(parent,item,w,h,requestedSize,color = C.ink) {
-  const value = deadlineLabel(item), row = stack(parent,w,h,false)
-  if (!/^\d{2}\.\d{2}$/.test(value)) return label(row,value,w,h,14,color,"medium")
-  const size = Math.min(requestedSize,w/3.15,h*.8)
-  label(row,value.slice(0,2),w*.43,h,size,color,"bold","right")
-  const dotSlot=stack(row,w*.14,h), diameter=Math.max(3,size*.15)
-  dotSlot.addSpacer((h-diameter)/2+size*.2)
-  const dotRow=stack(dotSlot,w*.14,diameter,false);dotRow.addSpacer()
-  const dot=stack(dotRow,diameter,diameter);dot.backgroundColor=new Color(C.red);dot.cornerRadius=diameter/2
-  dotRow.addSpacer();dotSlot.addSpacer()
-  label(row,value.slice(3),w*.43,h,size,color,"bold")
-  return row
-}
-function outlined(parent,w,h,padding = 8) {
-  const card = stack(parent,w,h); card.borderColor = new Color(C.ink); card.borderWidth = 2.5
-  card.cornerRadius = 14; card.setPadding(padding,padding,padding,padding); return card
-}
+// ============================================================
+// MAIN WIDGET
+// ============================================================
+function buildWidget(family, calls, data, sourceState, options) {
+  const w = new ListWidget()
+  w.backgroundColor = C.paper
+  w.url = OPPORTUNITY_URL
 
-function titleLines(value,width,size) {
-  const str = String(value || "Untitled").replace(/\s+/g," ").trim()
-  const measure = text => Array.from(text).reduce((sum,ch)=>sum+(/[^\x00-\x7F]/.test(ch)?1:/[MW@]/.test(ch)?.85:/[ilI1.,' ]/.test(ch)?.28:/[A-Z]/.test(ch)?.66:.54),0)*size
-  if (measure(str)<=width-4) return [str]
-  let choices = []
-  for (let i=1;i<str.length;i++) if (str[i] === " ") choices.push(i)
-  if (!choices.length) choices = Array.from({length:Math.max(0,str.length-1)},(_,i)=>i+1)
-  let best = choices[0] || str.length, score = Infinity
-  for (const i of choices) {
-    const a = measure(str.slice(0,i).trim()), b = measure(str.slice(i).trim()), next = Math.max(a,b)+Math.max(0,a-width+4)*10
-    if (next<score) { score = next; best = i }
+  if (family === "small") {
+    w.setPadding(14, 14, 12, 14)
+  } else {
+    w.setPadding(14, 16, 12, 16)
   }
-  return [str.slice(0,best).trim(),str.slice(best).trim()].filter(Boolean)
-}
-function twoLineTitle(parent,value,w,h,size) {
-  const slot = stack(parent,w,h), lines = titleLines(value,w,size)
-  for (const line of lines) label(slot,line,w,h/2,size,C.ink,"bold")
-  if (lines.length === 1) slot.addSpacer(h/2)
-  return slot
-}
-function timer(item) { const d = daysRemaining(item); return d === null ? "TBA" : `T-${d}` }
-function urgencyColor(item) { const d = daysRemaining(item); return d !== null && d<=14 ? C.red : C.dim }
-function category(item) { return `${glyphOf(item)} ${categoryLabel(item,true)}` }
-function masthead(parent,w,h,count) {
-  const row = stack(parent,w,h,false)
-  label(row,"Media Art Radar",w-44,h,17,C.ink,"bold")
-  label(row,two(count),44,h,26,C.red,"bold","right")
-}
 
-function buildWidget(data,state,family,area) {
-  const widget = new ListWidget(); widget.backgroundColor = new Color(C.paper)
-  widget.setPadding(12,12,12,12); widget.spacing = 0; widget.url = SITE_URL
-  const w = area.w-24, h = area.h-25, root = stack(widget,w,h), calls = activeCalls(data.open_calls || [],"deadline")
   if (!calls.length) {
-    root.addSpacer(); label(root,state === "OFFLINE"?"\u7b49\u5f85\u9996\u6b21\u540c\u6b65":"\u6682\u65e0\u5f00\u653e\u673a\u4f1a",w,24,16,C.ink,"bold")
-    label(root,state === "OFFLINE"?"\u8054\u7f51\u540e\u8fd0\u884c\u811a\u672c":"\u70b9\u51fb\u67e5\u770b\u672c\u671f\u5468\u520a",w,18,10,C.dim); root.addSpacer(); return widget
+    renderEmpty(w, data, sourceState)
+    return w
   }
-  if (family === "small") small(root,calls,data,state,w,h)
-  else if (family === "medium") medium(root,calls,data,state,w,h)
-  else if (family === "extraLarge") extraLarge(root,calls,data,state,w,h)
-  else large(root,calls,data,state,w,h)
-  return widget
-}
-function small(root,calls,data,state,w,h) {
-  const item = calls[0], card = outlined(root,w,h), iw=w-16, ih=h-16, scale=Math.min(1,(ih-38)/78)
-  card.url=item.url || SITE_URL
-  label(card,compactIssue(data.issue_id)+" / "+categoryLabel(item,true),iw,12,9,C.dim,"medium")
-  label(card,"\u7533\u8bf7\u622a\u6b62",iw,10,8,C.dim,"medium")
-  dateMark(card,item,iw,42*scale,34*scale)
-  twoLineTitle(card,splitTitle(item.title).title,iw,36*scale,17*scale)
-  card.addSpacer()
-  const foot=stack(card,iw,16,false)
-  label(foot,timer(item),iw*.5,16,10,C.red,"bold")
-  label(foot,state === "LIVE" ? two(calls.length)+" \u9879" : statusText(state,data),iw*.5,16,9,C.dim,"medium","right")
-}
-function medium(root,calls,data,state,w,h) {
-  masthead(root,w,26,calls.length); root.addSpacer(6)
-  const ch=h-32,cw=(w-8)/2, row=stack(root,w,ch,false)
-  for(let i=0;i<2;i++) {
-    if(i) row.addSpacer(8)
-    const card=outlined(row,cw,ch),item=calls[i],iw=cw-16,ih=ch-16
-    if(!item) continue
-    card.url=item.url || SITE_URL
-    const tight=ih<86
-    const sc=Math.min(1,(ih-24)/52)
-    label(card,"\u7533\u8bf7\u622a\u6b62",iw,10,8,C.dim,"medium")
-    dateMark(card,item,Math.min(iw,100),tight?24*sc:26,tight?23*sc:25)
-    twoLineTitle(card,splitTitle(item.title).title,iw,tight?28*sc:36,tight?12:15)
-    if(ih>=100 && item.highlight) label(card,item.highlight,iw,14,11,C.ink,"bold")
-    card.addSpacer()
-    const foot=stack(card,iw,14,false)
-    label(foot,category(item),iw*.62,14,9,C.dim,"medium")
-    label(foot,timer(item),iw*.38,14,9,urgencyColor(item),"bold","right")
+
+  if (family === "small") {
+    renderSmall(w, calls, data, sourceState)
+  } else if (family === "medium") {
+    renderMedium(w, calls, data, sourceState)
+  } else if (family === "extraLarge") {
+    renderExtraLarge(w, calls, data, sourceState)
+  } else {
+    renderLarge(w, calls, data, sourceState)
   }
-}
-function entry(parent,item,w,h) {
-  const card=outlined(parent,w,h,10);card.url=item.url || SITE_URL
-  const iw=w-20,ih=h-20,tight=ih<120
-  label(card,"\u7533\u8bf7\u622a\u6b62",iw,11,9,C.dim,"medium")
-  const sc=Math.min(1,(ih-29)/56)
-  dateMark(card,item,Math.min(iw,104),tight?24*sc:32,tight?22*sc:29)
-  card.addSpacer(2)
-  twoLineTitle(card,splitTitle(item.title).title,iw,tight?32*sc:42,tight?14:17)
-  if(ih>=99) label(card,category(item),iw,12,10,C.dim,"medium")
-  card.addSpacer()
-  const foot=stack(card,iw,16,false)
-  label(foot,item.highlight || categoryLabel(item,true),iw*.6,16,tight?10:13,C.ink,"bold")
-  label(foot,timer(item),iw*.4,16,9,urgencyColor(item),"bold","right")
-}
-function large(root,calls,data,state,w,h) {
-  masthead(root,w,30,calls.length);root.addSpacer(8)
-  const area=h-58,capacity=4,rh=(area-8)/2,cw=(w-8)/2
-  const list=stack(root,w,area)
-  for(let r=0;r<2;r++) {
-    if(r) list.addSpacer(8)
-    const row=stack(list,w,rh,false)
-    for(let c=0;c<2;c++) {if(c) row.addSpacer(8);const item=calls[r*2+c];if(item) entry(row,item,cw,rh);else stack(row,cw,rh)}
-  }
-  root.addSpacer(6)
-  const foot=stack(root,w,14,false), hidden=Math.max(0,calls.length-capacity)
-  label(foot,compactIssue(data.issue_id)+" / "+statusText(state,data),w*.55,14,9,C.dim,"medium")
-  label(foot,hidden ? "\u53e6\u6709 "+hidden+" \u9879 \u2192" : "\u5168\u90e8\u673a\u4f1a",w*.45,14,9,C.ink,"bold","right")
+
+  return w
 }
 
-function extraLarge(root,calls,data,state,w,h) {
-  const cw = (w-12)/3, ch = (h-6)/2
-  for (let r=0;r<2;r++) {
-    if (r) root.addSpacer(6)
-    const row = stack(root,w,ch,false)
-    for (let c=0;c<3;c++) {
-      if (c) row.addSpacer(6)
-      const index = r*3+c, cell = stack(row,cw,ch)
-      cell.cornerRadius = 18; cell.borderWidth = 2.5; cell.borderColor = new Color(C.ink)
-      cell.setPadding(10,10,10,10)
-      const iw = cw-20, ih = ch-20, sc = Math.min(1,ih/117)
-      if (!index) {
-        label(cell,"Media Art Radar",iw,22*sc,17*sc,C.ink,"display")
-        cell.addSpacer(); label(cell,two(calls.length),iw,46*sc,36*sc,C.red,"display")
-        label(cell,"\u9879\u673a\u4f1a \u00b7 OPEN CALLS",iw,14*sc,8,C.dim,"mono")
-        cell.addSpacer(); label(cell,`${compactIssue(data.issue_id)} \u00b7 ${statusText(state,data)}`,iw,12,8,C.dim,"mono")
-      } else if (calls[index-1]) {
-        const item = calls[index-1]; cell.url = item.url || SITE_URL
-        label(cell,category(item),iw,12,8,C.dim,"medium")
-        twoLineTitle(cell,splitTitle(item.title).title,iw,32*sc,13*sc)
-        cell.addSpacer(); label(cell,"\u7533\u8bf7\u622a\u6b62",iw,10*sc,8,C.dim,"medium");dateMark(cell,item,iw,24*sc,20*sc)
-        const foot = stack(cell,iw,18,false)
-        label(foot,timer(item),iw*.45,18,8,urgencyColor(item),"mono")
-        label(foot,item.highlight || "",iw*.55,18,11,C.ink,"serif","right")
-      }
+// ============================================================
+// SMALL
+// ============================================================
+function renderSmall(root, calls, data, state) {
+  const item = calls[0]
+
+  // Top brand
+  const top = root.addStack()
+  top.layoutHorizontally()
+  top.centerAlignContent()
+  addText(top, "MEDIA", 11, C.ink, "monoBold", 1)
+  addText(top, "·", 14, C.red, "bold", 1)
+  addText(top, "ART", 11, C.ink, "monoBold", 1)
+  top.addSpacer()
+  addText(top, two(calls.length), 11, C.red, "monoBold", 1)
+
+  root.addSpacer(8)
+  addRule(root, C.strongHair, 1)
+  root.addSpacer(9)
+
+  // Meta
+  const meta = root.addStack()
+  meta.layoutHorizontally()
+  meta.centerAlignContent()
+  addCategory(meta, item, 8)
+  meta.addSpacer()
+  addText(meta, timer(item), 8.5, urgencyColor(item), "monoBold", 1)
+
+  root.addSpacer(6)
+
+  // Deadline
+  addLargeDate(root, item, 30)
+
+  root.addSpacer(7)
+
+  // Opportunity title
+  const title = addText(root, titleOf(item), 14, C.ink, "bold", 3)
+  title.minimumScaleFactor = 0.72
+
+  root.addSpacer()
+  addRule(root, C.hair, 1)
+  root.addSpacer(6)
+
+  // Footer
+  const footer = root.addStack()
+  footer.layoutHorizontally()
+  footer.centerAlignContent()
+  addText(footer, shortLocation(item) || issueShort(data.issue_id), 8, C.dim, "regular", 1)
+  footer.addSpacer()
+  addText(footer, stateLabel(state, data), 7.5, C.dim, "mono", 1)
+
+  root.url = item.url || OPPORTUNITY_URL
+}
+
+// ============================================================
+// MEDIUM
+// ============================================================
+function renderMedium(root, calls, data, state) {
+  renderHeader(root, calls.length, data, state)
+  root.addSpacer(6)
+  addRule(root, C.strongHair, 1)
+
+  const items = calls.slice(0, 2)
+  items.forEach((item, index) => {
+    addOpportunityRow(root, item, index + 1, {
+      height: 54,
+      dateWidth: 54,
+      titleSize: 13,
+      titleLines: 2,
+      highlight: false,
+      number: false
+    })
+    if (index < items.length - 1) {
+      addRule(root, C.hair, 1)
+    }
+  })
+}
+
+// ============================================================
+// LARGE
+// ============================================================
+function renderLarge(root, calls, data, state) {
+  renderHeader(root, calls.length, data, state)
+  root.addSpacer(6)
+  addRule(root, C.strongHair, 1)
+
+  const capacity = 5
+  const items = calls.slice(0, capacity)
+  items.forEach((item, index) => {
+    addOpportunityRow(root, item, index + 1, {
+      height: 57,
+      dateWidth: 55,
+      titleSize: 13,
+      titleLines: 2,
+      highlight: true,
+      number: true
+    })
+    if (index < items.length - 1) {
+      addRule(root, C.hair, 1)
+    }
+  })
+
+  root.addSpacer()
+  renderFooter(root, calls.length, capacity, data, state)
+}
+
+// ============================================================
+// EXTRA LARGE
+// ============================================================
+function renderExtraLarge(root, calls, data, state) {
+  renderHeader(root, calls.length, data, state)
+  root.addSpacer(6)
+  addRule(root, C.strongHair, 1)
+  root.addSpacer(4)
+
+  const columns = root.addStack()
+  columns.layoutHorizontally()
+  columns.spacing = 14
+
+  const left = columns.addStack()
+  left.layoutVertically()
+
+  const separator = columns.addStack()
+  separator.size = new Size(1, 268)
+  separator.backgroundColor = C.hair
+
+  const right = columns.addStack()
+  right.layoutVertically()
+
+  const items = calls.slice(0, 8)
+  const leftItems = items.slice(0, 4)
+  const rightItems = items.slice(4, 8)
+
+  leftItems.forEach((item, index) => {
+    addOpportunityRow(left, item, index + 1, {
+      height: 62,
+      dateWidth: 54,
+      titleSize: 13,
+      titleLines: 2,
+      highlight: true,
+      number: true
+    })
+    if (index < leftItems.length - 1) {
+      addRule(left, C.hair, 1)
+    }
+  })
+
+  rightItems.forEach((item, index) => {
+    addOpportunityRow(right, item, index + 5, {
+      height: 62,
+      dateWidth: 54,
+      titleSize: 13,
+      titleLines: 2,
+      highlight: true,
+      number: true
+    })
+    if (index < rightItems.length - 1) {
+      addRule(right, C.hair, 1)
+    }
+  })
+
+  root.addSpacer()
+  renderFooter(root, calls.length, 8, data, state)
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+function renderHeader(parent, count, data, state) {
+  const top = parent.addStack()
+  top.layoutHorizontally()
+  top.centerAlignContent()
+  addText(top, "MEDIA ART", 16, C.ink, "displayBold", 1)
+  addText(top, ".", 17, C.red, "displayBold", 1)
+  top.addSpacer(8)
+  addText(top, "OPPORTUNITIES", 8, C.dim, "monoBold", 1)
+  top.addSpacer()
+  addText(top, two(count), 18, C.red, "displayBold", 1)
+
+  parent.addSpacer(2)
+
+  const sub = parent.addStack()
+  sub.layoutHorizontally()
+  sub.centerAlignContent()
+  addText(sub, issueShort(data.issue_id), 7.5, C.dim, "mono", 1)
+  sub.addSpacer()
+  addText(sub, stateLabel(state, data), 7.5, C.dim, "mono", 1)
+}
+
+// ============================================================
+// OPPORTUNITY ROW
+// ============================================================
+function addOpportunityRow(parent, item, index, options) {
+  const row = parent.addStack()
+  row.layoutHorizontally()
+  row.centerAlignContent()
+  row.size = new Size(0, options.height)
+  row.url = item.url || OPPORTUNITY_URL
+
+  // ----------------------------------------------------------
+  // DATE COLUMN
+  // ----------------------------------------------------------
+  const date = row.addStack()
+  date.layoutVertically()
+  date.size = new Size(options.dateWidth, options.height)
+  date.addSpacer()
+
+  const parts = deadlineParts(item)
+  if (parts) {
+    const dateLine = date.addStack()
+    dateLine.layoutHorizontally()
+    dateLine.centerAlignContent()
+    addText(dateLine, parts.month, 16, C.ink, "display", 1)
+    addText(dateLine, ".", 16, C.red, "displayBold", 1)
+    addText(dateLine, parts.day, 16, C.ink, "display", 1)
+  } else {
+    addText(date, "TBA", 13, C.ink, "display", 1)
+  }
+
+  date.addSpacer(2)
+  addText(date, timer(item), 7.5, urgencyColor(item), "monoBold", 1)
+  date.addSpacer()
+
+  // Vertical line
+  const vertical = row.addStack()
+  vertical.size = new Size(1, options.height - 12)
+  vertical.backgroundColor = C.hair
+
+  row.addSpacer(9)
+
+  // ----------------------------------------------------------
+  // CONTENT
+  // ----------------------------------------------------------
+  const body = row.addStack()
+  body.layoutVertically()
+  body.addSpacer()
+
+  const metadata = body.addStack()
+  metadata.layoutHorizontally()
+  metadata.centerAlignContent()
+  addCategory(metadata, item, 8)
+
+  const location = shortLocation(item)
+  if (location) {
+    addText(metadata, "  ·  " + location, 8, C.dim, "regular", 1)
+  }
+  metadata.addSpacer()
+  if (options.number) {
+    addText(metadata, two(index), 7.5, C.faint, "mono", 1)
+  }
+
+  body.addSpacer(3)
+
+  const title = addText(body, titleOf(item), options.titleSize, C.ink, "bold", options.titleLines)
+  title.minimumScaleFactor = 0.76
+
+  body.addSpacer(2)
+
+  const lower = body.addStack()
+  lower.layoutHorizontally()
+  lower.centerAlignContent()
+  const highlight = cleanHighlight(item.highlight)
+  if (options.highlight && highlight) {
+    addText(lower, highlight, 8.5, C.dim, "regular", 1)
+  } else {
+    const subtitle = subtitleOf(item)
+    if (subtitle) {
+      addText(lower, subtitle, 8, C.dim, "regular", 1)
     }
   }
+  lower.addSpacer()
+  addText(lower, deadlineYear(item), 7.5, C.faint, "mono", 1)
+
+  body.addSpacer()
 }
 
-function isStale(data) {
-  const updated = Date.parse(data.generated_at)
-  return !Number.isFinite(updated) || Date.now() - updated > 8 * 86400000
-}
-function statusText(state, data) {
-  if (state === "OFFLINE") return "\u79bb\u7ebf"
-  if (isStale(data)) return state === "CACHE" ? "\u7f13\u5b58\u00b7\u5f85\u66f4\u65b0" : "\u5f85\u66f4\u65b0"
-  return state === "CACHE" ? "\u79bb\u7ebf\u7f13\u5b58" : "\u5df2\u540c\u6b65"
-}
-function numericDate(value) {
-  const d = new Date(value)
-  return isNaN(d) ? "\u2014" : `${two(d.getMonth() + 1)}.${two(d.getDate())}`
-}
-function deadlineLabel(item) {
-  // \u4fdd\u7559\u53d1\u5e03\u65b9\u7684\u65e5\u5386\u65e5\u671f\uff0c\u4e0d\u56e0\u624b\u673a\u5904\u5728\u522b\u7684\u65f6\u533a\u800c\u6574\u4f53\u632a\u52a8\u4e00\u5929
-  const raw = String(item.deadline_date || item.deadline_at || "")
-  const match = raw.match(/^\d{4}-(\d{2})-(\d{2})/)
-  return match ? `${match[1]}.${match[2]}` : "\u5f85\u5b9a"
-}
-function compactPlace(value) {
-  if (!value) return ""
-  // \u5728\u5206\u53f7\u3001\u95f4\u9694\u53f7\u3001\u9017\u53f7\u5904\u622a\u65ad\uff0c\u53ea\u7559\u7b2c\u4e00\u6bb5\uff1a\u300c\u897f\u73ed\u7259 Bilbao\uff0cPalacio Euskalduna\u300d\u2192\u300c\u897f\u73ed\u7259 Bilbao\u300d
-  return String(value).split(/[\uff1b;\u00b7\uff0c,]/)[0].trim().slice(0, 22)
-}
-function validate(data) {
-  if (!data || data.schema_version !== 1) throw new Error("Unsupported data format")
-  if (!Array.isArray(data.open_calls)) throw new Error("Incomplete data")
-}
-function emptyPayload(error) {
-  return { schema_version: 1, issue_id: "WAITING", generated_at: new Date(0).toISOString(),
-    open_calls: [], radar: [], reminders: [], error: String(error) }
+// ============================================================
+// LARGE DATE
+// ============================================================
+function addLargeDate(parent, item, size) {
+  const parts = deadlineParts(item)
+  if (!parts) {
+    addText(parent, "TBA", 22, C.ink, "displayBold", 1)
+    return
+  }
+  const row = parent.addStack()
+  row.layoutHorizontally()
+  row.centerAlignContent()
+  addText(row, parts.month, size, C.ink, "displayBold", 1)
+  addText(row, ".", size, C.red, "displayBold", 1)
+  addText(row, parts.day, size, C.ink, "displayBold", 1)
 }
 
-function activeCalls(items, order) {
-  const now = Date.now()
-  const active = items.filter(item => {
+// ============================================================
+// CATEGORY
+// ============================================================
+function addCategory(parent, item, size) {
+  const category = CAT[normalizedCategory(item)] || CAT.exhibition
+  addText(parent, category.symbol + " " + category.zh, size, C.ink, "medium", 1)
+}
+
+// ============================================================
+// FOOTER
+// ============================================================
+function renderFooter(parent, total, capacity, data, state) {
+  const row = parent.addStack()
+  row.layoutHorizontally()
+  row.centerAlignContent()
+  addText(row, issueShort(data.issue_id) + " · " + stateLabel(state, data), 7.5, C.dim, "mono", 1)
+  row.addSpacer()
+
+  const remain = Math.max(total - capacity, 0)
+  addText(row, remain > 0 ? `+ ${remain} MORE →` : "VIEW ALL →", 8, C.ink, "monoBold", 1)
+
+  row.url = OPPORTUNITY_URL
+}
+
+// ============================================================
+// EMPTY
+// ============================================================
+function renderEmpty(root, data, state) {
+  const top = root.addStack()
+  top.layoutHorizontally()
+  addText(top, "MEDIA ART", 16, C.ink, "displayBold", 1)
+  addText(top, ".", 17, C.red, "displayBold", 1)
+
+  root.addSpacer(8)
+  addRule(root, C.strongHair, 1)
+  root.addSpacer()
+
+  addText(root, state === "OFFLINE" ? "WAITING FOR DATA" : "NO OPEN CALLS", 15, C.ink, "bold", 2)
+  root.addSpacer(5)
+  addText(root, state === "OFFLINE" ? "等待首次同步" : "目前暂无开放机会", 10, C.dim, "regular", 2)
+
+  root.addSpacer()
+  addText(root, stateLabel(state, data), 8, C.dim, "mono", 1)
+}
+
+// ============================================================
+// TEXT
+// ============================================================
+function addText(parent, value, size, color, weight, lines) {
+  const text = parent.addText(String(value == null ? "" : value))
+  text.textColor = color
+  text.font = getFont(size, weight)
+  text.lineLimit = lines || 1
+  text.minimumScaleFactor = 0.75
+  return text
+}
+
+// ============================================================
+// FONT
+// ============================================================
+function getFont(size, type) {
+  switch (type) {
+    case "bold":
+      return Font.boldSystemFont(size)
+    case "medium":
+      return Font.mediumSystemFont(size)
+    case "mono":
+      return Font.regularMonospacedSystemFont(size)
+    case "monoBold":
+      return Font.boldMonospacedSystemFont(size)
+    case "display":
+      return customFont("Didot", size, Font.systemFont(size))
+    case "displayBold":
+      return customFont("Didot-Bold", size, Font.boldSystemFont(size))
+    default:
+      return Font.systemFont(size)
+  }
+}
+
+function customFont(name, size, fallback) {
+  try {
+    return new Font(name, size)
+  } catch (_) {
+    return fallback
+  }
+}
+
+// ============================================================
+// RULE
+// ============================================================
+function addRule(parent, color, height) {
+  const line = parent.addStack()
+  line.size = new Size(0, height)
+  line.backgroundColor = color
+  return line
+}
+
+// ============================================================
+// DATA VALIDATION
+// ============================================================
+function validateData(data) {
+  if (!data) {
+    throw new Error("No data")
+  }
+  if (!Array.isArray(data.open_calls)) {
+    throw new Error("open_calls missing")
+  }
+}
+
+// ============================================================
+// FILTER + SORT
+// ============================================================
+function selectCalls(items, category) {
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+
+  let list = items.filter(item => {
     const deadline = parseDeadline(item)
-    if (!deadline) return true
-    return deadline.getTime() > now
+    if (!deadline) {
+      return true
+    }
+    return deadline.getTime() >= now.getTime()
   })
-  if (order !== "deadline") return active
-  return active.sort((a, b) => {
-    const da = parseDeadline(a), db = parseDeadline(b)
-    return (da ? da.getTime() : Number.MAX_SAFE_INTEGER) - (db ? db.getTime() : Number.MAX_SAFE_INTEGER)
+
+  if (category && category !== "all") {
+    list = list.filter(item => normalizedCategory(item) === category)
+  }
+
+  list.sort((a, b) => {
+    const da = parseDeadline(a)
+    const db = parseDeadline(b)
+    const ta = da ? da.getTime() : Number.MAX_SAFE_INTEGER
+    const tb = db ? db.getTime() : Number.MAX_SAFE_INTEGER
+    return ta - tb
   })
+
+  return list
 }
 
+// ============================================================
+// CATEGORY DETECTION
+// ============================================================
 function normalizedCategory(item) {
-  const explicit = String(item.category || "").toLowerCase()
-  if (CATEGORY[explicit]) return explicit
-  // \u517c\u5bb9\u65e7\u7f13\u5b58\uff1a\u6ca1\u6709 category \u65f6\u6309\u6807\u9898\u548c\u7c7b\u578b\u63a8\u65ad
-  const t = `${item.title || ""} ${item.type || ""}`.toLowerCase()
-  if (/residen|\u9a7b\u7559|\u9a7b\u6751/.test(t)) return "residency"
-  if (/conference|symposium|cfp|paper|\u4f1a\u8bae|\u8bba\u6587/.test(t)) return "conference"
-  if (/prize|award|\u5956\u9879|\u5927\u5956/.test(t)) return "prize"
+  const category = String(item.category || "").toLowerCase()
+  if (CAT[category]) {
+    return category
+  }
+  const text = (String(item.title || "") + " " + String(item.type || "")).toLowerCase()
+  if (/residen|驻留|驻村/.test(text)) {
+    return "residency"
+  }
+  if (/conference|symposium|cfp|paper|会议|论文/.test(text)) {
+    return "conference"
+  }
+  if (/prize|award|奖项|大奖/.test(text)) {
+    return "prize"
+  }
   return "exhibition"
 }
-function categoryLabel(item, short) {
-  const meta = CATEGORY[normalizedCategory(item)]
-  return short ? meta.short : meta.full
-}
-function glyphOf(item) {
-  return CATEGORY[normalizedCategory(item)].glyph
+
+// ============================================================
+// DEADLINE
+// ============================================================
+function parseDeadline(item) {
+  const raw = item.deadline_at || item.deadline_date || item.deadline
+  if (!raw) {
+    return null
+  }
+  const match = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 23, 59, 59)
+  }
+  const parsed = new Date(raw)
+  return isNaN(parsed) ? null : parsed
 }
 
-function parseDeadline(item) {
-  const raw = item.deadline_at || item.deadline_date
-  if (!raw) return null
-  const simple = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})$/)
-  if (simple) return new Date(Number(simple[1]), Number(simple[2]) - 1, Number(simple[3]), 23, 59, 59)
-  const d = new Date(raw)
-  return isNaN(d) ? null : d
+// ============================================================
+// DATE PARTS
+// ============================================================
+function deadlineParts(item) {
+  const raw = String(item.deadline_date || item.deadline_at || item.deadline || "")
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) {
+    return null
+  }
+  return { year: match[1], month: match[2], day: match[3] }
 }
+
+function deadlineYear(item) {
+  const parts = deadlineParts(item)
+  return parts ? parts.year : ""
+}
+
+// ============================================================
+// COUNTDOWN
+// ============================================================
 function daysRemaining(item) {
   const deadline = parseDeadline(item)
-  if (!deadline) return null
+  if (!deadline) {
+    return null
+  }
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const target = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate())
-  return Math.max(0, Math.ceil((target.getTime() - today.getTime()) / 86400000))
+  return Math.ceil((target.getTime() - today.getTime()) / 86400000)
 }
 
-function splitTitle(value) {
-  const original = value || "Untitled"
-  const sep = original.indexOf("/")
-  if (sep !== -1) return { title: original.slice(0, sep).trim(), subtitle: original.slice(sep + 1).trim() }
-  return { title: original, subtitle: "" }
+function timer(item) {
+  const days = daysRemaining(item)
+  if (days == null) {
+    return "TBA"
+  }
+  if (days < 0) {
+    return "CLOSED"
+  }
+  if (days === 0) {
+    return "TODAY"
+  }
+  return `T−${days}`
 }
-function compactIssue(value) {
-  if (!value) return ""
-  const m = String(value).match(/W\d+/i)
-  return m ? m[0].toUpperCase() : String(value)
+
+function urgencyColor(item) {
+  const days = daysRemaining(item)
+  if (days != null && days <= 14) {
+    return C.red
+  }
+  return C.dim
 }
-function two(value) { return String(value).padStart(2, "0") }
+
+// ============================================================
+// TITLE
+// ============================================================
+function titleOf(item) {
+  const title = String(item.title || item.name || "Untitled").replace(/\s+/g, " ").trim()
+  const first = title.split("/")[0].trim()
+  return first || title
+}
+
+// ============================================================
+// SUBTITLE
+// ============================================================
+function subtitleOf(item) {
+  const raw = String(item.title || "")
+  const parts = raw.split("/").map(x => x.trim()).filter(Boolean)
+  if (parts.length <= 1) {
+    return ""
+  }
+  return parts.slice(1).join(" / ").slice(0, 46)
+}
+
+// ============================================================
+// LOCATION
+// ============================================================
+function shortLocation(item) {
+  const raw = String(item.location || item.country || "").trim()
+  if (!raw) {
+    return ""
+  }
+  return raw.split(/[；;，,。·]/)[0].trim().slice(0, 25)
+}
+
+// ============================================================
+// HIGHLIGHT
+// ============================================================
+function cleanHighlight(text) {
+  if (!text) {
+    return ""
+  }
+  return String(text).replace(/\s+/g, " ").trim().slice(0, 34)
+}
+
+// ============================================================
+// DATA STATUS
+// ============================================================
+function stateLabel(state, data) {
+  if (state === "OFFLINE") {
+    return "OFFLINE"
+  }
+  if (isStale(data)) {
+    return state === "CACHE" ? "CACHE · STALE" : "STALE"
+  }
+  return state === "CACHE" ? "CACHE" : "LIVE"
+}
+
+function isStale(data) {
+  if (!data.generated_at) {
+    return false
+  }
+  const time = Date.parse(data.generated_at)
+  if (!Number.isFinite(time)) {
+    return false
+  }
+  return Date.now() - time > 8 * 24 * 60 * 60 * 1000
+}
+
+// ============================================================
+// ISSUE
+// ============================================================
+function issueShort(value) {
+  if (!value) {
+    return "MEDIA ART RADAR"
+  }
+  const text = String(value)
+  const week = text.match(/W\d+/i)
+  if (week) {
+    return week[0].toUpperCase()
+  }
+  return text.replace(/^\d{4}-/, "").slice(0, 18)
+}
+
+// ============================================================
+// PARAMETERS
+// ============================================================
+//
+// Widget Parameter:
+//
+//   all
+//   exhibition
+//   residency
+//   prize
+//   conference
+//
+// Preview:
+//
+//   small
+//   medium
+//   large
+//   extraLarge
+//
+// Advanced:
+//
+//   {"category":"residency","family":"large"}
+//
+// ============================================================
+function parseOptions(raw) {
+  const result = { family: null, category: "all" }
+  if (!raw) {
+    return result
+  }
+  const value = String(raw).trim()
+  const families = ["small", "medium", "large", "extraLarge"]
+  const categories = ["all", "exhibition", "residency", "prize", "conference"]
+
+  if (families.includes(value)) {
+    result.family = value
+    return result
+  }
+  if (categories.includes(value)) {
+    result.category = value
+    return result
+  }
+
+  try {
+    const json = JSON.parse(value)
+    if (families.includes(json.family)) {
+      result.family = json.family
+    }
+    if (categories.includes(json.category)) {
+      result.category = json.category
+    }
+  } catch (_) {}
+
+  return result
+}
+
+// ============================================================
+// FORMAT
+// ============================================================
+function two(value) {
+  return String(value).padStart(2, "0")
+}
