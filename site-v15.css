@@ -306,8 +306,14 @@ img{display:block;max-width:100%}
 
 /* Native-system widget cards; main website typography is unchanged. */
 .wg .nc{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;height:100%;display:flex;flex-direction:column;font-style:normal}
-.nc-head{display:flex;align-items:center;justify-content:space-between;height:26px;flex:none;margin-bottom:6px}
+.nc-head{display:flex;align-items:center;justify-content:space-between;height:26px;flex:none;margin-bottom:2px}
 .nc-head>b{font-size:17px}.nc-head>strong{font-size:26px;color:var(--red)}
+.nc-mid{color:var(--red);font-style:normal;margin:0 .1em;font-weight:700}
+.nc-sub{display:flex;justify-content:space-between;font:9px var(--mono);color:#505050;flex:none;margin-bottom:6px}
+.nc-brand{display:flex;align-items:center;justify-content:space-between;flex:none}
+.nc-brand>b{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.nc-brand>strong{font-size:20px;color:var(--red)}
+.nc-meta-row{display:flex;justify-content:space-between;align-items:center;flex:none}
 .nc-card{border:2.5px solid var(--ink);border-radius:14px;padding:5.5px;min-width:0;display:flex;flex-direction:column;flex:1}
 .nc-date .date-dot{display:inline-block;width:.15em;height:.15em;margin:0 .045em;border-radius:50%;background:var(--red);font-size:inherit;color:transparent;line-height:0;vertical-align:baseline}
 .nc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px;flex:1;min-height:0}
@@ -341,6 +347,21 @@ img{display:block;max-width:100%}
 .nc-body{padding:0 9px;display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
 .nc-body .nc-bottom{margin-top:0;height:16px}.nc-body .nc-bottom>b{font-size:11px}
 .nc-footer{display:flex;justify-content:space-between;font-size:9px;height:14px;line-height:14px;margin-top:6px;color:#505050}
+
+/* Flat opportunity rows — mirrors the script's addOpportunityRow (date col + hairline + body). */
+.nc-rows{display:flex;flex-direction:column;flex:1;min-height:0}
+.nc-oppRow{display:flex;align-items:center;min-width:0}
+.nc-oppRow+.nc-oppRow{border-top:1px solid var(--hair)}
+.nc-dateCol{display:flex;flex-direction:column;justify-content:center;flex:0 0 auto}
+.nc-dateBig{font-family:Georgia,serif;font-weight:400;font-size:16px;line-height:1;white-space:nowrap}
+.nc-vline{width:1px;align-self:stretch;margin:10px 9px 10px 0;background:var(--hair);flex:0 0 auto}
+.nc-oppBody{display:flex;flex-direction:column;justify-content:center;min-width:0;flex:1;padding:6px 0}
+.nc-oppMeta{display:flex;align-items:center;font-size:8px;color:#505050;white-space:nowrap;overflow:hidden}
+.nc-oppTitle{font-size:13px;line-height:15px;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nc-oppSub{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:8px;color:#505050;margin-top:2px;white-space:nowrap;overflow:hidden}
+.nc-xlCols{display:flex;flex:1;min-height:0;gap:14px}
+.nc-xlCol{display:flex;flex-direction:column;flex:1;min-width:0}
+.nc-xlSep{width:1px;background:var(--hair);flex:0 0 auto}
 .wg .ed-date,.wg .ed-benefit,.wg .ed-brand-cell,.wg .it{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-style:normal;font-weight:700}
 /* ============ 窄一点的桌面 ============ */
 @media(max-width:1250px){
