@@ -103,17 +103,17 @@ img{display:block;max-width:100%}
 .legend{display:flex;gap:6px 18px;flex-wrap:wrap;font-family:var(--serif);font-size:1.02rem;color:var(--mute)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend .g{font-size:.66em;color:var(--ink)}
-.plot{position:relative;height:196px;margin:0 8px}
-.axis{position:absolute;left:0;right:0;top:88px;height:1.5px;background:var(--ink)}
+.plot{--axis-y:88px;--plot-h:196px;position:relative;height:var(--plot-h);margin:0 8px}
+.axis{position:absolute;left:0;right:0;top:var(--axis-y);height:1.5px;background:var(--ink)}
 .tick{position:absolute;top:0;bottom:0;border-left:1px solid var(--hair)}
 .tick span{position:absolute;left:6px;bottom:0;font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;color:var(--mute)}
-.today{position:absolute;left:0;top:88px}
+.today{position:absolute;left:0;top:var(--axis-y)}
 .today > span{position:absolute;left:-2px;top:14px;font-family:var(--mono);font-size:.62rem;font-weight:700;letter-spacing:.06em;white-space:nowrap}
 .today::before{content:"";position:absolute;left:-6px;top:-6px;width:12px;height:12px;border:1.5px solid var(--ink);border-radius:50%;background:var(--red)}
-.blip{position:absolute;top:88px;width:0;height:0;border:0;padding:0;background:none;cursor:pointer;color:var(--ink);font:inherit;transition:opacity .2s}
+.blip{position:absolute;top:var(--axis-y);width:0;height:0;border:0;padding:0;background:none;cursor:pointer;color:var(--ink);font:inherit;transition:opacity .2s}
 .blip .g{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-size:15px;background:#fff;border-radius:50%;box-shadow:0 0 0 4px #fff;transition:transform .15s}
 .blip .lab{
-  position:absolute;left:0;display:flex;flex-direction:column;gap:2px;height:70px;padding:0 0 0 9px;
+  position:absolute;left:0;display:flex;flex-direction:column;gap:2px;height:var(--lane-height, 70px);width:max-content;max-width:210px;padding:0 0 0 9px;box-sizing:border-box;
   border-left:1px solid var(--ink);text-align:left;white-space:nowrap;
 }
 .blip.up .lab{bottom:8px;justify-content:flex-start}
@@ -122,6 +122,7 @@ img{display:block;max-width:100%}
 .lab i{font-style:normal;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.02em}
 .lab i u{text-decoration:none;font-weight:400;color:var(--mute);margin-left:6px}
 .lab b{font-size:.8rem;font-weight:500;letter-spacing:-.01em}
+.lab b{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .blip:hover .g,.blip.is-hot .g{transform:translate(-50%,-50%) scale(1.35)}
 .blip.is-hot .lab b{text-decoration:underline;text-underline-offset:3px}
 .blip.is-dim{opacity:.2}
@@ -377,7 +378,7 @@ img{display:block;max-width:100%}
 }
 
 /* ============ 手机与竖屏平板：顶部一行 = Media Art + 三个胶囊（固定） ============ */
-.mobile-filters{display:none}
+.mobile-filters,.mobile-opp-heading{display:none}
 @media(max-width:860px){
   html{overflow:auto}
   html,body{height:auto}
@@ -405,6 +406,8 @@ img{display:block;max-width:100%}
   .page-head h1{font-size:clamp(2.4rem,11vw,3.3rem);flex-direction:column;align-items:flex-start;gap:.04em}
   .page-meta{flex-direction:row;align-items:baseline;gap:12px;text-align:left}
 
+  .mobile-opp-heading{display:flex}
+  .opportunity-list>.sec-h{display:none}
   .mobile-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
   .mobile-filter{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border:1.5px solid var(--ink);border-radius:999px;background:#fff;font-size:.84rem;font-weight:700;cursor:pointer}
   .mobile-filter .g{font-size:.72rem}

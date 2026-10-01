@@ -128,10 +128,10 @@
     });
   }
   document.fonts.ready.then(() => {
-    fitBrand(); alignTitle();
+    fitBrand(); alignTitle(); layoutTimeline();
     if (data && document.body.dataset.route === 'widget') { const y = $('#stage').scrollTop; render('widget', 'all', false); $('#stage').scrollTop = y; }
   });
-  addEventListener('resize', () => { fitBrand(); alignTitle(); });
+  addEventListener('resize', () => { fitBrand(); alignTitle(); layoutTimeline(); });
 
   // ---------- 雷达：截止日时间轴 ----------
   // 左端是今天，每个截止日是轴上一个信号点；14 天内的画一圈「回波」并把轴的前 14 天加粗。
@@ -154,7 +154,7 @@
       const p = at(daysLeft(c));
       const dim = filter !== 'all' && c.category !== filter;
       const name = titleParts(c.title)[0] || c.title;
-      return `<button class="blip ${i % 2 ? 'dn' : 'up'} ${p > 68 ? 'flip' : ''} ${dim ? 'is-dim' : ''}" type="button" style="left:${p}%" data-id="${esc(c.id)}" data-jump="${esc(c.id)}" aria-label="${esc(fmtDate(c) + ' ' + name + '，' + daysText(c))}">
+      return `<button class="blip ${i % 2 ? 'dn' : 'up'} ${p > 68 ? 'flip' : ''} ${dim ? 'is-dim' : ''}" type="button" style="left:${p}%" data-id="${esc(c.id)}" data-jump="${esc(c.id)}" title="${esc(name)}" aria-label="${esc(fmtDate(c) + ' ' + name + '，' + daysText(c))}">
         ${glyph(c.category)}<span class="lab"><i>${dateHtml(c)}<u>${esc(tnOf(c))}</u></i><b>${esc(name)}</b></span></button>`;
     }).join('');
 
@@ -170,6 +170,47 @@
       </div>
       </div>
     </section>`;
+  }
+
+  // 按实际文字宽度分配上下层级；新增机会时，标签不会挤在同一行。
+  function layoutTimeline() {
+    const plot = $('.plot');
+    if (!plot || !plot.clientWidth) return;
+    const width = plot.clientWidth;
+    const occupied = { up: [], dn: [] };
+    const counts = { up: 0, dn: 0 };
+    const blips = $$('.blip', plot).sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left));
+    blips.forEach((blip, index) => {
+      const x = parseFloat(blip.style.left) * width / 100;
+      const flip = x > width * .55;
+      blip.classList.toggle('flip', flip);
+      const lab = $('.lab', blip);
+      lab.style.maxWidth = `${Math.max(70, Math.min(210, flip ? x - 12 : width - x - 12))}px`;
+      const labelWidth = lab.getBoundingClientRect().width;
+      const start = flip ? x - labelWidth : x;
+      const end = flip ? x : x + labelWidth;
+      const preferred = index % 2 ? 'dn' : 'up';
+      let placement;
+      for (let lane = 0; !placement; lane++) {
+        for (const side of [preferred, preferred === 'up' ? 'dn' : 'up']) {
+          const spans = occupied[side][lane] || [];
+          if (spans.every(span => end + 12 <= span.start || start >= span.end + 12)) {
+            placement = { side, lane };
+            spans.push({ start, end });
+            occupied[side][lane] = spans;
+            break;
+          }
+        }
+      }
+      blip.classList.toggle('up', placement.side === 'up');
+      blip.classList.toggle('dn', placement.side === 'dn');
+      blip.style.setProperty('--lane-height', `${70 + placement.lane * 60}px`);
+      counts[placement.side] = Math.max(counts[placement.side], placement.lane + 1);
+    });
+    const upRows = Math.max(1, counts.up);
+    const downRows = Math.max(1, counts.dn);
+    plot.style.setProperty('--axis-y', `${28 + upRows * 60}px`);
+    plot.style.setProperty('--plot-h', `${76 + (upRows + downRows) * 60}px`);
   }
 
   // ---------- 台账里的一行 ----------
@@ -210,7 +251,7 @@
         <span class="c-t">${esc(daysText(item))}</span>
       </div>
       <div class="c-main">
-        <div class="c-meta"><span class="c-cat">${glyph(item.category)}${esc(labels[item.category] || 'OPEN CALL')}</span><span class="c-place">${esc(place(item))}</span><span class="c-idx">${two(i + 1)}</span></div>
+        <div class="c-meta"><span class="c-cat">${glyph(item.category)}${esc(item.category_label || labels[item.category] || 'OPEN CALL')}</span><span class="c-place">${esc(place(item))}</span><span class="c-idx">${two(i + 1)}</span></div>
         <h2 class="c-title">${esc(parts[0] || item.title)}</h2>
         ${parts.length > 1 ? `<p class="c-sub">${esc(parts.slice(1).join(' / '))}</p>` : ''}
         ${brief ? `<p class="c-brief">${esc(brief)}。</p>` : ''}
@@ -245,9 +286,10 @@
         <h1><span>国际机会精选</span><em>Open calls<span class="dot">.</span></em></h1>
         <div class="page-meta"><span>01 / Opportunities</span><span>${esc(data.issue_id || '')}</span></div>
       </header>
+      <div class="sec-h mobile-opp-heading"><h2>${esc(label)}</h2><em>${esc(en)}</em><span class="sec-n">${two(shown.length)}</span></div>
       ${mobileFilters(filter)}
       ${radarHtml(calls, filter)}
-      <section class="sec">
+      <section class="sec opportunity-list">
         <div class="sec-h"><h2>${esc(label)}</h2><em>${esc(en)}</em><span class="sec-n">${two(shown.length)}</span><div class="sec-x"><button class="reset-filter ${filter !== 'all' ? 'show' : ''}" type="button">全部机会</button></div></div>
         <div class="ledger">${rows}</div>
       </section>
@@ -444,7 +486,7 @@ function titleLines(value, width, size) {
             <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
             <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
             <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=33" download><span>下载脚本</span><span>↓</span></a>
+              <a class="btn btn-primary" href="Media-Art-Radar.js?v=34" download><span>下载脚本</span><span>↓</span></a>
               <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
             </div>
           </div>
@@ -514,6 +556,7 @@ function titleLines(value, width, size) {
     window.scrollTo(0, 0);
     fitBrand();
     alignTitle();
+    layoutTimeline();
     if (push) {
       const hash = route === 'opportunities' && filter !== 'all' ? '#opportunities/' + filter : '#' + route;
       if (location.hash !== hash) history.pushState(null, '', hash);

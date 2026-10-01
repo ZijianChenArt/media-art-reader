@@ -7,7 +7,7 @@
 // ------------------------------------------------------------
 // 01 · DATA
 // ------------------------------------------------------------
-const SITE_URL = "https://zijianchenart.github.io/media-art-reader/"
+const SITE_URL = "https://media-art-weekly-radar.orangec0831.chatgpt.site/"
 const DATA_URL = SITE_URL + "latest.json"
 const OPPORTUNITY_URL = SITE_URL + "#opportunities"
 const REFRESH_MINUTES = 60
@@ -435,7 +435,8 @@ function addLargeDate(parent, item, size) {
 // ============================================================
 function addCategory(parent, item, size) {
   const category = CAT[normalizedCategory(item)] || CAT.exhibition
-  addText(parent, category.symbol + " " + category.zh, size, C.ink, "medium", 1)
+  const upcoming = item.application_open_at && Date.now() < Date.parse(item.application_open_at)
+  addText(parent, category.symbol + " " + (upcoming ? (item.application_open_short || "即将开放") : (item.widget_category_label || category.zh)), size, C.ink, "medium", 1)
 }
 
 // ============================================================
