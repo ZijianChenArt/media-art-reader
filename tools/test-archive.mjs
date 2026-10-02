@@ -53,8 +53,36 @@ test('homepage archive link is not intercepted by hash routing',()=>{
 
 import {createHash} from 'node:crypto';
 test('shared public asset URLs match current content fingerprints',()=>{
- for(const [page,names] of [['index.html',['site-v15.css','site-v15.js']],['archive/index.html',['radar-shell.css','radar-shell.js']]]){
+ for(const [page,names] of [['index.html',['site-v15.css','site-v15.js']],['archive/index.html',['radar-shell.css','radar-shell.js','archive/archive-detail.css','archive/archive-detail.js','archive/details-motion.js']]]){
   const html=fs.readFileSync(path.join(root,page),'utf8');
-  for(const name of names){const fingerprint=createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex').slice(0,12);assert.ok(html.includes(name+'?v='+fingerprint),'Stale cache fingerprint: '+name);}
+  for(const name of names){const fingerprint=createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex').slice(0,12);assert.ok(html.includes(path.basename(name)+'?v='+fingerprint),'Stale cache fingerprint: '+name);}
  }
+});
+
+test('desktop detail contract expands the original card in its own row without a modal',()=>{
+ const script=fs.readFileSync(path.join(root,'archive/archive-detail.js'),'utf8');
+ const css=fs.readFileSync(path.join(root,'archive/archive-detail.css'),'utf8');
+ assert.match(script,/archive-inline-details/);assert.match(script,/card\.append\(panel\)/);
+ assert.match(script,/body\.append\(content\)/);assert.match(script,/replaceWith\(state\.content\)/);
+ assert.doesNotMatch(script,/showModal|createElement\(['"]dialog['"]\)|cloneNode|lockBackground/);
+ assert.match(css,/translateX\(var\(--archive-detail-shift/);assert.match(css,/clip-path: inset\(0 100% 0 0\)/);
+ assert.match(css,/prefers-reduced-motion: reduce/);assert.doesNotMatch(css,/::backdrop|position: fixed/);
+});
+
+test('in-place details preserve mobile, random, and dynamic archive lifecycle boundaries',()=>{
+ const script=fs.readFileSync(path.join(root,'archive/archive-detail.js'),'utf8');
+ assert.match(script,/min-width: 861px/);assert.match(script,/#random-stage/);
+ assert.match(script,/MutationObserver/);assert.match(script,/ResizeObserver/);
+ for(const name of ['input','change','popstate','hashchange','pagehide'])assert.ok(script.includes("'"+name+"'"),name);
+ for(const marker of ['/api/selections','localStorage','fetch('])assert.ok(!script.includes(marker),marker);
+});
+
+test('public initial cards and full-catalog registry survive the detail change',()=>{
+ const html=fs.readFileSync(path.join(root,'archive/index.html'),'utf8');
+ const catalog=JSON.parse(fs.readFileSync(path.join(root,'archive/catalog.json'),'utf8'));
+ const registry=JSON.parse(html.match(/<script type="application\/json" id="archive-records">([\s\S]*?)<\/script>/)[1]);
+ assert.equal((html.match(/<article class="card"/g)||[]).length,10);
+ assert.deepEqual(registry.map(record=>record.id),catalog.map(record=>record.id));
+ for(const record of registry){assert.match(record.html,/class="details-content"/);assert.ok(!record.html.includes('archive-inline-details'));}
+ for(const marker of ['data-review=','data-remove=','data-default-status=','/api/selections','/workspace/','/root/'])assert.ok(!html.includes(marker),marker);
 });

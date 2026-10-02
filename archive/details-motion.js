@@ -2,7 +2,10 @@
  const active=new WeakMap();
  function toggle(details,summary){
   const panel=details.querySelector('.details-content');if(!panel)return;
-  const old=active.get(details),expanded=!(old?old.expanded:details.open);
+  let old=active.get(details);
+  // An external view may cancel native motion while changing disclosure state.
+  if(old?.heightAnimation.playState==='idle'){old.contentAnimation.cancel();active.delete(details);old=null;}
+  const expanded=!(old?old.expanded:details.open);
   const height=details.getBoundingClientRect().height;
   const opacity=details.open?getComputedStyle(panel).opacity:'0';
   old?.heightAnimation.cancel();old?.contentAnimation.cancel();active.delete(details);
