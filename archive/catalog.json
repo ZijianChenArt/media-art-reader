@@ -1705,50 +1705,6 @@
     ]
   },
   {
-    "id": "r8-universal-primordial",
-    "title": "Primordial",
-    "artist": "Universal Everything",
-    "year": "2022",
-    "medium": "6K生成式影像、地面投影、计算机、3.1声道声音；无限时长",
-    "description": "色彩明亮的细胞状生物在展厅地面流动、伸展和生长，它们由代码持续生成，随着声音脉动改变形态。观众步入投影时，身体被置于这些介于抽象图形与生命之间的形象之中；作品利用走廊般的空间，让行走与数字生命的流向互相牵引，把通常隔着屏幕观看的微观世界变成一片可以穿行的尺度。",
-    "exhibition": "Lifeforms，180 Studios，伦敦（2022年）",
-    "notes": "2022年首展版本为声音响应的地面投影；网站另列后续触控屏演示，不将其倒写为伦敦版本具备人体追踪。主办方与艺术家所列展期起止略有差异，故只写年份。",
-    "tags": [
-      "生成生命",
-      "声音响应",
-      "地面投影",
-      "身体尺度"
-    ],
-    "group": "装置",
-    "work": "https://www.universaleverything.com/art/primordial",
-    "exhibitionurl": "https://www.universaleverything.com/exhibitions/lifeforms",
-    "image": "assets/r8-universal-primordial.jpg.webp",
-    "imageNote": "真实作品现场照片；已目视核对作品、空间与呈现方式，非效果图。",
-    "credit": "© Universal Everything；摄影：Jack Hems；来源：艺术家官方网站",
-    "imageSource": "https://www.universaleverything.com/art/primordial",
-    "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
-    "imagePosition": "50% 50%",
-    "imageZoom": 1,
-    "imageFit": "cover",
-    "verificationSources": [
-      "https://www.universaleverything.com/art/primordial",
-      "https://www.universaleverything.com/exhibitions/lifeforms"
-    ],
-    "number": 40,
-    "additionalImages": [
-      {
-        "image": "assets/r8-universal-primordial-second.jpg.webp",
-        "imageNote": "官方作品来源中的另一张真实作品照片，已与首图并排目视核对；不同视角或呈现时刻，非首图裁切。",
-        "credit": "© Universal Everything；摄影：Jack Hems；来源：艺术家官方网站",
-        "imageSource": "https://www.universaleverything.com/art/primordial",
-        "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
-        "imagePosition": "50% 50%",
-        "imageZoom": 1,
-        "imageFit": "contain"
-      }
-    ]
-  },
-  {
     "id": "r8-quayola-transient",
     "title": "Transient — Impermanent Paintings",
     "artist": "Quayola；音乐与演出：Quayola／Seta（Andrea Santicchia）",
@@ -1779,7 +1735,7 @@
       "https://www.artechouse.com/news/artechouse-presents-transient-impermanent-paintings/",
       "https://www.artechouse.com/past-programming/page/4/"
     ],
-    "number": 41,
+    "number": 40,
     "additionalImages": [
       {
         "image": "assets/r8-quayola-transient-second.jpg.webp",
@@ -1821,7 +1777,7 @@
     "verificationSources": [
       "https://joanielemercier.com/edges/"
     ],
-    "number": 42,
+    "number": 41,
     "additionalImages": [
       {
         "image": "assets/r8-lemercier-edges-second.jpg.webp",
@@ -1865,7 +1821,7 @@
       "https://www.acc.go.kr/jp/exhibition.do?PID=0102&action=Read&bnkey=EM_0000008844",
       "https://news.unframed-collection.com/en/focus-on-boris-labbe-ito-meikyu/"
     ],
-    "number": 43,
+    "number": 42,
     "additionalImages": [
       {
         "image": "assets/r8-labbe-ito-meikyu-second.jpg.webp",
@@ -1907,7 +1863,7 @@
     "verificationSources": [
       "https://www.naxs.tech/projects/id0"
     ],
-    "number": 44,
+    "number": 43,
     "additionalImages": [
       {
         "image": "assets/r8-naxs-id0-second.jpg.webp",
@@ -1953,7 +1909,7 @@
       "https://www.onassis.org/art/works/bugsim-pheromone-spa",
       "https://whitney.org/collection/works/67919"
     ],
-    "number": 45,
+    "number": 44,
     "additionalImages": [
       {
         "image": "assets/r8-triantafyllidis-bugsim-second.jpg.webp",
@@ -1998,7 +1954,7 @@
       "https://www.castellodirivoli.org/comunicato/aaajiao-deep-simulator-illy-present-future-prize-2019-exhibition/",
       "https://aaajiao.itch.io/deep-simulator"
     ],
-    "number": 46,
+    "number": 45,
     "additionalImages": [
       {
         "image": "assets/r8-aaajiao-deep-simulator-second.jpg.webp",
@@ -2041,7 +1997,7 @@
       "https://www.fuseworks.it/artwork/trust",
       "https://www.artechouse.com/program/trust/"
     ],
-    "number": 47,
+    "number": 46,
     "additionalImages": [
       {
         "image": "assets/r8-fuse-trust-second.jpg.webp",
@@ -2087,7 +2043,7 @@
       "https://laseranimation.com/en/project/another-moon/",
       "https://commons.wikimedia.org/wiki/File:(Another_Moon)_2021_Essen_New_Now.jpg"
     ],
-    "number": 48,
+    "number": 47,
     "additionalImages": [
       {
         "image": "assets/r8-kimchi-another-moon-second.jpg.webp",
@@ -2131,7 +2087,7 @@
       "https://www.mplus.org.hk/en/magazine/a-a-murakami-ephemeral-tech-art-nature-technology-interview-with-hong-kong-sign-language/",
       "https://www.santamonica.cat/en/exposicions-i-activitats/exposicions/2026/lassalt-de-la-illusio/obres/beyond-the-horizon"
     ],
-    "number": 49,
+    "number": 48,
     "additionalImages": [
       {
         "image": "assets/r7-murakami-beyond-horizon-second.jpg.webp",
@@ -2176,7 +2132,7 @@
       "https://www.geumhyungjeong.com/work.html",
       "https://www.ica.art/exhibitions/geumhyung-jeong-under-construction"
     ],
-    "number": 50,
+    "number": 49,
     "additionalImages": [
       {
         "image": "assets/r7-jeong-bodies-second.jpg.webp",
@@ -2221,7 +2177,7 @@
       "https://www.copperfieldgallery.com/hannah-perry.html",
       "https://www.southbankcentre.co.uk/bio/hannah-perry/"
     ],
-    "number": 51,
+    "number": 50,
     "additionalImages": [
       {
         "image": "assets/r7-perry-antagonist-second.jpg.webp",
@@ -2262,7 +2218,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 52,
+    "number": 51,
     "additionalImages": [
       {
         "image": "assets/r7-lee-openwound-second.jpg.webp",
@@ -2270,50 +2226,6 @@
         "credit": "© Mire Lee；摄影：Tate／Oliver Cowling with Lucy Green；来源：Tina Kim Gallery",
         "imageSource": "https://tinakimgallery.com/exhibitions/164-mire-lee-open-wound-tate-modern-hyundai-commission/",
         "rights": "作品与照片版权归艺术家、摄影师及原始权利人；官方图片用于作品资料索引，公开再用须另行核实授权。",
-        "imagePosition": "50% 50%",
-        "imageZoom": 1
-      }
-    ]
-  },
-  {
-    "id": "r7-olmedo-hic-et-nunc",
-    "title": "Hic et Nunc",
-    "artist": "Berenice Olmedo",
-    "year": "2022",
-    "medium": "动态装置组／大腿假肢试配接受腔、硅胶内衬、机器人机构、微控制器、伺服电机",
-    "description": "半透明的假肢接受腔与硅胶内衬组成悬挂的身体形态，末端的小型机器人机构使它们缓慢扭动。每件结构来自不同身体模型的组合，近似量产的外观之下保留着各自不规则的差异。用于适配身体的技术获得自身动作，也让“完整”“正常”及独立运作的身体想象受到质疑。",
-    "exhibition": "Hic et Nunc，Kunsthalle Basel，巴塞尔（2022年6月10日—9月18日）",
-    "notes": "记录指2022年Hic et Nunc动态作品组；单件另有Silvia、Camila等姓名组合。与同展另一组静态作品alêtheia不同，所用照片明确为悬挂动态作品。不是自主生物或临床治疗设备。",
-    "tags": [
-      "假肢与身体",
-      "伺服运动",
-      "辅助技术",
-      "非标准形态"
-    ],
-    "group": "装置",
-    "work": "https://jan-kaps.com/exhibitions/berenice-olmedo-hic-et-nunc/",
-    "exhibitionurl": "https://www.leap-art-foundation.org/projects/berenice-olmedo-kunsthalle-basel",
-    "image": "assets/r7-olmedo-hic-et-nunc.jpg.webp",
-    "imageNote": "Kunsthalle Basel 2022年Hic et Nunc真实现场，悬挂的半透明接受腔、硅胶末端与电路结构可辨；已目视核对。",
-    "credit": "© Berenice Olmedo；摄影：Philipp Hänger／Kunsthalle Basel；来源：支持该展的LEAP Art Foundation",
-    "imageSource": "https://www.leap-art-foundation.org/projects/berenice-olmedo-kunsthalle-basel",
-    "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
-    "imagePosition": "50% 50%",
-    "imageZoom": 1,
-    "imageFit": "cover",
-    "verificationSources": [
-      "https://www.leap-art-foundation.org/projects/berenice-olmedo-kunsthalle-basel",
-      "https://jan-kaps.com/exhibitions/berenice-olmedo-hic-et-nunc/",
-      "https://www.lafayetteanticipations.com/en/collection/oeuvre/hic-et-nunc-silvia-camila-berenice-olmedo"
-    ],
-    "number": 53,
-    "additionalImages": [
-      {
-        "image": "assets/r7-olmedo-hic-et-nunc-second.jpg.webp",
-        "imageNote": "2022 Kunsthalle Basel展场另一视角，悬吊的Hic et Nunc机械雕塑与建筑空间。 已目视核对。",
-        "credit": "© Berenice Olmedo；摄影：Philipp Hänger；Courtesy Kunsthalle Basel and Jan Kaps",
-        "imageSource": "https://jan-kaps.com/exhibitions/berenice-olmedo-hic-et-nunc/",
-        "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
         "imagePosition": "50% 50%",
         "imageZoom": 1
       }
@@ -2346,7 +2258,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 54,
+    "number": 52,
     "additionalImages": [
       {
         "image": "assets/r7-xin-mothership-second.jpg.webp",
@@ -2389,7 +2301,7 @@
       "https://www.e-flux.com/announcements/650275/zhang-peili/",
       "https://artdisk.oss-cn-shanghai.aliyuncs.com/%E7%BA%A2%E7%A0%96%E7%BE%8E%E6%9C%AF%E9%A6%86/%E5%BC%A0%E5%9F%B9%E5%8A%9B-%E4%B8%AA%E5%B1%95/_Artwork-Captions-2.pdf"
     ],
-    "number": 55,
+    "number": 53,
     "additionalImages": [
       {
         "image": "assets/r7-zhang-propane-array-second.jpg.webp",
@@ -2434,7 +2346,7 @@
       "https://newecology.geidai.ac.jp/artist/yuko-mohri/",
       "https://www.labiennale.org/it/arte/2024/giappone"
     ],
-    "number": 56,
+    "number": 54,
     "additionalImages": [
       {
         "image": "assets/r7-mohri-decomposition-second.jpg.webp",
@@ -2479,7 +2391,7 @@
       "https://www.artsy.net/artwork/tarek-atoui-the-whisperers-slash-glass-dome",
       "https://www.crousel.com/media/uploads/artists/Tarek-Atoui/press/TA_GCC_2021_PR.pdf"
     ],
-    "number": 57,
+    "number": 55,
     "additionalImages": [
       {
         "image": "assets/r7-atoui-glass-dome-second.jpg.webp",
@@ -2529,7 +2441,7 @@
       "https://www.diaart.org/exhibition/exhibitions-projects/steve-mcqueen-exhibition/",
       "https://schaulager.org/de/msfrontend/29/smq-bass"
     ],
-    "number": 58,
+    "number": 56,
     "additionalImages": [
       {
         "image": "assets/r7-mcqueen-bass-second.jpg.webp",
@@ -2573,7 +2485,7 @@
       "https://emmamuseum.fi/en/in-search-of-the-present-mobile-guide/",
       "https://emmamuseum.fi/en/exhibitions/"
     ],
-    "number": 59,
+    "number": 57,
     "additionalImages": [
       {
         "image": "assets/r7-chung-assembly-lines-second.jpg.webp",
@@ -2614,7 +2526,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 60,
+    "number": 58,
     "additionalImages": [
       {
         "image": "assets/r7-ogboh-lament-second.jpg.webp",
@@ -2661,7 +2573,7 @@
       "https://www.ica.art/exhibitions/nora-turato-pool7",
       "https://www.ica.art/media/11030.pdf"
     ],
-    "number": 61,
+    "number": 59,
     "additionalImages": []
   },
   {
@@ -2699,7 +2611,7 @@
       "https://kurthentschlager.com/FLUX-2025",
       "https://riyadhart.rcrc.gov.sa/en/artworks/flux/"
     ],
-    "number": 62,
+    "number": 60,
     "additionalImages": [
       {
         "image": "assets/r7-hentschlager-flux-second.jpg.webp",
@@ -2744,7 +2656,7 @@
       "https://www.moma.org/audio/playlist/343/4648",
       "https://press.moma.org/wp-content/uploads/2024/11/MoMA_PressRelease_OtobongNkanga_Final_Updated.pdf"
     ],
-    "number": 63,
+    "number": 61,
     "additionalImages": [
       {
         "image": "assets/r7-nkanga-cadence-second.jpg.webp",
@@ -2784,7 +2696,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 64,
+    "number": 62,
     "additionalImages": [
       {
         "image": "assets/r7-schneider-butter-second.jpg.webp",
@@ -2832,7 +2744,7 @@
       "https://cms.nottinghamcontemporary.org/site/assets/files/15277/dora_budor_large_print_exhibition_notes.pdf",
       "https://cms.nottinghamcontemporary.org/site/assets/files/15649/dora_budor_nc_again_booklet.pdf"
     ],
-    "number": 65,
+    "number": 63,
     "additionalImages": [
       {
         "image": "assets/r7-budor-passive-recreation-second.jpg.webp",
@@ -2883,7 +2795,7 @@
       "https://garyhill.com/work/mixed_media_installation/afterwards.html",
       "https://videoformes.com/wp-content/uploads/2023/07/VDF_23-CATALOGUE-2023-EN-WEB.pdf"
     ],
-    "number": 66,
+    "number": 64,
     "additionalImages": [
       {
         "image": "assets/r7-hill-afterwards-second.jpg.webp",
@@ -2934,7 +2846,7 @@
       "https://gagosian.com/news/2024/01/25/douglas-gordon-undergroundoverheard-commission-elizabeth-line-crossrail-art-programme-london/",
       "https://art.tfl.gov.uk/projects/undergroundoverground/"
     ],
-    "number": 67,
+    "number": 65,
     "additionalImages": [
       {
         "image": "assets/r7-gordon-undergroundoverheard-second.jpg.webp",
@@ -2983,7 +2895,7 @@
       "https://sculpturemagazine.art/a-conversation-with-marguerite-humeau/",
       "https://coloradosun.com/2023/08/02/orisons-marguerite-humeau-san-luis-valley-black-cube/"
     ],
-    "number": 68,
+    "number": 66,
     "additionalImages": [
       {
         "image": "assets/r7-humeau-orisons-second.jpg.webp",
@@ -3026,7 +2938,7 @@
       "https://www.labiennale.org/en/art/2022/milk-dreams/precious-okoyomon",
       "https://www.gladstonegallery.com/sites/default/files/22_04_21_PO_Artsy_Feature_e.pdf"
     ],
-    "number": 69,
+    "number": 67,
     "additionalImages": [
       {
         "image": "assets/r7-okoyomon-earth-second.jpg.webp",
@@ -3078,7 +2990,7 @@
       "https://qm.org.qa/en/stories/all-stories/pipilotti-rist-at-qatar-museums/",
       "https://qm.org.qa/en/press/press-releases/qatar-museums-to-present-first-survey-exhibition-of-artworks-by-swiss-artist-pipilotti-rist-in-the-middle-east-and-north-africa-region/"
     ],
-    "number": 70,
+    "number": 68,
     "additionalImages": [
       {
         "image": "assets/r7-rist-your-brain-second.jpg.webp",
@@ -3129,7 +3041,7 @@
       "https://www.fondazioneprada.org/project/dara-birnbaum/?lang=en",
       "https://www.e-flux.com/announcements/476729/dara-birnbaum-journey/482566"
     ],
-    "number": 71,
+    "number": 69,
     "additionalImages": [
       {
         "image": "assets/r7-birnbaum-journey-second.jpg.webp",
@@ -3180,7 +3092,7 @@
       "https://gladstonegallery.com/en/exhibit/the-fury/",
       "https://elespacio23.org/portfolio_page/the-fury-2022/"
     ],
-    "number": 72,
+    "number": 70,
     "additionalImages": [
       {
         "image": "assets/r7-neshat-fury-second.jpg.webp",
@@ -3220,7 +3132,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 73,
+    "number": 71,
     "additionalImages": [
       {
         "image": "assets/r7-random-living-second.jpg.webp",
@@ -3268,7 +3180,7 @@
       "https://www.manifdart.org/quebec-city-biennial/manif-dart-10-biennial-2022/manif-10-galery-exhibitions/david-rokeby-2/?lang=en",
       "https://universes.art/es/manifdart/2022/david-rokeby"
     ],
-    "number": 74,
+    "number": 72,
     "additionalImages": [
       {
         "image": "assets/r7-rokeby-timbre-second.jpg.webp",
@@ -3317,7 +3229,7 @@
     "verificationSources": [
       "https://tonyoursler.com/specular"
     ],
-    "number": 75,
+    "number": 73,
     "additionalImages": [
       {
         "image": "assets/r7-oursler-specular-second.jpg.webp",
@@ -3366,7 +3278,7 @@
       "https://www.kunstfort.nl/nl/tentoonstellingen/katja-novitskova-solo-tentoonstelling/",
       "https://museum.ntua.edu.tw/c003.asp?kk=3102"
     ],
-    "number": 76,
+    "number": 74,
     "additionalImages": [
       {
         "image": "assets/r7-novitskova-microbial-oasis-second.jpg.webp",
@@ -3406,7 +3318,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 77,
+    "number": 75,
     "additionalImages": [
       {
         "image": "assets/r7-mirza-dyson-second.jpg.webp",
@@ -3417,49 +3329,6 @@
         "imagePosition": "50% 50%",
         "imageZoom": 1,
         "imageFit": "contain"
-      }
-    ]
-  },
-  {
-    "id": "r7-tieu-in-cold-print",
-    "title": "In Cold Print",
-    "artist": "Sung Tieu；声音协作：Ville Haimala等",
-    "year": "2020",
-    "medium": "多声道声音、钢制围栏、建筑空间干预、文本、数字新闻屏幕与脑活动资料",
-    "description": "钢制围栏与展厅立柱共同阻断视线和通行，多声道声音充满被分隔的空间。作品以所谓“哈瓦那综合征”的争议声学材料为起点，将艺术家聆听重建声音时的脑活动与经过编辑的新闻文本并置，考察声音、证据与恐惧如何影响感知。空间限制与声音压力共同作用于身体，装置呈现的是证据、推测和感知被组织起来的过程。",
-    "exhibition": "Sung Tieu: In Cold Print，Nottingham Contemporary，诺丁汉（2020年2月8日—8月31日）",
-    "notes": "机构将本作界定为2020年新委约装置。所谓声学攻击属于作品研究的争议叙述，不在此将“声波武器导致疾病”当作已确立事实。展期采用机构最终列出的8月31日，早期宣传中的5月3日为原计划闭展日。",
-    "tags": [
-      "声音与权力",
-      "空间控制",
-      "证据与感知",
-      "建筑干预"
-    ],
-    "group": "装置",
-    "work": "https://www.nottinghamcontemporary.org/whats-on/sung-tieu-in-cold-print/",
-    "exhibitionurl": "https://www.nottinghamcontemporary.org/whats-on/sung-tieu-in-cold-print/",
-    "image": "assets/r7-tieu-in-cold-print.jpg.webp",
-    "imageNote": "2020年真实装置现场，显示金属围栏对立柱和行走路线的重新划分；已目视核对。",
-    "credit": "© Sung Tieu；图片来源：Nottingham Contemporary官方展览页面",
-    "imageSource": "https://www.nottinghamcontemporary.org/whats-on/sung-tieu-in-cold-print/",
-    "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
-    "imagePosition": "50% 50%",
-    "imageZoom": 1,
-    "imageFit": "cover",
-    "verificationSources": [
-      "https://www.nottinghamcontemporary.org/whats-on/sung-tieu-in-cold-print/",
-      "https://www.sungtieu.com/"
-    ],
-    "number": 78,
-    "additionalImages": [
-      {
-        "image": "assets/r7-tieu-in-cold-print-second.jpg.webp",
-        "imageNote": "档案隔间、柱体与墙面设备的另一现场视角；已目视核对，与首图为不同原始图像。",
-        "credit": "© Sung Tieu；图片来源：Nottingham Contemporary官方展览页面",
-        "imageSource": "https://www.nottinghamcontemporary.org/whats-on/sung-tieu-in-cold-print/",
-        "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
-        "imagePosition": "50% 50%",
-        "imageZoom": 1
       }
     ]
   },
@@ -3498,7 +3367,7 @@
       "https://bitforms.art/exhibition/manfred-mohr-liquid-symmetry/",
       "https://cloud.contxt.art/bitforms/liquid-symmetry"
     ],
-    "number": 79,
+    "number": 76,
     "additionalImages": [
       {
         "image": "assets/r7-mohr-liquid-symmetry-second.jpg.webp",
@@ -3546,7 +3415,7 @@
       "https://www.paulsermon.org/quarantine/",
       "https://www.paulsermon.org/quarantine/"
     ],
-    "number": 80,
+    "number": 77,
     "additionalImages": [
       {
         "image": "assets/r7-sermon-quarantine-second.jpg.webp",
@@ -3595,7 +3464,7 @@
     "verificationSources": [
       "https://www.speronewestwater.com/exhibitions/bruce-nauman15"
     ],
-    "number": 81,
+    "number": 78,
     "additionalImages": [
       {
         "image": "assets/r7-nauman-nature-morte-second.jpg.webp",
@@ -3642,7 +3511,7 @@
       "https://www.ivanafranke.net/work/travel-along-unknown",
       "https://www.schauspielhausbochum.de/de/spielplan/34/premiere?s=2020-2021"
     ],
-    "number": 82,
+    "number": 79,
     "additionalImages": [
       {
         "image": "assets/r7-franke-travel-along-unknown-second.jpg.webp",
@@ -3689,7 +3558,7 @@
       "https://www.arebyte.com/best-effort-network",
       "https://www.arebyte.com/olia-lialinas-hosted-a-performance-one-stroke-at-a-time"
     ],
-    "number": 83,
+    "number": 80,
     "additionalImages": [
       {
         "image": "assets/r7-lialina-hosted-second.jpg.webp",
@@ -3730,7 +3599,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 84,
+    "number": 81,
     "additionalImages": [
       {
         "image": "assets/r7-gander-end-second.jpg.webp",
@@ -3770,7 +3639,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 85,
+    "number": 82,
     "additionalImages": [
       {
         "image": "assets/r7-nowak-schizo-second.jpg.webp",
@@ -3810,7 +3679,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 86,
+    "number": 83,
     "additionalImages": [
       {
         "image": "assets/r7-akamatsu-meteon-second.jpg.webp",
@@ -3853,7 +3722,7 @@
       "https://swissinstitute.net/exhibitions/cally-spooner",
       "https://www.callyspooner.com/Cally%20Spooner%20Selected%20Solo%20Exhibitions.pdf"
     ],
-    "number": 87,
+    "number": 84,
     "additionalImages": [
       {
         "image": "assets/r7-spooner-drinking-fountain-second.jpg.webp",
@@ -3904,7 +3773,7 @@
       "https://www.303gallery.com/gallery-exhibitions/doug-aitken11",
       "https://www.303gallery.com/gallery-exhibitions/doug-aitken11/press-release"
     ],
-    "number": 88,
+    "number": 85,
     "additionalImages": [
       {
         "image": "assets/r7-aitken-new-era-second.jpg.webp",
@@ -3953,7 +3822,7 @@
       "https://tonidove.com/blog/",
       "https://tonidove.com/toni-dove-embodied-machines-at-the-ringling-museum-of-art-feb-may-2018/"
     ],
-    "number": 89,
+    "number": 86,
     "additionalImages": [
       {
         "image": "assets/r7-dove-dress-second.jpg.webp",
@@ -3993,7 +3862,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 90,
+    "number": 87,
     "additionalImages": [
       {
         "image": "assets/r7-young-muted-second.jpg.webp",
@@ -4048,7 +3917,7 @@
       "https://museen.de/hauchkoerper-als-lebenszyklus-duisburg.html",
       "https://contemporary.burlington.org.uk/reviews/reviews/rebecca-horn/pdf"
     ],
-    "number": 91,
+    "number": 88,
     "additionalImages": [
       {
         "image": "assets/r7-horn-hauchkorper-second.jpg.webp",
@@ -4096,7 +3965,7 @@
       "https://beallcenter.uci.edu/file/1814/download?token=-Pwjpm6s",
       "https://www.kunstuni-linz.at/fileadmin/media/institute/medien/abteilungen/interface_cultures/news_archiv/2017/0617_NeuroMirror_MignonneauSommerer.pdf"
     ],
-    "number": 92,
+    "number": 89,
     "additionalImages": [
       {
         "image": "assets/r7-sommerer-neuro-mirror-second.jpg.webp",
@@ -4140,7 +4009,7 @@
       "https://www.modernart.net/en/artists/nicolas-deshayes",
       "https://www.kunststrom.com/files/ewerk/press/19-E-WERK-PR-JUNE_EN.pdf"
     ],
-    "number": 93,
+    "number": 90,
     "additionalImages": [
       {
         "image": "assets/r7-deshayes-thames-water-second.jpg.webp",
@@ -4189,7 +4058,7 @@
       "https://whitney.org/exhibitions/harold-cohen-aaron",
       "https://whitneymedia.org/assets/generic_file/3053/Harold_Cohen_AARON_FINAL_checklist.pdf"
     ],
-    "number": 94,
+    "number": 91,
     "additionalImages": [
       {
         "image": "assets/r6-cohen-second.jpg.webp",
@@ -4235,7 +4104,7 @@
       "Shilpa Gupta",
       "For, In Your Tongue, I Cannot Fit"
     ],
-    "number": 95,
+    "number": 92,
     "additionalImages": [
       {
         "image": "assets/r6-gupta-in-your-tongue-second.jpg.webp",
@@ -4275,7 +4144,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 96,
+    "number": 93,
     "additionalImages": [
       {
         "image": "assets/r6-kentridge-refusal-of-time-second.jpg.webp",
@@ -4320,7 +4189,7 @@
       "Philippe Parreno",
       "Anywhen"
     ],
-    "number": 97,
+    "number": 94,
     "additionalImages": [
       {
         "image": "assets/r6-parreno-anywhen-second.jpg.webp",
@@ -4365,7 +4234,7 @@
       "Dominique Gonzalez-Foerster",
       "TH.2058"
     ],
-    "number": 98,
+    "number": 95,
     "additionalImages": [
       {
         "image": "assets/r6-gonzalez-foerster-th2058-second.jpg.webp",
@@ -4414,7 +4283,7 @@
       "Machine Hallucinations",
       "Unsupervised — Machine Hallucinations — MoMA"
     ],
-    "number": 99,
+    "number": 96,
     "additionalImages": [
       {
         "image": "assets/r6-anadol-unsupervised-second.jpg.webp",
@@ -4467,7 +4336,7 @@
       "https://www.moma.org/calendar/galleries/5160",
       "https://www.moma.org/calendar/galleries/5160/installation_images/50924"
     ],
-    "number": 100,
+    "number": 97,
     "additionalImages": [
       {
         "image": "assets/r6-jodi-second.jpg.webp",
@@ -4519,7 +4388,7 @@
       "https://crystaleye.fi/eija-liisa_ahtila/installations/house",
       "https://sammlung.kunstsammlung.de/en/works/6158"
     ],
-    "number": 101,
+    "number": 98,
     "additionalImages": [
       {
         "image": "assets/r6-ahtila-the-house-second.jpg.webp",
@@ -4564,7 +4433,7 @@
       "Alfredo Jaar",
       "The Sound of Silence"
     ],
-    "number": 102,
+    "number": 99,
     "additionalImages": [
       {
         "image": "assets/r6-jaar-sound-of-silence-second.jpg.webp",
@@ -4610,7 +4479,7 @@
       "Cory Arcangel",
       "Super Mario Clouds"
     ],
-    "number": 103,
+    "number": 100,
     "additionalImages": [
       {
         "image": "assets/r6-arcangel-super-mario-clouds-second.jpg.webp",
@@ -4655,7 +4524,7 @@
       "Wael Shawky",
       "Cabaret Crusades: The Horror Show File"
     ],
-    "number": 104,
+    "number": 101,
     "additionalImages": [
       {
         "image": "assets/r6-shawky-horror-show-file-second.jpg.webp",
@@ -4697,7 +4566,7 @@
     "searchAliases": [
       "Sir Isaac Julien"
     ],
-    "number": 105,
+    "number": 102,
     "additionalImages": [
       {
         "image": "assets/r6-julien-ten-thousand-waves-second.jpg.webp",
@@ -4741,7 +4610,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 106,
+    "number": 103,
     "additionalImages": [
       {
         "image": "assets/r6-marclay-clock-second.jpg.webp",
@@ -4784,7 +4653,7 @@
     "imageZoom": 1,
     "imageFit": "cover",
     "searchAliases": [],
-    "number": 107,
+    "number": 104,
     "additionalImages": [
       {
         "image": "assets/r6-jonas-reanimation-second.jpg.webp",
@@ -4830,7 +4699,7 @@
       "楊福東",
       "杨福东"
     ],
-    "number": 108,
+    "number": 105,
     "additionalImages": [
       {
         "image": "assets/r6-yang-seven-intellectuals-second.jpg.webp",
@@ -4870,7 +4739,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 109,
+    "number": 106,
     "additionalImages": [
       {
         "image": "assets/linz-11-second.jpg.webp",
@@ -4910,7 +4779,7 @@
     "imagePosition": "50% 48%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 110,
+    "number": 107,
     "additionalImages": [
       {
         "image": "assets/offset-xyz-second.jpg.webp",
@@ -4951,7 +4820,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 111,
+    "number": 108,
     "additionalImages": [
       {
         "image": "assets/zizi-show-second.jpg.webp",
@@ -4992,7 +4861,7 @@
     "imagePosition": "50% 55%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 112,
+    "number": 109,
     "additionalImages": [
       {
         "image": "assets/pakui-second.jpg.webp",
@@ -5032,7 +4901,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 113,
+    "number": 110,
     "additionalImages": [
       {
         "image": "assets/linz-09-second.jpg.webp",
@@ -5072,7 +4941,7 @@
     "imagePosition": "50% 10%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 114,
+    "number": 111,
     "additionalImages": [
       {
         "image": "assets/seamoons-second.jpg.webp",
@@ -5112,7 +4981,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 115,
+    "number": 112,
     "additionalImages": [
       {
         "image": "assets/linz-05-second.jpg.webp",
@@ -5151,7 +5020,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 116,
+    "number": 113,
     "additionalImages": [
       {
         "image": "assets/everything-second.jpg.webp",
@@ -5191,7 +5060,7 @@
     "imagePosition": "50% 65%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 117,
+    "number": 114,
     "additionalImages": [
       {
         "image": "assets/custos-cavum-second.jpg.webp",
@@ -5232,7 +5101,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 118,
+    "number": 115,
     "additionalImages": [
       {
         "image": "assets/cant-help-myself-second.jpg.webp",
@@ -5272,7 +5141,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 119,
+    "number": 116,
     "additionalImages": [
       {
         "image": "assets/ian-cheng-bob-second.jpg.webp",
@@ -5315,7 +5184,7 @@
     "sources": [
       "https://www.davidzwirner.com/news/2019/colored-sculpture-at-tate-modern"
     ],
-    "number": 120,
+    "number": 117,
     "additionalImages": [
       {
         "image": "assets/r2-wolfson-second.jpg.webp",
@@ -5355,7 +5224,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 121,
+    "number": 118,
     "additionalImages": [
       {
         "image": "assets/r2-virtualcare-second.jpg.webp",
@@ -5395,7 +5264,7 @@
     "imagePosition": "50% 72%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 122,
+    "number": 119,
     "additionalImages": [
       {
         "image": "assets/lek-guanyin-second.jpg.webp",
@@ -5435,7 +5304,7 @@
     "imagePosition": "50% 24%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 123,
+    "number": 120,
     "additionalImages": [
       {
         "image": "assets/r3-kim-argos-second.jpg.webp",
@@ -5475,7 +5344,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 124,
+    "number": 121,
     "additionalImages": [
       {
         "image": "assets/r3-lozano-pulse-room-second.jpg.webp",
@@ -5515,7 +5384,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 125,
+    "number": 122,
     "additionalImages": [
       {
         "image": "assets/r3-lewis-pony-second.jpg.webp",
@@ -5556,7 +5425,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 126,
+    "number": 123,
     "additionalImages": [
       {
         "image": "assets/r3-cohen-immortal-second.jpg.webp",
@@ -5596,7 +5465,7 @@
     "imagePosition": "50% 56%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 127,
+    "number": 124,
     "additionalImages": [
       {
         "image": "assets/r3-xu-hello-second.jpg.webp",
@@ -5636,7 +5505,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 128,
+    "number": 125,
     "additionalImages": [
       {
         "image": "assets/r3-stelarc-stickman-second.jpg.webp",
@@ -5676,7 +5545,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 129,
+    "number": 126,
     "additionalImages": [
       {
         "image": "assets/r3-paine-scumak-second.jpg.webp",
@@ -5717,7 +5586,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 130,
+    "number": 127,
     "additionalImages": [
       {
         "image": "assets/r3-delvoye-cloaca-second.jpg.webp",
@@ -5759,7 +5628,7 @@
     "imageFit": "cover",
     "officialSourceURL": "https://www.ryojiikeda.com/project/testpattern/",
     "version": "2013 Ruhrtriennale装置现场",
-    "number": 131,
+    "number": 128,
     "additionalImages": [
       {
         "image": "assets/r3-ikeda-testpattern-second.jpg.webp",
@@ -5805,7 +5674,7 @@
     ],
     "officialSourceURL": "https://www.ryoichikurokawa.com/project/unfold.html",
     "version": "2016 FACT装置现场",
-    "number": 132,
+    "number": 129,
     "additionalImages": [
       {
         "image": "assets/r3-kurokawa-unfold-second.jpg.webp",
@@ -5847,7 +5716,7 @@
     "imageFit": "cover",
     "officialSourceURL": "https://www.johngerrard.net/western-flag-spindletop-texas-2017.html",
     "version": "2019 Desert X完整LED装置及周边现场",
-    "number": 133,
+    "number": 130,
     "additionalImages": [
       {
         "image": "assets/r3-gerrard-westernflag-second.jpg.webp",
@@ -5894,7 +5763,7 @@
     ],
     "officialSourceURL": "https://www.serpentinegalleries.org/whats-on/ed-atkins-0/",
     "version": "2014作品静帧",
-    "number": 134,
+    "number": 131,
     "additionalImages": [
       {
         "image": "assets/r3-atkins-ribbons-second.jpg.webp",
@@ -5941,7 +5810,7 @@
     ],
     "officialSourceURL": "https://luyang.asia/2023/05/20/doku-the-self/",
     "version": "2022影片完整静帧",
-    "number": 135,
+    "number": 132,
     "additionalImages": [
       {
         "image": "assets/r3-luyang-doku-second.jpg.webp",
@@ -5987,7 +5856,7 @@
     ],
     "officialSourceURL": "https://www.serpentinegalleries.org/whats-on/sondra-perry-typhoon-coming-on/",
     "version": "2018 Serpentine多投影装置现场",
-    "number": 136,
+    "number": 133,
     "additionalImages": [
       {
         "image": "assets/r3-perry-typhoon-second.jpg.webp",
@@ -6029,7 +5898,7 @@
     "imageFit": "cover",
     "officialSourceURL": "https://www.jakobsteensen.com/re-animated",
     "version": "艺术家官网发布的数字环境完整静帧",
-    "number": 137,
+    "number": 134,
     "additionalImages": [
       {
         "image": "assets/r3-steensen-reanimated-second.jpg.webp",
@@ -6076,7 +5945,7 @@
     ],
     "officialSourceURL": "https://www.hsinchienhuang.com/pix/_3artworks/i_samsara/p0.php?lang=en",
     "version": "TAICCA官方发行资料中的作品完整静帧",
-    "number": 138,
+    "number": 135,
     "additionalImages": [
       {
         "image": "assets/r3-huang-samsara-second.jpg.webp",
@@ -6119,7 +5988,7 @@
     "sources": [
       "https://www.dwbowen.com/telepresentwater"
     ],
-    "number": 139,
+    "number": 136,
     "additionalImages": [
       {
         "image": "assets/r2-bowen-second.jpg.webp",
@@ -6164,7 +6033,7 @@
       "https://atonaton.com/mimus",
       "https://starts-prize.aec.at/en/mimus/"
     ],
-    "number": 140,
+    "number": 137,
     "additionalImages": [
       {
         "image": "assets/r2-mimus-second.jpg.webp",
@@ -6207,7 +6076,7 @@
     "sources": [
       "https://wademarynowsky.art/Acconci.html"
     ],
-    "number": 141,
+    "number": 138,
     "additionalImages": [
       {
         "image": "assets/r2-acconci-second.jpg.webp",
@@ -6251,7 +6120,7 @@
     "sources": [
       "https://www.peter-william-holden.com/arabesque.html"
     ],
-    "number": 142,
+    "number": 139,
     "additionalImages": [
       {
         "image": "assets/r2-arabesque-second.jpg.webp",
@@ -6295,7 +6164,7 @@
       "https://patricktresset.com/new/project/5-rnp/",
       "https://lumenprize.org/2014-winners/bronze-award-winner-2014"
     ],
-    "number": 143,
+    "number": 140,
     "additionalImages": [
       {
         "image": "assets/r2-tressetwork-second.jpg.webp",
@@ -6339,7 +6208,7 @@
       "https://codact.ch/works/%CF%80ton/",
       "https://codact.ch/works/%cf%80ton/"
     ],
-    "number": 144,
+    "number": 141,
     "additionalImages": [
       {
         "image": "assets/r2-codactwork-second.jpg.webp",
@@ -6384,7 +6253,7 @@
       "https://rlfbckr.io/project/interface-i/",
       "https://www.bunka.go.jp/j-mediaarts-festival/en/award/single/interface-i/index-2.html"
     ],
-    "number": 145,
+    "number": 142,
     "additionalImages": [
       {
         "image": "assets/r2-interface-second.jpg.webp",
@@ -6427,7 +6296,7 @@
     "sources": [
       "https://metamorf.no/2014/index9787.html?p=57"
     ],
-    "number": 146,
+    "number": 143,
     "additionalImages": [
       {
         "image": "assets/r2-sandbox-second.jpg.webp",
@@ -6471,7 +6340,7 @@
       "https://www.ekac.org/nat.hist.enig.html",
       "https://ars.electronica.art/mediaservice/files/2010/03/PR_EN.pdf"
     ],
-    "number": 147,
+    "number": 144,
     "additionalImages": [
       {
         "image": "assets/r2-kac-second.jpg.webp",
@@ -6515,7 +6384,7 @@
       "https://tcaproject.net/portfolio/victimless-leather/",
       "https://www.moma.org/interactives/exhibitions/2008/elasticmind/assets/pdf/DEM_checklist_web.pdf"
     ],
-    "number": 148,
+    "number": 145,
     "additionalImages": [
       {
         "image": "assets/r2-leather-second.jpg.webp",
@@ -6560,7 +6429,7 @@
       "https://www.paulvanouse.com/labor.html",
       "https://archive.aec.at/prix/245123/"
     ],
-    "number": 149,
+    "number": 146,
     "additionalImages": [
       {
         "image": "assets/r2-labor-second.jpg.webp",
@@ -6603,7 +6472,7 @@
     "sources": [
       "https://www.agapea.si/en/projects/myconnect"
     ],
-    "number": 150,
+    "number": 147,
     "additionalImages": [
       {
         "image": "assets/r2-myconnect-second.jpg.webp",
@@ -6646,7 +6515,7 @@
     "sources": [
       "https://www.spelapetric.org/scotopoiesis/"
     ],
-    "number": 151,
+    "number": 148,
     "additionalImages": [
       {
         "image": "assets/r2-skotopoiesis-second.jpg.webp",
@@ -6691,7 +6560,7 @@
       "https://www.bunka.go.jp/j-mediaarts-festival/en/award/single/camera-lucida-sonochemical-observatory/index-2.html",
       "https://www.kontejner.org/projekti/touch-me-festival/touch-me-festival-2011-zloupotreba-energije/izlozba-14/camera-lucida/"
     ],
-    "number": 152,
+    "number": 149,
     "additionalImages": [
       {
         "image": "assets/r2-camera-second.jpg.webp",
@@ -6732,7 +6601,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 153,
+    "number": 150,
     "additionalImages": [
       {
         "image": "assets/r2-heart-second.jpg.webp",
@@ -6772,7 +6641,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 154,
+    "number": 151,
     "additionalImages": [
       {
         "image": "assets/r2-archive-second.jpg.webp",
@@ -6812,7 +6681,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 155,
+    "number": 152,
     "additionalImages": [
       {
         "image": "assets/r2-oikospiel-second.jpg.webp",
@@ -6853,7 +6722,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 156,
+    "number": 153,
     "additionalImages": [
       {
         "image": "assets/r2-graveyard-second.jpg.webp",
@@ -6893,7 +6762,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 157,
+    "number": 154,
     "additionalImages": [
       {
         "image": "assets/r2-substitute-second.jpg.webp",
@@ -6933,7 +6802,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 158,
+    "number": 155,
     "additionalImages": [
       {
         "image": "assets/r2-pollinator-second.jpg.webp",
@@ -6973,7 +6842,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 159,
+    "number": 156,
     "additionalImages": [
       {
         "image": "assets/r2-nimiia-second.jpg.webp",
@@ -7014,7 +6883,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 160,
+    "number": 157,
     "additionalImages": [
       {
         "image": "assets/r2-3x3x6-second.jpg.webp",
@@ -7054,7 +6923,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 161,
+    "number": 158,
     "additionalImages": [
       {
         "image": "assets/r2-neural-second.jpg.webp",
@@ -7094,7 +6963,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 162,
+    "number": 159,
     "additionalImages": [
       {
         "image": "assets/r2-rachel-second.jpg.webp",
@@ -7134,7 +7003,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 163,
+    "number": 160,
     "additionalImages": [
       {
         "image": "assets/r2-gamegame-second.jpg.webp",
@@ -7145,46 +7014,6 @@
         "imagePosition": "50% 50%",
         "imageZoom": 1,
         "imageFit": "contain"
-      }
-    ]
-  },
-  {
-    "id": "r2-yi",
-    "title": "Life Is Cheap",
-    "artist": "Anicka Yi",
-    "year": "2017",
-    "medium": "气味、培养细菌、蚁群、玻璃空间与混合材料装置",
-    "description": "展场入口释放由亚裔美国女性和木匠蚁相关化合物构成的气味，内部的细菌与蚁群则被安置于受控结构中。气味把观众的身体直接置于环境之中，生物材料同时受到培养、隔离和感知。对洁净、群体与差异的社会判断，因而通过嗅觉及生命活动进入展览。",
-    "award": "Guggenheim Hugo Boss Prize获奖者展览 · 2017",
-    "notes": "2016 Hugo Boss Prize授予艺术家；本展览于2017年举行。展览资料：https://www.guggenheim.org/wp-content/uploads/2017/12/guggenheim-press-HBP16AnickaYi_PressRelease_1472-120717.pdf",
-    "tags": [
-      "嗅觉政治",
-      "微生物",
-      "群体生命",
-      "感官偏见"
-    ],
-    "group": "装置",
-    "work": "https://www.guggenheim.org/video/the-hugo-boss-prize-2016-anicka-yi-life-is-cheap",
-    "video": "https://www.guggenheim.org/video/the-hugo-boss-prize-2016-anicka-yi-life-is-cheap",
-    "awardurl": "null",
-    "image": "assets/r2-r2-yi.jpg.webp",
-    "imageNote": "古根海姆2017官方展览纪录片静帧",
-    "credit": "Anicka Yi, Life Is Cheap, 2017. Official exhibition video still / Solomon R. Guggenheim Museum",
-    "imageSource": "https://www.guggenheim.org/video/the-hugo-boss-prize-2016-anicka-yi-life-is-cheap",
-    "rights": "图片版权归艺术家及原始权利人；仅作私人研究索引，公开再用须核实授权。",
-    "imagePosition": "50% 50%",
-    "imageZoom": 1,
-    "imageFit": "cover",
-    "number": 164,
-    "additionalImages": [
-      {
-        "image": "assets/r2-yi-second.jpg.webp",
-        "imageNote": "艺术家工作室发布的Life Is Cheap细菌培养环境另一细节实拍；已与首图目视核对，为不同图像。",
-        "credit": "© Anicka Yi；来源：Anicka Yi Studio，原摄影者保留版权",
-        "imageSource": "https://www.anickayistudio.biz/exhibitions/life-is-cheap",
-        "rights": "图片版权归艺术家及原始权利人；仅作私人研究索引，公开再用须核实授权。",
-        "imagePosition": "50% 50%",
-        "imageZoom": 1
       }
     ]
   },
@@ -7215,7 +7044,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 165,
+    "number": 161,
     "additionalImages": [
       {
         "image": "assets/r2-untilled-second.jpg.webp",
@@ -7256,7 +7085,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 166,
+    "number": 162,
     "additionalImages": [
       {
         "image": "assets/r2-after-second.jpg.webp",
@@ -7296,7 +7125,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 167,
+    "number": 163,
     "additionalImages": [
       {
         "image": "assets/linz-03-second.jpg.webp",
@@ -7338,7 +7167,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "contain",
-    "number": 168,
+    "number": 164,
     "additionalImages": [
       {
         "image": "assets/lumen-umweltraum-second.jpg.webp",
@@ -7378,7 +7207,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 169,
+    "number": 165,
     "additionalImages": [
       {
         "image": "assets/linz-10-second.jpg.webp",
@@ -7419,7 +7248,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 170,
+    "number": 166,
     "additionalImages": [
       {
         "image": "assets/linz-07-second.jpg.webp",
@@ -7459,7 +7288,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 171,
+    "number": 167,
     "additionalImages": [
       {
         "image": "assets/linz-08-second.jpg.webp",
@@ -7501,7 +7330,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 172,
+    "number": 168,
     "additionalImages": [
       {
         "image": "assets/lumen-nuestra-victoria-second.jpg.webp",
@@ -7542,7 +7371,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 173,
+    "number": 169,
     "additionalImages": [
       {
         "image": "assets/lumen-amazon-air-second.jpg.webp",
@@ -7582,7 +7411,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 174,
+    "number": 170,
     "additionalImages": [
       {
         "image": "assets/linz-02-second.jpg.webp",
@@ -7622,7 +7451,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "contain",
-    "number": 175,
+    "number": 171,
     "additionalImages": [
       {
         "image": "assets/linz-04-second-hd.jpg.webp",
@@ -7663,7 +7492,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 176,
+    "number": 172,
     "additionalImages": [
       {
         "image": "assets/linz-06-second.jpg.webp",
@@ -7704,7 +7533,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 177,
+    "number": 173,
     "additionalImages": [
       {
         "image": "assets/lumen-future-tense-second.jpg.webp",
@@ -7745,7 +7574,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 178,
+    "number": 174,
     "additionalImages": [
       {
         "image": "assets/lumen-decoding-bias-second.jpg.webp",
@@ -7785,7 +7614,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 179,
+    "number": 175,
     "additionalImages": [
       {
         "image": "assets/putting-pieces-second.jpg.webp",
@@ -7826,7 +7655,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 180,
+    "number": 176,
     "additionalImages": [
       {
         "image": "assets/zimoun-600-second.jpg.webp",
@@ -7866,7 +7695,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 181,
+    "number": 177,
     "additionalImages": [
       {
         "image": "assets/memory-lane-second.jpg.webp",
@@ -7906,7 +7735,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 182,
+    "number": 178,
     "additionalImages": [
       {
         "image": "assets/flying-school-second.jpg.webp",
@@ -7946,7 +7775,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 183,
+    "number": 179,
     "additionalImages": [
       {
         "image": "assets/hysterical-machines-second.jpg.webp",
@@ -7987,7 +7816,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 184,
+    "number": 180,
     "additionalImages": [
       {
         "image": "assets/autopoiesis-second.jpg.webp",
@@ -8027,7 +7856,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 185,
+    "number": 181,
     "additionalImages": [
       {
         "image": "assets/clinamen-second.jpg.webp",
@@ -8068,7 +7897,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 186,
+    "number": 182,
     "additionalImages": [
       {
         "image": "assets/huyghe-uumwelt-second.jpg.webp",
@@ -8109,7 +7938,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 187,
+    "number": 183,
     "additionalImages": [
       {
         "image": "assets/yi-in-love-world-second.jpg.webp",
@@ -8149,7 +7978,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 188,
+    "number": 184,
     "additionalImages": [
       {
         "image": "assets/tega-deep-swamp-second.jpg.webp",
@@ -8189,7 +8018,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 189,
+    "number": 185,
     "additionalImages": [
       {
         "image": "assets/allahyari-yajooj-majooj-second.jpg.webp",
@@ -8229,7 +8058,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 190,
+    "number": 186,
     "additionalImages": [
       {
         "image": "assets/farocki-serious-games-iii-second.jpg.webp",
@@ -8271,7 +8100,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 191,
+    "number": 187,
     "additionalImages": [
       {
         "image": "assets/fa-triple-chaser-second.jpg.webp",
@@ -8311,7 +8140,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 192,
+    "number": 188,
     "additionalImages": [
       {
         "image": "assets/rain-world-second.jpg.webp",
@@ -8351,7 +8180,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 193,
+    "number": 189,
     "additionalImages": [
       {
         "image": "assets/r4-unidisplay-second.jpg.webp",
@@ -8392,7 +8221,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 194,
+    "number": 190,
     "additionalImages": [
       {
         "image": "assets/r4-fragile-second.jpg.webp",
@@ -8432,7 +8261,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 195,
+    "number": 191,
     "additionalImages": [
       {
         "image": "assets/r4-zee-second.jpg.webp",
@@ -8472,7 +8301,7 @@
     "imagePosition": "50% 35%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 196,
+    "number": 192,
     "additionalImages": [
       {
         "image": "assets/r4-prometheus-second.jpg.webp",
@@ -8512,7 +8341,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 197,
+    "number": 193,
     "additionalImages": [
       {
         "image": "assets/r4-dancer-second.jpg.webp",
@@ -8553,7 +8382,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 198,
+    "number": 194,
     "additionalImages": [
       {
         "image": "assets/r4-meart-second.jpg.webp",
@@ -8593,7 +8422,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 199,
+    "number": 195,
     "additionalImages": [
       {
         "image": "assets/r4-afasia-second.jpg.webp",
@@ -8634,7 +8463,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 200,
+    "number": 196,
     "additionalImages": [
       {
         "image": "assets/r4-can-you-see-me-now-second.jpg.webp",
@@ -8674,7 +8503,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 201,
+    "number": 197,
     "additionalImages": [
       {
         "image": "assets/r4-cdosea-second.jpg.webp",
@@ -8716,7 +8545,7 @@
     "imagePosition": "50% 23%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 202,
+    "number": 198,
     "additionalImages": [
       {
         "image": "assets/r5-jansen-adulari-second.jpg.webp",
@@ -8759,7 +8588,7 @@
     "imagePosition": "57% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 203,
+    "number": 199,
     "additionalImages": [
       {
         "image": "assets/r5-dean-chair-second.jpg.webp",
@@ -8800,7 +8629,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 204,
+    "number": 200,
     "additionalImages": [
       {
         "image": "assets/r5-beesley-hylozoic-second.jpg.webp",
@@ -8843,7 +8672,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 205,
+    "number": 201,
     "additionalImages": [
       {
         "image": "assets/r5-cardiff-crows-second.jpg.webp",
@@ -8885,7 +8714,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 206,
+    "number": 202,
     "additionalImages": [
       {
         "image": "assets/r5-kuwakubo-sentiment-second.jpg.webp",
@@ -8927,7 +8756,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 207,
+    "number": 203,
     "additionalImages": [
       {
         "image": "assets/r5-mikami-desire-second.jpg.webp",
@@ -8969,7 +8798,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 208,
+    "number": 204,
     "additionalImages": [
       {
         "image": "assets/r5-hansen-rubin-listening-second.jpg.webp",
@@ -9011,7 +8840,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 209,
+    "number": 205,
     "additionalImages": [
       {
         "image": "assets/r5-agnes-second.jpg.webp",
@@ -9050,7 +8879,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 210,
+    "number": 206,
     "additionalImages": [
       {
         "image": "assets/r5-dacosta-second.jpg.webp",
@@ -9091,7 +8920,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 211,
+    "number": 207,
     "additionalImages": [
       {
         "image": "assets/r5-heather-second.jpg.webp",
@@ -9130,7 +8959,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 212,
+    "number": 208,
     "additionalImages": [
       {
         "image": "assets/r5-burton-second.jpg.webp",
@@ -9170,7 +8999,7 @@
     "imagePosition": "50% 50%",
     "imageZoom": 1,
     "imageFit": "cover",
-    "number": 213,
+    "number": 209,
     "additionalImages": [
       {
         "image": "assets/r5-yoldas-second.jpg.webp",
@@ -9218,7 +9047,7 @@
       "https://www.caofei.com/exhibitions.aspx?id=21&year=2008",
       "https://rmbcity.com/"
     ],
-    "number": 214,
+    "number": 210,
     "additionalImages": [
       {
         "image": "assets/r5-cao-rmb-city-second.jpg.webp",
@@ -9264,7 +9093,7 @@
       "https://whitney.org/exhibitions/2014-biennial/jacolby-satterwhite",
       "https://www.eai.org/titles/reifying-desire-6-island-of-treasure"
     ],
-    "number": 215,
+    "number": 211,
     "additionalImages": [
       {
         "image": "assets/r5-satterwhite-reifying-desire-6-second.jpg.webp",
@@ -9310,7 +9139,7 @@
       "https://caldo-worldwide.com/pages/sahej-rahal",
       "https://fabbula.com/curation/octobre-numerique-faire-monde-2023/"
     ],
-    "number": 216,
+    "number": 212,
     "additionalImages": [
       {
         "image": "assets/r5-rahal-anhad-second.jpg.webp",

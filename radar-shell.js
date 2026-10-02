@@ -36,10 +36,9 @@
   const mobile = window.matchMedia('(max-width: 860px)');
   const hiddenClass = 'media-header--compact';
   let active = false, destroyed = false, compact = false, keyboard = false;
-  let lastY = 0, travel = 0, direction = 0, headerHeight = 0, maxY = 0;
+  let maxY = 0, hasBrandRow = false;
   let scrollFrame = 0, measureFrame = 0, observer;
   const yNow = () => Math.max(0, Math.min(window.scrollY || 0, maxY));
-  const resetDirection = () => { lastY = yNow(); travel = 0; direction = 0; };
   const setCompact = value => {
     if (compact === value) return;
     compact = value;
@@ -56,12 +55,11 @@
     const navBox = nav.getBoundingClientRect();
     const paddingTop = parseFloat(getComputedStyle(header).paddingTop) || 0;
     const distance = Math.max(0, navBox.top - railBox.top - paddingTop);
-    headerHeight = railBox.height;
+    hasBrandRow = distance > 0;
     maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
     header.style.setProperty('--media-brand-offset', `${distance}px`);
     header.toggleAttribute('data-media-header-ready', distance > 0);
-    if (!distance || keepVisible() || yNow() <= headerHeight) setCompact(false);
-    resetDirection();
+    updateScroll();
   }
   function scheduleMeasure() {
     if (active && !measureFrame) measureFrame = requestAnimationFrame(measure);
@@ -69,36 +67,29 @@
   function updateScroll() {
     scrollFrame = 0;
     if (!active) return;
-    const y = yNow(), delta = y - lastY;
-    lastY = y;
-    if (keepVisible() || y <= 8) {
-      setCompact(false); travel = 0; direction = 0; return;
-    }
-    if (!delta) return;
-    const nextDirection = delta > 0 ? 1 : -1;
-    if (nextDirection !== direction) { direction = nextDirection; travel = 0; }
-    travel += Math.abs(delta);
-    if (direction === 1 && travel >= 18 && y > headerHeight) setCompact(true);
-    if (direction === -1 && travel >= 10) setCompact(false);
+    // Away from the top, upward scrolling must not reveal the brand.
+    // Focus protection remains an accessibility exception while editing/tabbing.
+    setCompact(hasBrandRow && yNow() > 8 && !keepVisible());
   }
   function onScroll() {
     if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScroll);
   }
   function onFocus(event) {
     if (header.contains(event.target) || editing(event.target)) {
-      setCompact(false); resetDirection();
+      setCompact(false);
     }
   }
   function onKey(event) {
     if (event.key === 'Tab' || ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) {
       keyboard = true;
-      if (keepVisible()) { setCompact(false); resetDirection(); }
+      if (keepVisible()) { setCompact(false); }
     }
   }
-  function onPointer() { keyboard = false; }
+  function onPointer() { keyboard = false; onScroll(); }
+  function onBlur() { onScroll(); }
   function onResize() {
-    // Reveal during orientation/keyboard transitions; re-measure once per frame.
-    setCompact(false); scheduleMeasure();
+    // Keep top-only visibility while geometry/virtual-keyboard size changes.
+    scheduleMeasure();
   }
   function disable() {
     active = false;
@@ -108,12 +99,13 @@
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('resize', onResize);
     document.removeEventListener('focusin', onFocus);
+    document.removeEventListener('focusout', onBlur);
     document.removeEventListener('keydown', onKey);
     document.removeEventListener('pointerdown', onPointer);
     setCompact(false);
     header.removeAttribute('data-media-header-ready');
     header.style.removeProperty('--media-brand-offset');
-    keyboard = false; travel = 0; direction = 0;
+    keyboard = false; hasBrandRow = false;
   }
   function sync() {
     if (destroyed) return;
@@ -123,6 +115,7 @@
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onResize, { passive: true });
       document.addEventListener('focusin', onFocus);
+      document.addEventListener('focusout', onBlur);
       document.addEventListener('keydown', onKey);
       document.addEventListener('pointerdown', onPointer, { passive: true });
       if ('ResizeObserver' in window) {
@@ -149,4 +142,40 @@
   window.addEventListener('load', scheduleMeasure, { once: true });
   document.fonts?.ready.then(scheduleMeasure);
   sync();
+})();
+
+/* Measure the shared desktop entry once per layout change, never on scroll. */
+(() => {
+  const rail = document.querySelector('[data-media-header]');
+  const index = rail?.querySelector('.index, .radar-index');
+  const group = index?.querySelector('.group, .radar-group');
+  if (!index || !group) return;
+  const desktop = matchMedia('(min-width: 861px)');
+  let frame = 0;
+  function measure() {
+    frame = 0;
+    if (!desktop.matches) {
+      index.style.removeProperty('--media-entry-height');
+      index.style.removeProperty('--media-group-border');
+      return;
+    }
+    const style = getComputedStyle(group);
+    const border = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+    const gap = parseFloat(getComputedStyle(index).rowGap) || 0;
+    const heading = group.firstElementChild.getBoundingClientRect().height;
+    const widget = index.lastElementChild.getBoundingClientRect().height;
+    const available = index.getBoundingClientRect().height - heading - border - widget - 2 * gap;
+    index.style.setProperty('--media-group-border', `${border}px`);
+    index.style.setProperty('--media-entry-height', `${Math.max(90, available / 5)}px`);
+  }
+  function schedule() { if (!frame) frame = requestAnimationFrame(measure); }
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(schedule);
+    observer.observe(index); observer.observe(rail);
+  }
+  desktop.addEventListener('change', schedule);
+  addEventListener('resize', schedule, { passive: true });
+  addEventListener('pageshow', schedule);
+  document.fonts?.ready.then(schedule);
+  schedule();
 })();

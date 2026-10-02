@@ -10,7 +10,7 @@ const imagePath=value=>{
 };
 export function sanitizePublicCatalog(records,{excludeIds=[]}={}){
   const excluded=new Set(excludeIds),seen=new Set();
-  return records.filter(record=>!excluded.has(record.id)).map((record,index)=>{
+  return records.filter(record=>record.retired!==true && !excluded.has(record.id)).map((record,index)=>{
     if(!/^[a-zA-Z0-9][\w-]*$/.test(record.id)||seen.has(record.id))throw new Error('Invalid or duplicate artwork id');
     seen.add(record.id);
     const work=pick(record,PUBLIC_FIELDS);
