@@ -195,6 +195,10 @@
     summary.removeAttribute('aria-haspopup');
     current = state;
     measure(state);
+    // Keep the reveal front rounded using the panel's actual shape tokens.
+    const panelStyle = getComputedStyle(panel);
+    panel.style.setProperty('--archive-detail-tip',
+      `0 ${panelStyle.borderTopRightRadius} ${panelStyle.borderBottomRightRadius} 0`);
     // Commit the collapsed start before opening. Both the real card and its
     // attached panel reverse naturally if the same summary is toggled rapidly.
     panel.getBoundingClientRect();

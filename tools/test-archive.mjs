@@ -65,8 +65,19 @@ test('desktop detail contract expands the original card in its own row without a
  assert.match(script,/archive-inline-details/);assert.match(script,/card\.append\(panel\)/);
  assert.match(script,/body\.append\(content\)/);assert.match(script,/replaceWith\(state\.content\)/);
  assert.doesNotMatch(script,/showModal|createElement\(['"]dialog['"]\)|cloneNode|lockBackground/);
- assert.match(css,/translateX\(var\(--archive-detail-shift/);assert.match(css,/clip-path: inset\(0 100% 0 0\)/);
+ assert.match(css,/translateX\(var\(--archive-detail-shift/);assert.match(css,/clip-path: inset\(0 100% 0 0 round var\(--archive-detail-tip, 0\)\)/);
  assert.match(css,/prefers-reduced-motion: reduce/);assert.doesNotMatch(css,/::backdrop|position: fixed/);
+});
+
+test('inline detail corners share the card border and the full expansion timing',()=>{
+ const script=fs.readFileSync(path.join(root,'archive/archive-detail.js'),'utf8');
+ const css=fs.readFileSync(path.join(root,'archive/archive-detail.css'),'utf8');
+ assert.match(css,/border-color: inherit/);
+ assert.match(css,/transform 480ms cubic-bezier\(\.22,1,\.36,1\), border-radius 480ms cubic-bezier\(\.22,1,\.36,1\)/);
+ assert.match(css,/clip-path: inset\(0 0 0 0 round var\(--archive-detail-tip, 0\)\)/);
+ assert.match(script,/getComputedStyle\(panel\)/);
+ assert.match(script,/panel\.style\.setProperty\('--archive-detail-tip'/);
+ assert.match(script,/panelStyle\.borderTopRightRadius/);assert.match(script,/panelStyle\.borderBottomRightRadius/);
 });
 
 test('in-place details preserve mobile, random, and dynamic archive lifecycle boundaries',()=>{
