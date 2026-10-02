@@ -161,12 +161,14 @@
     }
     const style = getComputedStyle(group);
     const border = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
-    const gap = parseFloat(getComputedStyle(index).rowGap) || 0;
+    const indexStyle = getComputedStyle(index);
+    const gap = parseFloat(indexStyle.rowGap) || 0;
+    const minimum = parseFloat(indexStyle.getPropertyValue('--media-entry-min')) || 90;
     const heading = group.firstElementChild.getBoundingClientRect().height;
     const widget = index.lastElementChild.getBoundingClientRect().height;
     const available = index.getBoundingClientRect().height - heading - border - widget - 2 * gap;
     index.style.setProperty('--media-group-border', `${border}px`);
-    index.style.setProperty('--media-entry-height', `${Math.max(90, available / 5)}px`);
+    index.style.setProperty('--media-entry-height', `${Math.max(minimum, available / 5)}px`);
   }
   function schedule() { if (!frame) frame = requestAnimationFrame(measure); }
   if ('ResizeObserver' in window) {

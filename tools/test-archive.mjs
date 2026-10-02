@@ -105,3 +105,19 @@ test('public initial cards and full-catalog registry survive the detail change',
  for(const record of registry){assert.match(record.html,/class="details-content"/);assert.ok(!record.html.includes('archive-inline-details'));}
  for(const marker of ['data-review=','data-remove=','data-default-status=','/api/selections','/workspace/','/root/'])assert.ok(!html.includes(marker),marker);
 });
+
+test('desktop navigation leaves wider group gaps while preserving the widget row',()=>{
+ for(const name of ['site-v15.css','radar-shell.css']){
+  const css=fs.readFileSync(path.join(root,name),'utf8');
+  assert.match(css,/--media-entry-min: 90px;/,name);
+  assert.match(css,/row-gap: 28px;/,name);
+  assert.match(css,/grid-template-rows: calc\(56px \+ var\(--media-group-border\) \+ 4 \* var\(--media-entry-height\)\) var\(--media-entry-height\) 66px;/,name);
+  assert.match(css,/@media \(min-width: 861px\) and \(max-height: 820px\) \{\s*\.rail > \.index, \.radar-rail > \.radar-index \{ --media-entry-min: 84px; \}/,name);
+ }
+ for(const name of ['site-v15.js','radar-shell.js']){
+  const script=fs.readFileSync(path.join(root,name),'utf8');
+  assert.match(script,/indexStyle\.getPropertyValue\('--media-entry-min'\)/,name);
+  assert.match(script,/Math\.max\(minimum, available \/ 5\)/,name);
+  assert.match(script,/2 \* gap/,name);
+ }
+});
