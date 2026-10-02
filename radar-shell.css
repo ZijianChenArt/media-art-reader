@@ -76,7 +76,8 @@
 @media (min-width:861px) {
   .group::after,
   .radar-group::after {
-    border-width:1.5px;
+    border-width:0;
+    box-shadow:inset 0 0 0 1.5px var(--ink);
     border-radius:26.5px 4.5px 26.5px 4.5px;
   }
   /* The group has a single perimeter hover ring. Do not stack a clipped,
@@ -142,4 +143,9 @@
     min-height: 0;
     grid-template-rows: 56px repeat(4, minmax(0, 1fr));
   }
+}
+
+/* Match standalone keyboard focus to the shared desktop hover stroke. */
+@media (min-width:861px) {
+ .index > .nav:focus-visible, .radar-index > .radar-nav:focus-visible { box-shadow:inset 0 0 0 1.5px var(--ink); }
 }

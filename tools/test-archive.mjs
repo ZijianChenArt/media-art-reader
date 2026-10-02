@@ -59,6 +59,14 @@ test('shared public asset URLs match current content fingerprints',()=>{
  }
 });
 
+test('desktop navigation uses the same inset hover and keyboard-focus stroke',()=>{
+ for(const name of ['site-v15.css','radar-shell.css']){
+  const css=fs.readFileSync(path.join(root,name),'utf8');
+  assert.match(css,/\.group::after,\s*\.radar-group::after\s*\{\s*border-width:0;\s*box-shadow:inset 0 0 0 1\.5px var\(--ink\);\s*border-radius:26\.5px 4\.5px 26\.5px 4\.5px;/,name);
+  assert.match(css,/\.index > \.nav:focus-visible, \.radar-index > \.radar-nav:focus-visible \{ box-shadow:inset 0 0 0 1\.5px var\(--ink\); \}/,name);
+ }
+});
+
 test('desktop detail contract expands the original card in its own row without a modal',()=>{
  const script=fs.readFileSync(path.join(root,'archive/archive-detail.js'),'utf8');
  const css=fs.readFileSync(path.join(root,'archive/archive-detail.css'),'utf8');
