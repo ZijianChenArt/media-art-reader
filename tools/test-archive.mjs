@@ -50,3 +50,11 @@ test('homepage archive link is not intercepted by hash routing',()=>{
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8'),script=fs.readFileSync(path.join(root,'site-v15.js'),'utf8');
  assert.match(html,/class="nav mini archive-nav" href="archive\/"/);assert.ok(script.includes("$$('.nav[data-route]').forEach(btn => btn.addEventListener"));
 });
+
+import {createHash} from 'node:crypto';
+test('shared public asset URLs match current content fingerprints',()=>{
+ for(const [page,names] of [['index.html',['site-v15.css','site-v15.js']],['archive/index.html',['radar-shell.css','radar-shell.js']]]){
+  const html=fs.readFileSync(path.join(root,page),'utf8');
+  for(const name of names){const fingerprint=createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex').slice(0,12);assert.ok(html.includes(name+'?v='+fingerprint),'Stale cache fingerprint: '+name);}
+ }
+});
