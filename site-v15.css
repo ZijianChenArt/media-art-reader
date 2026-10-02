@@ -548,3 +548,7 @@ img{display:block;max-width:100%}
 @media (min-width:861px) {
  .index > .nav:focus-visible, .radar-index > .radar-nav:focus-visible { box-shadow:inset 0 0 0 1.5px var(--ink); }
 }
+
+/* Compact 162pt Mac medium: keep both two-line rows inside the native frame. */
+.widget-view .wg-m[style*="height:162px"] .nc-oppTitle{line-height:1;margin-top:1px}
+.widget-view .wg-m[style*="height:162px"] .nc-oppSub{margin-top:1px}
