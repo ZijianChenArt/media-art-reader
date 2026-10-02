@@ -294,221 +294,164 @@
     </section>`;
   }
 
-  // ---------- 小组件页：Edition 14，iPhone 与 Mac 两组参考尺寸 ----------
-  // 圆角：全部等角；卡片 18（外框是连续圆角，等效圆角 iPhone ≈ 31 / Mac ≈ 27.5；内缩 12 后最贴合的卡片圆角 iPhone 18.6 / Mac 17.2，取 18）。间距：组件四边内边距 12；相邻块之间 6；块内文字距块边缘 10。
-  // 脚本按卡片最终尺寸绘制 1.2pt 描边，并向内偏移半个线宽，避免边缘裁切。
-  // 尺寸（iPhone 17 Pro Max 与 Mac 桌面）都是真机截图实测。预览里的日期用 Bodoni Moda 斜体，真机上是 iOS 自带的 Didot 斜体。
-  const WG = { inset: 12, gap: 6, cardR: 18, padIn: 10, bw: 1.2 };
+  // Widget previews mirror Media-Art-Radar.js. Only the browser renderer differs.
   const SIZES = {
-    phone: { small: 176, mw: 378, lh: 393 },
+    phone: { small: 176, mw: 378, lw: 378, lh: 393 },
     mac: { small: 162, mw: 341, lw: 342, lh: 342, xl: { w: 701, h: 342 } }
   };
-  // 已知宿主里最矮的高度（Mac 桌面）：只用来决定「放几张」；卡片高度不写死，撑满整个组件（与脚本一致）
-  const MINH = { small: 162, medium: 162, large: 342 };
-  // iOS 的描边覆盖在内边距上、不占位；CSS 的描边占位，预览里给带描边的块扣掉一个描边宽，文字位置才与真机一致
-  const bp = v => (v - WG.bw).toFixed(1);
-  function hlHtml(item, base) {
-    const v = item.highlight;
-    if (!v) return '';
-    if (!/\d/.test(v)) return `<span style="font-size:${Math.max(base * .65, 10)}px;color:#505050;font-weight:600">${esc(v)}</span>`;
-    const size = v.length >= 5 ? Math.max(base * .88, 12) : base;
-    return `<span class="ed-benefit" style="font-size:${size}px;color:#040404">${esc(v)}</span>`;
+  let widgetTheme = 'system';
+  const widgetCategoryNames = { exhibition: '展览', residency: '驻留', prize: '奖项', conference: '学术会议' };
+  const widgetSymbols = { exhibition: '●', residency: '○', prize: '◆', conference: '▲' };
+  function widgetCategory(item) {
+    const category = String(item.category || '').toLowerCase();
+    if (widgetCategoryNames[category]) return category;
+    const text = (String(item.title || '') + ' ' + String(item.type || '')).toLowerCase();
+    if (/residen|驻留|驻村/.test(text)) return 'residency';
+    if (/conference|symposium|cfp|paper|会议|论文/.test(text)) return 'conference';
+    if (/prize|award|奖项|大奖/.test(text)) return 'prize';
+    return 'exhibition';
   }
-  const catShort = { exhibition: '展览', residency: '驻留', prize: '奖项', conference: '学术会议' };
-  const catTag = (item, fs, color) => `<span class="mono" style="font-size:${fs}px;font-weight:700;color:${color};display:inline-flex;align-items:center;gap:.4em">${glyph(item.category)}${esc(catShort[item.category] || '')}</span>`;
-  const catSymbol = { exhibition: '●', residency: '○', prize: '◆', conference: '▲' };
-  const catPlain = item => `${catSymbol[item.category] || catSymbol.exhibition} ${esc(catShort[item.category] || '')}`;
-  const daysPillOn = (label, fs, h) =>
-    `<span class="pl" style="font-size:${fs}px;height:${h}px;border-radius:${h / 2}px">${esc(label)}</span>`;
-  // 文字先缩小再截断：与 Scriptable 的 minimumScaleFactor 0.8 一致（真机上长名称是先缩到 80% 才出现省略号）
-  const fitCtx = document.createElement('canvas').getContext('2d');
-  const fitSize = (text, size, avail) => {
-    fitCtx.font = `700 ${size}px Grotesk, sans-serif`;
-    const w = fitCtx.measureText(text).width;
-    return w <= avail ? size : Math.max(size * .8, size * avail / w);
+  function widgetDeadline(item) {
+    const raw = item.deadline_at || item.deadline_date || item.deadline;
+    if (!raw) return null;
+    const match = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) return new Date(+match[1], +match[2] - 1, +match[3], 23, 59, 59);
+    const parsed = new Date(raw);
+    return isNaN(parsed) ? null : parsed;
+  }
+  function widgetDays(item) {
+    const deadline = widgetDeadline(item);
+    if (!deadline) return null;
+    const now = new Date();
+    return Math.ceil((new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate()) -
+      new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
+  }
+  function widgetCalls(items) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return items.filter(item => !widgetDeadline(item) || widgetDeadline(item) >= today)
+      .slice().sort((a, b) => (widgetDeadline(a)?.getTime() ?? Number.MAX_SAFE_INTEGER) -
+        (widgetDeadline(b)?.getTime() ?? Number.MAX_SAFE_INTEGER));
+  }
+  function widgetTimer(item) {
+    const days = widgetDays(item);
+    return days == null ? 'TBA' : days < 0 ? 'CLOSED' : days === 0 ? 'TODAY' : `T−${days}`;
+  }
+  function widgetStatus() {
+    const generated = Date.parse(data.generated_at);
+    return Number.isFinite(generated) && Date.now() - generated > 8 * 86400000 ? 'STALE' : 'LIVE';
+  }
+  const widgetTitle = item => {
+    const title = String(item.title || item.name || 'Untitled').replace(/\s+/g, ' ').trim();
+    return title.split('/')[0].trim() || title;
   };
-  const subOf = item => titleParts(item.title).slice(1).join(' / ');
-  const nameOf = item => titleParts(item.title)[0] || item.title;
-  const clamp = n => `display:-webkit-box;-webkit-line-clamp:${n};-webkit-box-orient:vertical;overflow:hidden`;
-
-  // 能放几张：与脚本里的 rowsThatFit 一致（按最矮的宿主算）
-  const rowsThatFit = (avail, minH, total, extra = 0) => {
-    const most = a => Math.max(1, Math.floor((a + WG.gap) / (minH + WG.gap)));
-    let n = Math.min(total, most(avail));
-    if (n < total) n = Math.min(n, most(avail - extra));
-    return n;
+  const widgetSubtitle = item => String(item.title || '').split('/').map(s => s.trim()).filter(Boolean).slice(1).join(' / ').slice(0, 46);
+  const widgetPlace = item => String(item.location || item.country || '').trim().split(/[；;，,。·]/)[0].trim().slice(0, 25);
+  const widgetHighlight = item => String(item.highlight || '').replace(/\s+/g, ' ').trim().slice(0, 34);
+  const widgetDateParts = item => String(item.deadline_date || item.deadline_at || item.deadline || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const widgetDate = item => {
+    const p = widgetDateParts(item);
+    return p ? `${p[2]}<span class="nc-date-dot">.</span>${p[3]}` : 'TBA';
   };
-
-  // 日期柱：日期 + T-n（右边一条 1.2 的黑条是分隔）；高度跟着整张卡走
-  const pillarHtml = (item, w, ds, ts) =>
-    `<div class="pil" style="width:${w + 1.2}px;align-self:stretch"><span class="num" style="font-size:${ds}px;line-height:1">${esc(fmtDate(item))}</span><span class="mono" style="font-size:${ts}px;font-weight:700;color:#d71921">${esc(tnOf(item))}</span></div>`;
-  // 关键数字列
-  const keyHtml2 = (item, w, base, ls) => {
-    const label = item.highlight_label ? `<span class="clip dim" style="font-size:${ls}px;font-weight:600;text-align:right">${esc(item.highlight_label)}</span>` : '';
-    return `<div style="width:${w}px;display:flex;flex-direction:column;align-items:flex-end;flex:0 0 auto;gap:2px">${hlHtml(item, base)}${label}</div>`;
+  const widgetCategoryLabel = item => {
+    const category = widgetCategory(item);
+    const upcoming = item.application_open_at && Date.now() < Date.parse(item.application_open_at);
+    return `${widgetSymbols[category]} ${upcoming ? (item.application_open_short || '即将开放') : (item.widget_category_label || widgetCategoryNames[category])}`;
   };
-  // 一张机会卡（中号 / 大号共用）：[日期柱] | 名称（主角，粗体）+ 分类 | 关键数字。宽高都不写死：撑满父容器，最矮不低于 minH
-  const oppCard = (item, s) => `<div class="opp" style="flex:1 1 0;min-height:${s.minH}px;border-radius:${WG.cardR}px">
-      ${pillarHtml(item, s.pillarW, s.date, s.tn)}
-      <div class="col" style="flex:1 1 auto;min-width:0;margin-left:${WG.padIn}px"><b class="clip" style="font-size:${fitSize(nameOf(item), s.title, s.w - s.pillarW - 1.2 - WG.padIn * 2 - s.keyW - 4).toFixed(2)}px">${esc(nameOf(item))}</b><span class="mono dim clip" style="font-size:${s.meta}px;font-weight:700;margin-top:3px;display:flex;align-items:center;gap:.4em">${glyph(item.category)}${esc(catShort[item.category] || '')}</span></div>
-      ${keyHtml2(item, s.keyW, s.hl, s.meta - 1)}
-      <div style="width:${WG.padIn}px;flex:0 0 auto"></div>
-    </div>`;
 
   function widgetView() {
-    const calls = sorted().filter(c => !isClosed(c));
+    const calls = widgetCalls(data.open_calls || []);
     const first = calls[0];
-    const issue = esc((data.issue_id || '').replace(/^\d{4}-/, ''));
-    const total = two(calls.length);
-    const fig = (cls, name, size, note, inner, w, h) => `<figure class="wg-item" style="margin:0">
-      <figcaption class="wg-cap"><b>${name}</b><span>${size}</span></figcaption>
-      <div class="wg-scroll"><div class="wg ${cls}" style="width:${w}px;height:${h}px" role="img" aria-label="${name}小组件预览：${esc(note)}">${inner}</div></div></figure>`;
-
-    // 小号：一张撑满的卡 —— 分类 · 共 N 项 / 名称（主角，最多两行）/ 日期 + T-n / 关键数字
-function titleLines(value, width, size) {
-  const str = String(value || "Untitled").replace(/\s+/g, " ").trim()
-  const measure = text => Array.from(text).reduce((sum, ch) => sum +
-    (/[^\x00-\x7F]/.test(ch) ? 1 : /[MW@]/.test(ch) ? .85 : /[ilI1.,' ]/.test(ch) ? .28 : /[A-Z]/.test(ch) ? .66 : .54), 0) * size
-  if (measure(str) <= width - 4) return [str]
-  let choices = []
-  for (let i = 1; i < str.length; i++) if (str[i] === " ") choices.push(i)
-  if (!choices.length) choices = Array.from({length: Math.max(0, str.length - 1)}, (_, i) => i + 1)
-  let best = choices[0] || str.length, score = Infinity
-  for (const i of choices) {
-    const a = measure(str.slice(0, i).trim()), b = measure(str.slice(i).trim())
-    // Keep line one within the column; line two can shrink/truncate if needed.
-    const next = Math.max(a, b) + Math.max(0, a - width + 4) * 10
-    if (next < score) { score = next; best = i }
-  }
-  return [str.slice(0, best).trim(), str.slice(best).trim()].filter(Boolean)
-}
-
-    const editorialDate = item => Array.from(fmtDate(item), ch => `<span${ch === '.' ? ' class="ed-dot"' : ''}>${esc(ch)}</span>`).join('');
-    const editorialTimer = item => `<span class="ed-timer ${daysLeft(item) !== null && daysLeft(item) <= 14 ? 'ed-urgent' : ''}">${esc(tnOf(item))}</span>`;
-    const editorialHeader = () => `<div class="ed-head"><em>Media Art Radar</em><i>${total}</i></div>`;
-    const editorialEmpty = '<div class="ed-empty">暂无开放机会</div>';
-    const nativeDate = item => esc(fmtDate(item)).replace('.', '<span class="date-dot">.</span>');
-    const nativeHead = `<div class="nc-head"><b>MEDIA<i class="nc-mid">·</i>ART</b><strong>${total}</strong></div><div class="nc-sub">${issue}<span>LIVE</span></div>`;
-    const smallHtml = sz => !first ? editorialEmpty : `<div class="nc nc-small">
-      <div class="nc-brand"><b>MEDIA<i class="nc-mid">·</i>ART</b><strong>${total}</strong></div>
-      <div class="hair" style="margin:6px 0"></div>
-      <div class="nc-meta-row">${catTag(first,8,'#505050')}<span class="mono ${daysLeft(first)<=14?'red':'dim'}" style="font-weight:700">${esc(tnOf(first))}</span></div>
-      <div class="nc-date" style="margin-top:6px">${nativeDate(first)}</div>
-      <b class="nc-title" style="margin-top:6px">${esc(nameOf(first))}</b>
-      <div class="hair" style="margin-top:auto"></div>
-      <div class="nc-bottom" style="margin-top:6px"><span>${issue}</span><span>LIVE</span></div>
-    </div>`;
-    const yearOf = item => (dateOf(item) || '').slice(0, 4);
-    // 一行一个机会：日期列（大号日期 + T-n）｜发丝竖线｜分类+地点 / 标题 / 副标题+年份 —— 跟脚本的 addOpportunityRow 对齐
-    const oppRow = (item, index, opts) => `<div class="nc-oppRow" style="height:${opts.h}px">
-      <div class="nc-dateCol" style="width:${opts.dw}px">
-        <span class="nc-dateBig">${nativeDate(item)}</span>
-        <span class="mono ${daysLeft(item) <= 14 ? 'red' : 'dim'}" style="font-size:7.5px;font-weight:700;margin-top:2px">${esc(tnOf(item))}</span>
-      </div>
+    const rawIssue = String(data.issue_id || 'MEDIA ART RADAR');
+    const issue = esc(rawIssue.match(/W\d+/i)?.[0].toUpperCase() || rawIssue.replace(/^\d{4}-/, '').slice(0, 18));
+    const state = widgetStatus(), total = two(calls.length);
+    const timer = item => `<span class="nc-timer ${widgetDays(item) != null && widgetDays(item) <= 14 ? 'nc-urgent' : ''}">${esc(widgetTimer(item))}</span>`;
+    const header = `<div class="nc-head"><b>MEDIA ART<span class="nc-brand-dot">.</span></b><span class="nc-kicker">OPPORTUNITIES</span><strong>${total}</strong></div><div class="nc-sub"><span>${issue}</span><span>${state}</span></div><div class="nc-rule nc-strong-rule"></div>`;
+    const empty = `<div class="nc nc-empty"><div class="nc-head"><b>MEDIA ART<span class="nc-brand-dot">.</span></b></div><div class="nc-rule nc-strong-rule"></div><div class="nc-empty-body"><b>NO OPEN CALLS</b><span>目前暂无开放机会</span></div><div class="nc-sub">${state}</div></div>`;
+    const footer = capacity => `<div class="nc-footer"><span>${issue} · ${state}</span><b>${calls.length > capacity ? '+ ' + (calls.length - capacity) + ' MORE →' : 'VIEW ALL →'}</b></div>`;
+    const row = (item, index, h, dw, highlight, number) => `<div class="nc-oppRow" style="height:${h}px;--date-width:${dw}px">
+      <div class="nc-dateCol"><span class="nc-dateBig">${widgetDate(item)}</span>${timer(item)}</div>
       <div class="nc-vline"></div>
       <div class="nc-oppBody">
-        <div class="nc-oppMeta"><span>${catPlain(item)}</span>${place(item) ? `<span class="dim">　·　${esc(place(item))}</span>` : ''}${opts.num ? `<span class="grow"></span><span class="mono faint">${two(index)}</span>` : ''}</div>
-        <b class="nc-oppTitle">${titleLines(nameOf(item), opts.tw, opts.ts).map(esc).join('<br>')}</b>
-        <div class="nc-oppSub"><span class="dim clip">${opts.hl && item.highlight ? esc(item.highlight) : esc(subOf(item))}</span><span class="mono faint">${esc(yearOf(item))}</span></div>
+        <div class="nc-oppMeta"><span class="nc-category">${esc(widgetCategoryLabel(item))}</span>${widgetPlace(item) ? `<span class="nc-location">　·　${esc(widgetPlace(item))}</span>` : ''}${number ? `<span class="nc-index">${two(index)}</span>` : ''}</div>
+        <b class="nc-oppTitle">${esc(widgetTitle(item))}</b>
+        <div class="nc-oppSub"><span>${esc(highlight && widgetHighlight(item) ? widgetHighlight(item) : widgetSubtitle(item))}</span><span class="nc-year">${esc(widgetDateParts(item)?.[1] || '')}</span></div>
       </div>
     </div>`;
-    const mediumHtml = sz => {
-      if (!first) return editorialEmpty;
-      const rowW = sz.mw - 24, dw = 54, tw = rowW - dw - 24;
-      return `<div class="nc nc-medium">${nativeHead}<div class="nc-rows">${calls.slice(0, 2).map((item, i) => oppRow(item, i + 1, { h: 54, dw, tw, ts: 13, hl: false, num: false })).join('')}</div></div>`;
-    };
-    const largeHtml = sz => {
-      if (!first) return editorialEmpty;
-      const capacity = 4, hidden = Math.max(0, calls.length - capacity);
-      const rowW = sz.mw - 24, dw = 55, tw = rowW - dw - 24;
-      const rowH = Math.max(52, Math.floor((sz.lh - 24 - 44 - 20) / capacity));
-      return `<div class="nc nc-large">${nativeHead}<div class="nc-rows">${calls.slice(0, capacity).map((item, i) => oppRow(item, i + 1, { h: rowH, dw, tw, ts: 13, hl: true, num: true })).join('')}</div><div class="nc-footer"><span>${issue} · LIVE</span><b>${hidden ? '+ ' + hidden + ' MORE →' : 'VIEW ALL →'}</b></div></div>`;
-    };
-    // 超大号（只出现在 Mac 桌面）：刊头 + 两列各四行，跟脚本 renderExtraLarge 的左右分栏对齐
-    const xl = SIZES.mac.xl;
-    const xColW = Math.floor((xl.w - WG.inset * 2 - 28 - 1) / 2), xDw = 54, xTw = xColW - xDw - 24;
-    const xlItems = calls.slice(0, 8), xlLeft = xlItems.slice(0, 4), xlRight = xlItems.slice(4, 8);
-    const xlRowH = 62;
-    const xlHidden = Math.max(0, calls.length - 8);
-    const xlHtml = `<div class="nc nc-xl">${nativeHead}<div class="nc-xlCols">
-      <div class="nc-xlCol">${xlLeft.map((item, i) => oppRow(item, i + 1, { h: xlRowH, dw: xDw, tw: xTw, ts: 13, hl: true, num: true })).join('')}</div>
-      <div class="nc-xlSep"></div>
-      <div class="nc-xlCol">${xlRight.map((item, i) => oppRow(item, i + 5, { h: xlRowH, dw: xDw, tw: xTw, ts: 13, hl: true, num: true })).join('')}</div>
-    </div><div class="nc-footer"><span>${issue} · LIVE</span><b>${xlHidden ? '+ ' + xlHidden + ' MORE →' : 'VIEW ALL →'}</b></div></div>`;
-
+    const small = !first ? empty : `<div class="nc nc-small">
+      <div class="nc-brand"><b>MEDIA<span class="nc-mid">·</span>ART</b><strong>${total}</strong></div>
+      <div class="nc-rule nc-strong-rule"></div>
+      <div class="nc-meta-row"><span>${esc(widgetCategoryLabel(first))}</span>${timer(first)}</div>
+      <div class="nc-date">${widgetDate(first)}</div>
+      <b class="nc-title">${esc(widgetTitle(first))}</b>
+      <div class="nc-small-footer"><div class="nc-rule"></div><div class="nc-bottom"><span>${esc(widgetPlace(first)) || issue}</span><span>${state}</span></div></div>
+    </div>`;
+    const medium = !first ? empty : `<div class="nc nc-medium">${header}<div class="nc-rows">${calls.slice(0, 2).map((item, i) => row(item, i + 1, 54, 54, false, false)).join('')}</div></div>`;
+    const large = !first ? empty : `<div class="nc nc-large">${header}<div class="nc-rows">${calls.slice(0, 5).map((item, i) => row(item, i + 1, 57, 55, true, true)).join('')}</div>${footer(5)}</div>`;
+    const xlItems = calls.slice(0, 8);
+    const extraLarge = !first ? empty : `<div class="nc nc-xl">${header}<div class="nc-xlCols"><div class="nc-xlCol">${xlItems.slice(0, 4).map((item, i) => row(item, i + 1, 62, 54, true, true)).join('')}</div><div class="nc-xlSep"></div><div class="nc-xlCol">${xlItems.slice(4, 8).map((item, i) => row(item, i + 5, 62, 54, true, true)).join('')}</div></div>${footer(8)}</div>`;
+    const fig = (cls, name, note, inner, w, h) => `<figure class="wg-item" style="margin:0"><figcaption class="wg-cap"><b>${name}</b><span>${w} × ${h}</span></figcaption><div class="wg-scroll"><div class="wg ${cls}" style="width:${w}px;height:${h}px" role="img" aria-label="${name}小组件预览：${note}">${inner}</div></div></figure>`;
     const P = SIZES.phone, M = SIZES.mac;
-    const small = smallHtml(P), med = mediumHtml(P), lg = largeHtml(P);
-    const smallMac = smallHtml(M), medMac = mediumHtml(M), lgMac = largeHtml(M);
-
-    return `<section class="view">
-      <header class="page-head">
-        <h1><span>小组件</span><em>Widgets<span class="dot">.</span></em></h1>
-        <div class="page-meta"><span>03 / Widgets · iPhone · Mac</span><span>${esc(data.issue_id || '')}</span></div>
-      </header>
-
+    return `<section class="view widget-view" data-widget-theme="${widgetTheme}">
+      <header class="page-head"><h1><span>小组件</span><em>Widgets<span class="dot">.</span></em></h1><div class="page-meta"><span>03 / Widgets · iPhone · Mac</span><span>${esc(data.issue_id || '')}</span></div></header>
       <section class="sec">
         <div class="sec-h"><h2>安装</h2><em>Install</em><span class="sec-n">SCRIPTABLE</span></div>
-        <article class="call two">
-          <div class="c-date"><span class="c-lab">EDITION</span><span class="c-d">14</span><span class="c-t">${issue}</span></div>
-          <div class="c-main">
-            <div class="c-meta"><span class="c-cat">${glyph('exhibition')}Scriptable 脚本</span><span class="c-place">iPhone · iPad · Mac</span></div>
-            <h2 class="c-title">下载组件脚本</h2>
-            <p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p>
-            <p class="c-brief">已装过旧版？整份替换原脚本，保存并运行一次即可；四个尺寸共用同一份脚本。</p>
-            <div class="actions">
-              <a class="btn btn-primary" href="Media-Art-Radar.js?v=34" download><span>下载脚本</span><span>↓</span></a>
-              <a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a>
-            </div>
-          </div>
-        </article>
+        <article class="call two"><div class="c-date"><span class="c-lab">EDITION</span><span class="c-d">14</span><span class="c-t">${issue}</span></div><div class="c-main"><div class="c-meta"><span class="c-cat">${glyph('exhibition')}Scriptable 脚本</span><span class="c-place">iPhone · iPad · Mac</span></div><h2 class="c-title">下载组件脚本</h2><p class="c-sub">Widgets for iPhone, iPad &amp; Mac</p><p class="c-brief">已安装的脚本无需替换。本页预览已按同一份脚本对齐；首次安装时下载下方文件。</p><div class="actions"><a class="btn btn-primary" href="Media-Art-Radar.js?v=34" download><span>下载脚本</span><span>↓</span></a><a class="btn btn-ghost" href="#steps" data-scroll="steps">安装步骤 ↓</a></div></div></article>
       </section>
-
       <section class="sec">
         <div class="sec-h"><h2>四个尺寸</h2><em>Four sizes</em><span class="sec-n">04</span></div>
+        <label class="widget-theme-label">预览外观 <select data-widget-theme-control aria-label="小组件预览外观">${[['system','跟随系统'],['light','浅色'],['dark','深色']].map(([value,label]) => `<option value="${value}"${widgetTheme === value ? ' selected' : ''}>${label}</option>`).join('')}</select></label>
         <div class="wg-list">
-          ${fig('wg-s', '小号 · iPhone', '176 × 176', '下一个截止', small, P.small, P.small)}
-          ${fig('wg-m', '中号 · iPhone', '378 × 176', '两个机会', med, P.mw, P.small)}
-          ${fig('wg-l', '大号 · iPhone', '378 × 393', '一行一个机会，最多四项', lg, P.mw, P.lh)}
+          ${fig('wg-s', '小号 · iPhone', '下一个截止', small, P.small, P.small)}
+          ${fig('wg-m', '中号 · iPhone', '两个机会', medium, P.mw, P.small)}
+          ${fig('wg-l', '大号 · iPhone', '一行一个机会，最多五项', large, P.lw, P.lh)}
         </div>
-        <div class="sec-h" style="margin-top:var(--sec)"><h2>在 Mac 桌面上</h2><em>On the Mac</em><span class="sec-n">iPhone 组件 · macOS Tahoe</span></div>
+        <div class="sec-h" style="margin-top:var(--sec)"><h2>在 Mac 桌面上</h2><em>On the Mac</em><span class="sec-n">参考尺寸</span></div>
         <div class="wg-list">
-          ${fig('wg-s', '小号 · Mac', '162 × 162', '下一个截止', smallMac, M.small, M.small)}
-          ${fig('wg-m', '中号 · Mac', '341 × 162', '两个机会', medMac, M.mw, M.small)}
-          ${fig('wg-l', '大号 · Mac', '342 × 342', '一行一个机会，最多四项', lgMac, M.lw, M.lh)}
-          ${fig('wg-xl', '超大号 · Mac', '两列 · 701 × 342', '刊头加两列，最多八项', xlHtml, xl.w, xl.h)}
+          ${fig('wg-s', '小号 · Mac', '下一个截止', small, M.small, M.small)}
+          ${fig('wg-m', '中号 · Mac', '两个机会', medium, M.mw, M.small)}
+          ${fig('wg-l', '大号 · Mac', '一行一个机会，最多五项', large, M.lw, M.lh)}
+          ${fig('wg-xl', '超大号 · Mac / iPad', '两列各四项，最多八项', extraLarge, M.xl.w, M.xl.h)}
         </div>
       </section>
-
-      <section class="sec" id="steps">
-        <div class="sec-h"><h2>步骤</h2><em>Steps</em><span class="sec-n">04</span></div>
-        <ol class="card rows steps">
-          <li>在 Scriptable 中新建脚本，把下载文件里的代码完整粘贴进去，运行一次确认能取到数据。</li>
-          <li>长按 iPhone 主屏幕 → 加号 → 选择 Scriptable → 挑尺寸（小 / 中 / 大）添加。在 Mac 或 iPad 上添加 Scriptable 小组件时可以选「超大」，脚本相同。</li>
-          <li>长按刚添加的组件 → 编辑小组件 → Script 选择刚保存的那个脚本。</li>
-          <li>中号、大号和超大号点击每个机会会打开对应的官方页面；小号点击打开本站。</li>
-        </ol>
-      </section>
-
-      <section class="sec">
-        <div class="sec-h"><h2>说明</h2><em>Notes</em></div>
-        <div class="card rows">
-          <p><b>与网站同一套语言。</b>白底黑字，系统字体以大小和粗细形成层次，红色只做点缀；分类用符号区分（● 展览 ○ 驻留 ◆ 奖项 ▲ 会议）。</p>
-          <p><b>四个尺寸，同一套刊物语言。</b>小号突出下一个截止日期；中号、大号、超大号都是一行一个机会：左边日期列，中间一条发丝竖线，右边分类、地点、标题与资助，机会之间用发丝横线隔开，不再用黑框卡片分隔。</p>
-          <p><b>红色是点缀。</b>日期中间的点和机会总数用红色；14 天内截止的倒计时用红色，其余信息以黑灰色呈现。</p>
-          <p><b>放在 Mac 桌面上。</b>Mac 使用 iPhone 提供的同一份小组件脚本，无需另装一个版本。默认按 iPhone 尺寸排版；如果 Mac 上的边距与这里的参考预览不一致，可以在该组件的 Parameter 中填写 <code>mac</code>，使用 Mac 参考尺寸。这是可选校准，不是安装必填项。</p>
-          <p><b>字体各有分工。</b>日期用衬线体，标题用系统字体粗体，倒计时与元信息用等宽字体，靠字号和粗细建立层次，不靠颜色。</p>
-          <p><b>发丝线代替黑框。</b>组件外框保留系统圆角，内部不再画黑色描边卡片；大号一行一项最多四项，超大号左右两列各四项，中间一条竖分割线，同一套发丝线语言贯穿三种尺寸。</p>
-          <p><b>清晰的日期。</b>日期使用衬线数字（月.日），中间的点是红色；月份、日期与倒计时各有固定位置，日期上方标明申请截止。中、大、超大号的每一行都可以单独点击。</p>
-          <p><b>关于尺寸。</b>预览以 iPhone 17 Pro Max 与 Mac 桌面的参考尺寸绘制；脚本会按机型自动决定能放几行。中号展示两项，大号最多四项，超大号最多八项（两列各四项）。网页只是布局参考，最终效果以 iPhone 为准。iPad、显示缩放或未收录机型可在 Parameter 中填写实际尺寸，例如 <code>{"width":378,"height":176}</code>（单位为点，示例对应中号）。</p>
-          <p><b>更新节奏。</b>内容每周更新，脚本不需要每周重新下载，只有样式改版时才需要替换。刷新时机由 iOS 决定，脚本声明的是 60 分钟。</p>
-          <p><b>数据来源。</b>脚本直接读取本站公开的 <a href="latest.json">latest.json</a>，仅在本机保存一份缓存。截止时区与提前关闭条件以官方页面为准。</p>
-        </div>
-      </section>
-      <p class="foot-note">小组件内容与本站同源，随周刊更新。</p>
+      <section class="sec" id="steps"><div class="sec-h"><h2>步骤</h2><em>Steps</em><span class="sec-n">04</span></div><ol class="card rows steps">
+        <li>在 Scriptable 中新建脚本，把下载文件里的代码完整粘贴进去，运行一次确认能取到数据。</li>
+        <li>长按 iPhone 主屏幕 → 添加小组件 → Scriptable → 选择小、中或大号。其他设备可用的尺寸以系统提供的选项为准。</li>
+        <li>编辑刚添加的小组件，Script 选择刚保存的脚本。Parameter 留空即可，也可填写 exhibition、residency、prize 或 conference 筛选类别。</li>
+        <li>小号点击打开首个机会的官方页面；其他尺寸点击每行打开对应官方页面，页脚打开完整机会列表。</li>
+      </ol></section>
+      <section class="sec"><div class="sec-h"><h2>说明</h2><em>Notes</em></div><div class="card rows">
+        <p><b>与实际脚本对齐。</b>刊头和日期使用 Didot 衬线体，标题使用系统粗体。浅色、深色跟随系统，也可在上方切换预览；该选择只影响网页预览。</p>
+        <p><b>四个尺寸。</b>小号显示最早截止的一项，中号两项，大号最多五项，超大号两列各四项。剩余数量显示在页脚。</p>
+        <p><b>红色是点缀。</b>刊头句点、日期中的点与总数使用红色；14 天内截止的倒计时也用红色，其余倒计时为灰色。</p>
+        <p><b>日期与状态。</b>预览按脚本的本地日历日期计算倒计时并排序；LIVE 表示最近八天内更新的数据，超过八天显示 STALE。准确截止时间与提前关闭条件仍以官方信息为准。</p>
+        <p><b>关于尺寸。</b>这里保留 iPhone 与 Mac 的参考尺寸。脚本由系统决定组件大小，字体渲染、显示缩放与实际可用空间可能略有不同；浏览器没有 Didot 时使用衬线备用字体。</p>
+        <p><b>更新节奏。</b>脚本无需每周重新下载。实际组件的刷新时机由系统决定，脚本请求每 60 分钟刷新，并在本机保留缓存。</p>
+        <p><b>数据来源。</b>实际组件读取 <a href="https://media-art-weekly-radar.orangec0831.chatgpt.site/latest.json">Radar 数据源</a>；本站预览与机会列表共用同步后的 <a href="latest.json">latest.json</a>。本期数据更新时间：${esc(data.generated_at || '未标明')}。</p>
+      </div></section>
     </section>`;
   }
+  // Let the browser wrap naturally; shrink only when the allocated native title
+  // area overflows, using the script's family-specific minimum scale factors.
+  function fitWidgetText() {
+    $$('.widget-view .nc-title, .widget-view .nc-oppTitle').forEach(title => {
+      const small = title.classList.contains('nc-title');
+      const base = small ? 14 : 13, minimum = base * (small ? .72 : .76);
+      title.style.fontSize = base + 'px';
+      for (let size = base; size > minimum && (title.scrollHeight > title.clientHeight + 1 || title.scrollWidth > title.clientWidth + 1);) {
+        size = Math.max(minimum, size - .25);
+        title.style.fontSize = size + 'px';
+      }
+    });
+  }
+  document.addEventListener('change', event => {
+    if (!event.target.matches('[data-widget-theme-control]')) return;
+    const value = event.target.value;
+    if (!['system', 'light', 'dark'].includes(value)) return;
+    widgetTheme = value;
+    const view = document.querySelector('.widget-view');
+    if (view) view.dataset.widgetTheme = value;
+  });
 
-  // ---------- 路由 ----------
   function parseHash() {
     const raw = location.hash.replace(/^#/, '');
     const [route, filter] = raw.split('/');
@@ -521,6 +464,7 @@ function titleLines(value, width, size) {
     if (!data) return;
     syncRail(route, filter);
     $('#view').innerHTML = route === 'widget' ? widgetView() : opportunitiesView(filter);
+    if (route === 'widget') fitWidgetText();
     $('#stage').scrollTop = 0;
     window.scrollTo(0, 0);
     fitBrand();
