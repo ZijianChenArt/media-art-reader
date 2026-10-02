@@ -9,3 +9,6 @@
 
 /* Keep the bilingual scope heading visible alongside the mobile navigation. */
 @media(max-width:620px){.catalog-heading em{display:inline;}}
+
+/* A real button remains available if automatic loading is unsupported. */
+.archive-pagination{display:flex;flex-direction:column;align-items:center;gap:12px;padding:28px 0 12px}.archive-pagination[hidden]{display:none}.archive-pagination p{margin:0;font-size:.8rem;color:#666}.archive-pagination button{min-height:44px;padding:10px 22px;border:1.5px solid currentColor;border-radius:20px 5px 20px 5px;background:#fff;color:inherit;font:inherit;cursor:pointer}.archive-pagination button:focus-visible{outline:3px solid currentColor;outline-offset:4px}

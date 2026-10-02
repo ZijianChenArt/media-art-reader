@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import {createHash} from 'node:crypto';
+const assetVersion = name => createHash('sha256').update(fs.readFileSync(new URL('../archive/'+name,import.meta.url))).digest('hex').slice(0,12);
 import {buildPinyinIndex} from './build-search-index.mjs';
 import {artworkRights} from './artwork-rights.mjs';
 import {renderRadarShell,renderArchiveHeading} from './radar-shell.mjs';
@@ -26,14 +29,17 @@ export function renderPublicCard(work){
  ${artworkRights(work).map(({label,text})=>`<p class="artwork-rights">${label?E(label)+' · ':''}${E(text)}</p>`).join('')}</div></details></div></div></article>`;
 }
 export function renderPublicArchive(records,{privateUrl='https://media-art-fieldnotes.mystic-dune-6472.chatgpt.site/archive/'}={}){
+ const registry=records.map(work=>({id:work.id,search:[work.title,work.artist,...(work.searchAliases||[]),...(work.tags||[]),work.exhibition].filter(Boolean).join(' '),searchPinyin:buildPinyinIndex(work),html:renderPublicCard(work)}));
  const content=`${renderArchiveHeading()}
  <main id="archive-content" tabindex="-1">
  <div class="archive-toolbar"><div class="archive-context"><p>作品、展览记录与一手出处。</p><a class="radar-workspace-link" href="${E(privateUrl)}">前往私人档案管理 ↗</a><small>筛选与移除操作仅在私人档案内提供</small></div>
  <label class="archive-search"><span class="sr-only">搜索作品、作者或关键词</span><input id="archive-search" type="search" placeholder="搜索作品、作者或关键词" autocomplete="off"><button id="clear-search" type="button" aria-label="清空搜索" hidden>×</button></label></div>
  <div class="catalog-heading"><h2>全部作品 <em>All works</em></h2><span id="search-feedback" role="status" aria-live="polite">${records.length} 件作品</span></div>
  <p class="empty-selection" id="empty-selection" hidden>没有找到匹配的作品或作者。</p>
- <div class="archive-grid" id="archive-grid">${records.map(renderPublicCard).join('\n')}</div>
- <noscript><p class="archive-note">作品可直接浏览；启用 JavaScript 后可搜索和切换第二张图片。</p></noscript>
+ <div class="archive-grid" id="archive-grid">${records.slice(0,10).map(renderPublicCard).join('\n')}</div>
+ <div class="archive-pagination" id="archive-pagination" hidden><p id="archive-page-status" role="status" aria-live="polite"></p><button id="archive-load-more" type="button">加载更多作品</button></div>
+ <script type="application/json" id="archive-records">${JSON.stringify(registry).replaceAll('<','\\u003c')}</script>
+ <noscript><p class="archive-note">当前展示前 10 件作品；启用 JavaScript 后可继续浏览和搜索全部作品。</p></noscript>
  </main><footer class="archive-footer"><p>图像与作品版权归相应艺术家、摄影师及机构。请保留出处，转载与再利用前核实授权。</p><a href="#archive-content">回到顶部 ↑</a></footer>`;
- return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>媒体艺术档案 · Media Art Radar</title><meta name="description" content="Media Art Radar 媒体艺术作品档案：作品图片、创作信息、展览记录与一手出处。"><link rel="preload" href="../assets/fonts/space-grotesk-var.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="../radar-shell.css?v=662c57346348"><link rel="stylesheet" href="archive.css"><link rel="stylesheet" href="artwork-lightbox.css"><link rel="stylesheet" href="archive-detail.css"></head><body><a class="skip-link" href="#archive-content">跳到作品</a>${renderRadarShell(content)}<script src="../radar-shell.js?v=3e9b0e6072ac" defer></script><script src="details-motion.js" defer></script><script src="gallery.js" defer></script><script src="artwork-lightbox.js" defer></script><script src="archive-detail.js" defer></script><script src="archive-search.js" defer></script><script src="archive.js" defer></script></body></html>`;
+ return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>媒体艺术档案 · Media Art Radar</title><meta name="description" content="Media Art Radar 媒体艺术作品档案：作品图片、创作信息、展览记录与一手出处。"><link rel="preload" href="../assets/fonts/space-grotesk-var.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="../radar-shell.css?v=662c57346348"><link rel="stylesheet" href="archive.css?v=${assetVersion('archive.css')}"><link rel="stylesheet" href="artwork-lightbox.css"><link rel="stylesheet" href="archive-detail.css"></head><body><a class="skip-link" href="#archive-content">跳到作品</a>${renderRadarShell(content)}<script src="../radar-shell.js?v=3e9b0e6072ac" defer></script><script src="details-motion.js" defer></script><script src="gallery.js" defer></script><script src="artwork-lightbox.js" defer></script><script src="archive-detail.js" defer></script><script src="archive-search.js" defer></script><script src="archive.js?v=${assetVersion('archive.js')}" defer></script></body></html>`;
 }
