@@ -1,0 +1,129 @@
+/* Shared Media Art Radar shell. Namespaced to avoid archive .index/.brand collisions. */
+@font-face{font-family:Grotesk;src:url("assets/fonts/space-grotesk-var.woff2") format("woff2");font-weight:400 700;font-display:swap}
+@font-face{font-family:Instrument;src:url("assets/fonts/instrument-serif-italic.woff2") format("woff2");font-style:italic;font-weight:400;font-display:swap}
+@font-face{font-family:Bodoni;src:url("assets/fonts/bodoni-moda-italic-var.woff2") format("woff2");font-style:italic;font-weight:400 900;font-display:swap}
+@font-face{font-family:Mono;src:url("assets/fonts/space-mono-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:Mono;src:url("assets/fonts/space-mono-700.woff2") format("woff2");font-weight:700;font-display:swap}
+:root{--ink:#0a0a0a;--muted:#666;--line:#e3e3e3;--hair:#e3e3e3;--surface:#fff;--canvas:#fff;--red:#D71921;--sans:Grotesk,"PingFang SC","Microsoft YaHei",sans-serif;--serif:Instrument,Georgia,serif;--display:Bodoni,Didot,Georgia,serif;--mono:Mono,ui-monospace,Menlo,monospace;--card:34px 6px 34px 6px;--radar-rail-width:264px}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#fff;color:var(--ink)}html{overflow:hidden}body{font-family:var(--sans);-webkit-font-smoothing:antialiased}button,input,select{font:inherit}[hidden]{display:none!important}::selection{background:var(--red);color:#fff}:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.radar-app{width:100%;height:100vh;height:100dvh;display:grid;grid-template-columns:var(--radar-rail-width) minmax(0,1fr);overflow:hidden;line-height:1.5}
+.radar-rail{height:100%;min-height:0;display:flex;flex-direction:column;padding:32px 24px 24px 30px;border-right:1px solid var(--hair);overflow-y:auto}
+.radar-brand{display:block;height:var(--radar-title-height,63px);margin:0 0 34px;color:inherit;text-decoration:none}
+.radar-brand span{display:block;font-family:var(--serif);font-style:italic;font-size:3.8rem;line-height:1;letter-spacing:-.02em;white-space:nowrap}
+.radar-index{flex:1 1 auto;min-height:0;display:grid;grid-template-rows:minmax(340px,1fr) 88px 66px;gap:10px}
+.radar-nav{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:inherit;text-align:left;text-decoration:none;cursor:pointer;font-size:.95rem;line-height:normal}
+.radar-nav:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}.radar-n{font-family:var(--mono);font-size:.7rem;color:var(--muted)}.radar-nav strong{font-weight:700;letter-spacing:-.01em}.radar-c{font-family:var(--mono);font-size:.72rem;color:var(--muted)}.radar-nav.is-active{background:var(--ink);color:#fff}.radar-nav.is-active .radar-n{color:#bdbdbd}.radar-nav.is-empty{opacity:.4}
+.radar-group{min-height:340px;display:grid;grid-template-rows:56px repeat(4,minmax(0,1fr));border:1.5px solid var(--ink);border-radius:28px 6px 28px 6px;overflow:hidden;background:#fff}.radar-group .radar-nav+.radar-nav{border-top:1.5px solid var(--ink)}.radar-main{padding:0 18px;gap:12px}.radar-main strong{flex:1;font-size:1rem}.radar-tile{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr;align-items:start;gap:0 8px;min-height:0;padding:14px 18px 15px}.radar-g{display:inline-flex;width:1em;height:1em;font-size:1.5rem;font-style:normal}.radar-g svg{display:block;width:100%;height:100%}.radar-tile .radar-c{padding-top:3px}.radar-tl{grid-column:1/-1;align-self:end;display:flex;flex-direction:column;gap:1px}.radar-tl strong{font-size:1.04rem;line-height:1.15}.radar-tl em{font-family:var(--serif);font-size:1.18rem;line-height:1.05;color:var(--muted)}
+.radar-mini{padding:0 18px;border:1.5px solid var(--ink);border-radius:20px 5px 20px 5px;background:#fff}.radar-mini strong{flex:1}.radar-mini i{font-style:normal;font-size:.9rem}.radar-status{display:flex;align-items:center;gap:9px;padding:0 16px;border:1px solid var(--hair);border-radius:16px;font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.02em}.radar-status small{margin-left:auto;font-size:.62rem;font-weight:400;color:var(--muted)}.radar-live{width:9px;height:9px;flex:none;border-radius:50%;border:1.5px solid var(--ink);background:radial-gradient(circle,var(--red) 38%,transparent 42%)}
+.radar-stage{min-width:0;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding:0 44px;scroll-behavior:smooth}.radar-view{width:100%;max-width:none;padding:32px 0 64px;margin:0}.radar-page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;padding:0 0 34px}.radar-page-head h1{display:flex;align-items:baseline;gap:.22em;flex-wrap:wrap;margin:0;font-size:clamp(2.6rem,4.3vw,4.2rem);line-height:.94;letter-spacing:-.06em;font-weight:700}.radar-page-head h1 em{font-family:var(--display);font-weight:500;letter-spacing:-.045em;font-size:1.08em}.radar-dot{color:var(--red)}.radar-page-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding-top:6px;font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--muted);text-align:right}.radar-workspace-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border:1.5px solid var(--ink);border-radius:20px 5px 20px 5px;color:var(--ink);font-family:var(--sans);font-size:.86rem;font-weight:700;text-decoration:none}.radar-workspace-link:hover{background:var(--ink);color:#fff}
+/* Private archive skin: original IDs, selectors and save flows remain untouched. */
+.radar-private{--page-gutter:0px}.radar-private .archive-content,.radar-private .toolbar-inner,.radar-private .footer-inner{width:100%;max-width:none;margin-inline:0;padding-left:0;padding-right:0}.radar-private .selection-bar{border-top:1.5px solid var(--ink);border-bottom:1px solid var(--hair)}.radar-private .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:26px 22px}.radar-private .card{border:1.5px solid var(--ink);border-radius:var(--card);scroll-margin-top:120px}.radar-private .image-wrap{border-bottom:1.5px solid var(--ink)}.radar-private .index{border:1px solid var(--ink);border-radius:12px 3px 12px 3px;font-family:var(--mono)}.radar-private .card h3{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.9rem;line-height:1.06;letter-spacing:-.02em}.radar-private .card-body{padding-left:20px;padding-right:20px}.radar-private .exhibition{border:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:12px 0}.radar-private .description{font-size:.93rem;line-height:1.8}.radar-private .section-toggle{font-size:1.15rem;font-weight:700}.radar-private .section-rule{background:var(--ink)}.radar-private .status-filters button,.radar-private .review-control select,.radar-private .remove-work,.radar-private .workspace-link{border-radius:16px 4px 16px 4px}.radar-private .search-control input{border-radius:20px 5px 20px 5px}.radar-private .status-filters button{padding:9px 10px;font-size:.82rem}.radar-private .selection-tools{flex-wrap:wrap;gap:12px}.radar-private .search-control{flex:1 1 235px}.radar-private .random-main{width:100%;margin:0;padding:0 0 160px}.radar-private .random-heading{margin-top:-16px}.radar-private .random-decisions{left:var(--radar-rail-width)}.radar-private .random-decisions button{border-radius:20px 5px 20px 5px;min-width:140px}.radar-private .random-decisions small{max-width:9em}.radar-private .foot{background:transparent}
+@media(max-width:1250px){:root{--radar-rail-width:232px}.radar-rail{padding:32px 18px 20px 24px}.radar-stage{padding:0 32px}.radar-private .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:860px){html{overflow:auto}html,body{height:auto}.radar-app{display:block;height:auto;overflow:visible}.radar-rail{position:sticky;top:0;z-index:20;height:auto;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px;overflow:visible;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-right:0;border-bottom:1px solid var(--hair)}.radar-brand{height:auto;margin:0}.radar-brand span{font-size:1.6rem!important;margin:0!important;transform:translateY(.07em)}.radar-index{flex:1 1 100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto;gap:6px;margin:0}.radar-group{display:contents}.radar-group .radar-tile,.radar-status,.radar-nav .radar-n,.radar-nav .radar-c,.radar-mini i{display:none}.radar-nav{justify-content:center;min-width:0;min-height:38px;height:auto;padding:0 6px;border:1.5px solid var(--ink)!important;border-radius:999px!important}.radar-nav strong{flex:none;font-size:.74rem;white-space:nowrap;letter-spacing:-.03em}.radar-nav:hover{box-shadow:none}.radar-stage{height:auto;overflow:visible;padding:0 16px}.radar-view{padding:26px 0 56px}.radar-page-head{padding-bottom:24px;flex-direction:column;gap:16px}.radar-page-head h1{font-size:clamp(2.4rem,8vw,3.3rem);flex-direction:column;align-items:flex-start;gap:.04em}.radar-page-meta{align-items:flex-start;text-align:left}.radar-private .selection-bar{position:static}.radar-private .card{scroll-margin-top:125px}.radar-private .random-decisions{left:0}.radar-private .random-decisions small{max-width:none}.radar-private #random-stage .card{display:block}.radar-private #random-stage .image-wrap{position:relative;top:0;border-right:0;border-bottom:1.5px solid var(--ink)}}
+@media(max-width:620px){.radar-private .grid{grid-template-columns:minmax(0,1fr)}.radar-private .card{border-radius:30px 6px 30px 6px}.radar-private .random-decisions button{min-width:0}.radar-private .status-filters{width:100%}.radar-private .status-filters button{flex:1 1 auto;padding:8px 5px}.radar-private .random-heading{margin-top:0}}
+@media(max-height:820px){.radar-tl em{display:none}.radar-tile .radar-g{font-size:1.3rem}}
+@media(prefers-reduced-motion:reduce){.radar-stage{scroll-behavior:auto}}
+/* Reuse Radar's typography and pill controls throughout the archive. */
+.radar-private .card h3 { font-family:var(--sans); font-style:normal; font-size:clamp(1.8rem,2.7vw,2.4rem); font-weight:700; line-height:1.02; letter-spacing:-.05em; }
+.radar-private .description { font-size:.96rem; line-height:1.7; }
+.radar-private .artist { font-family:var(--sans); font-size:.84rem; line-height:1.5; }
+.radar-private .section-toggle { font-size:1.5rem; letter-spacing:-.05em; }
+.radar-private .status-filters { display:flex; flex-wrap:wrap; justify-content:flex-start; gap:8px; }
+.radar-private .status-filters button { display:inline-flex; flex-direction:row; flex:0 0 auto; align-items:center; justify-content:center; gap:7px; height:36px; min-height:36px; padding:0 14px; border:1.5px solid var(--ink); border-radius:999px; font-family:var(--sans); font-size:.84rem; font-weight:700; line-height:1; color:var(--ink); }
+.radar-private .status-filters button span { min-width:0; font-family:var(--mono); font-size:.68rem; font-weight:400; color:inherit; opacity:.65; }
+.radar-private .status-filters button[aria-pressed="true"] { color:#fff; background:var(--ink); }
+.radar-private .status-filters .filter-all { margin-left:0; }.radar-private .status-filters .filter-all::before { display:none; }
+.radar-private .radar-workspace-link,.radar-private .review-control select,.radar-private .remove-work { border-radius:999px; }
+.radar-private .search-control { flex:0 1 290px; width:min(100%,290px); }
+@media(min-width:861px){.radar-group{position:relative}.radar-group::after{content:"";position:absolute;inset:0;z-index:3;border:3px solid var(--ink);border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .18s ease}.radar-group:hover::after,.radar-group:focus-within::after{opacity:1}}
+@media(max-width:860px){.radar-page-head h1{font-size:clamp(2.4rem,11vw,3.3rem)}}
+@media(max-width:620px){.radar-private .status-filters button{flex:0 0 auto;padding:0 14px}.radar-private .search-control{width:100%;flex:1 1 100%}}
+/* Focused mobile random review: artwork comes first, rather than a second masthead. */
+@media(max-width:860px){
+ .radar-app[data-radar-page="random"] .radar-rail { display:none; }
+ .radar-app[data-radar-page="random"] .radar-stage { padding:0 12px; }
+ .radar-app[data-radar-page="random"] .radar-view { padding:8px 0 0; }
+ .radar-app[data-radar-page="random"] .radar-page-head { display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; gap:12px; padding:0 0 8px; border-bottom:1px solid var(--hair); }
+ .radar-app[data-radar-page="random"] .radar-page-head h1 { display:flex; flex-direction:row; flex-wrap:nowrap; align-items:baseline; gap:.22em; margin:0; font-size:clamp(18px,5.6vw,22px); line-height:1.2; letter-spacing:-.04em; white-space:nowrap; }
+ .radar-app[data-radar-page="random"] .radar-page-head h1 em { display:inline; }
+ .radar-app[data-radar-page="random"] .radar-page-meta { padding:0; }
+ .radar-app[data-radar-page="random"] .radar-workspace-link { min-height:40px; padding:0 12px; font-size:13px; border-radius:999px; }
+ .radar-private .random-main { padding:0 0 calc(82px + env(safe-area-inset-bottom)); }
+ .radar-private .random-heading { display:none; }
+ .radar-private .random-meta { min-height:0; margin:0 0 10px; padding:8px 0; border:0; gap:4px 10px; font-size:12px; line-height:1.4; }
+ .radar-private #random-status:empty { display:none; }
+ .radar-private #random-stage .card-body { padding:12px 14px; }
+ .radar-private #random-stage .card h3 { font-size:1.25rem; line-height:1.15; letter-spacing:-.025em; }
+ .radar-private #random-stage .artist { margin-top:5px; font-size:.84rem; }
+ .radar-private #random-stage .work-facts { margin-top:5px; font-size:.75rem; line-height:1.45; gap:4px 10px; }
+ .radar-private #random-stage .exhibition { margin-top:8px; padding:8px 0; font-size:.75rem; line-height:1.5; }
+ .radar-private #random-stage .work-reading { padding-top:8px; }
+ .radar-private #random-stage .description { font-size:.84rem; line-height:1.65; }
+ .radar-private #random-stage .card-sources { margin-top:10px; padding-top:10px; }
+ .radar-private .random-decisions { display:grid; grid-template-columns:64px minmax(0,1fr) minmax(0,1.05fr); gap:8px; padding:8px 12px max(8px,env(safe-area-inset-bottom)); }
+ .radar-private .random-decisions button,.radar-private .random-decisions #random-remove { width:100%; min-width:0; min-height:44px; padding:8px 5px; border-radius:999px; font-size:14px; line-height:1.2; }
+ .radar-private .random-decisions small { display:none; }
+ .radar-private .random-undo { margin:0 0 8px; padding:7px 9px; font-size:12px; }
+}
+
+
+/* Proven geometry correction only. Append in BOTH site-v15.css and radar-shell.css
+   (the irrelevant selector namespace is harmless), or split by namespace.
+   Outer group radius is 28px 6px 28px 6px; its border is 1.5px.
+   Absolute inset:0 uses the padding-box origin, so the overlay's outer
+   radius must be 1.5px smaller than the group's outer radius.
+   Base 1.5px + inward overlay 1.5px = 3px total hover stroke. */
+@media (min-width:861px) {
+  .group::after,
+  .radar-group::after {
+    border-width:1.5px;
+    border-radius:26.5px 4.5px 26.5px 4.5px;
+  }
+  /* The group has a single perimeter hover ring. Do not stack a clipped,
+     square inset ring on its first/last child at the same time. */
+  .group .nav:hover,
+  .radar-group .radar-nav:hover {
+    box-shadow:none;
+  }
+}
+
+/* Append to both site-v15.css and radar-shell.css. The mark is decorative;
+   existing brand links already expose the complete accessible name. */
+.brand-t::after,
+.radar-brand > span::after {
+  content: "";
+  display: inline-block;
+  width: .14em;
+  height: .14em;
+  margin-left: .075em;
+  border-radius: 50%;
+  background: var(--red, #D71921);
+  vertical-align: baseline;
+}
+@media (max-width: 860px) {
+  [data-media-header][data-media-header-ready] {
+    /* Keep both rows in normal flow. Only the paint position changes; nav
+       lands at the same 10px top inset once the brand row leaves the screen. */
+    transform: translateY(0);
+    transition: transform 180ms ease-out;
+  }
+  [data-media-header][data-media-header-ready].media-header--compact {
+    transform: translateY(calc(-1 * var(--media-brand-offset, 0px)));
+  }
+}
+@media (max-width: 860px) and (prefers-reduced-motion: reduce) {
+  [data-media-header][data-media-header-ready] { transition: none; }
+}
+
+/* Match the opportunity page's mobile scope heading without a second filter. */
+.radar-archive-scope { display:none; }
+@media(max-width:860px) {
+  .radar-app[data-radar-page="archive"] .radar-page-head { padding-bottom:20px; gap:12px; }
+  .radar-app[data-radar-page="archive"] .radar-page-meta { flex-direction:row; flex-wrap:wrap; align-items:center; gap:12px; }
+  .radar-private .selection-bar { border-top:0; }
+  .radar-private .toolbar-inner { padding-top:0; }
+  .radar-archive-scope { display:flex; align-items:baseline; gap:6px 12px; flex-wrap:wrap; padding:0 0 12px; margin:0 0 22px; border-bottom:1.5px solid var(--ink); }
+  .radar-archive-scope h2 { margin:0; font-size:1.5rem; font-weight:700; letter-spacing:-.05em; line-height:1; }
+  .radar-archive-scope em { font-family:var(--display); font-weight:500; font-size:1.7rem; letter-spacing:-.04em; line-height:1; }
+  .radar-archive-scope>span { font-family:var(--mono); font-size:.74rem; letter-spacing:.06em; color:var(--muted); }
+}

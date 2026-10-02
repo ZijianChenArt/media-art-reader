@@ -6,7 +6,6 @@
   const two = n => String(n).padStart(2, '0');
   const labels = { exhibition: '展览征集', residency: '驻留', prize: '奖项', conference: '学术会议' };
   const enLabels = { exhibition: 'Exhibitions', residency: 'Residencies', prize: 'Prizes', conference: 'Conferences' };
-  const imgs = ['assets/diatomic-garden.jpg', 'assets/conspiratorial-design.jpg'];
   const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
   let data = null;
 
@@ -72,9 +71,7 @@
       t.classList.toggle('in-section', route === 'opportunities' && t.dataset.filter === 'all');
       if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
     });
-    $('#status-issue').textContent = String(data.issue_id || '—').replace(/^\d{4}-/, '');
     const ver = (calls.map(c => c.verified_at).filter(Boolean).sort().pop() || '').slice(5, 10).replace('-', '.');
-    $('#status-verified').innerHTML = ver ? '核验 ' + esc(ver).replace('.', '<span class="date-dot">.</span>') : '';
   }
 
 
@@ -297,33 +294,6 @@
     </section>`;
   }
 
-  // ---------- 本周关注 ----------
-  function focusView() {
-    const items = (data.radar || []).slice(0, 2);
-    return `<section class="view">
-      <header class="page-head">
-        <h1><span>本周关注</span><em>In focus<span class="dot">.</span></em></h1>
-        <div class="page-meta"><span>02 / Weekly radar</span><span>${esc(data.issue_id || '')}</span></div>
-      </header>
-      <section class="sec">
-        <div class="sec-h"><h2>本期关注</h2><em>This week</em><span class="sec-n">${two(items.length)}</span></div>
-        <div class="ledger">
-          ${items.map((item, i) => `<article class="call two">
-            <div class="c-img"><img src="${imgs[i] || imgs[0]}" alt="" loading="lazy"></div>
-            <div class="c-main">
-              <div class="c-meta"><span class="c-cat">${esc(item.type || 'IN FOCUS')}</span><span class="c-idx">${two(i + 1)}</span></div>
-              <h2 class="c-title serif">${esc(item.title)}</h2>
-              <p class="c-author">${esc(item.author || '')}</p>
-              <p class="c-brief">${esc(item.short_title || '')}</p>
-              <div class="actions"><a class="btn btn-primary" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer"><span>阅读原文</span><span>↗</span></a></div>
-            </div>
-          </article>`).join('')}
-        </div>
-      </section>
-      <p class="foot-note">推荐与摘要为编辑判断，来源见各条目的原文链接。</p>
-    </section>`;
-  }
-
   // ---------- 小组件页：Edition 14，iPhone 与 Mac 两组参考尺寸 ----------
   // 圆角：全部等角；卡片 18（外框是连续圆角，等效圆角 iPhone ≈ 31 / Mac ≈ 27.5；内缩 12 后最贴合的卡片圆角 iPhone 18.6 / Mac 17.2，取 18）。间距：组件四边内边距 12；相邻块之间 6；块内文字距块边缘 10。
   // 脚本按卡片最终尺寸绘制 1.2pt 描边，并向内偏移半个线宽，避免边缘裁切。
@@ -542,7 +512,6 @@ function titleLines(value, width, size) {
   function parseHash() {
     const raw = location.hash.replace(/^#/, '');
     const [route, filter] = raw.split('/');
-    if (route === 'focus') return { route: 'focus', filter: 'all' };
     if (route === 'widget') return { route: 'widget', filter: 'all' };
     if (route === 'opportunities') return { route: 'opportunities', filter: labels[filter] ? filter : 'all' };
     return { route: 'opportunities', filter: 'all' };
@@ -551,7 +520,7 @@ function titleLines(value, width, size) {
   function render(route, filter = 'all', push = false) {
     if (!data) return;
     syncRail(route, filter);
-    $('#view').innerHTML = route === 'focus' ? focusView() : route === 'widget' ? widgetView() : opportunitiesView(filter);
+    $('#view').innerHTML = route === 'widget' ? widgetView() : opportunitiesView(filter);
     $('#stage').scrollTop = 0;
     window.scrollTo(0, 0);
     fitBrand();
@@ -621,7 +590,7 @@ function titleLines(value, width, size) {
     revealFacts($('.facts', row), open);
   });
 
-  $$('.nav').forEach(btn => btn.addEventListener('click', () => {
+  $$('.nav[data-route]').forEach(btn => btn.addEventListener('click', () => {
     render(btn.dataset.route || 'opportunities', btn.dataset.filter || 'all', true);
   }));
   $('.brand').addEventListener('click', e => { e.preventDefault(); render('opportunities', 'all', true); });
@@ -631,4 +600,132 @@ function titleLines(value, width, size) {
     .then(r => r.json())
     .then(json => { data = json; const s = parseHash(); render(s.route, s.filter, false); })
     .catch(() => { $('#view').innerHTML = '<div class="view"><div class="empty">数据暂时无法读取，请稍后刷新。</div></div>'; });
+})();
+
+/* Shared by site-v15.js and radar-shell.js. Append once to each entry point. */
+(() => {
+  'use strict';
+  const header = document.querySelector('[data-media-header]');
+  const brand = header?.querySelector('.brand, .radar-brand');
+  const nav = header?.querySelector('.index, .radar-index');
+  // Random review deliberately has no full mobile navigation.
+  if (!header || !brand || !nav || header.closest('[data-radar-page="random"]')) return;
+  if (window.MediaArtHeader) return;
+
+  const mobile = window.matchMedia('(max-width: 860px)');
+  const hiddenClass = 'media-header--compact';
+  let active = false, destroyed = false, compact = false, keyboard = false;
+  let lastY = 0, travel = 0, direction = 0, headerHeight = 0, maxY = 0;
+  let scrollFrame = 0, measureFrame = 0, observer;
+  const yNow = () => Math.max(0, Math.min(window.scrollY || 0, maxY));
+  const resetDirection = () => { lastY = yNow(); travel = 0; direction = 0; };
+  const setCompact = value => {
+    if (compact === value) return;
+    compact = value;
+    header.classList.toggle(hiddenClass, compact);
+  };
+  const editing = node => !!node?.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"])');
+  const keepVisible = () => editing(document.activeElement) || (keyboard && header.contains(document.activeElement));
+
+  function measure() {
+    measureFrame = 0;
+    if (!active) return;
+    // Read geometry only after a resize/content/font change, never on scroll.
+    const railBox = header.getBoundingClientRect();
+    const navBox = nav.getBoundingClientRect();
+    const paddingTop = parseFloat(getComputedStyle(header).paddingTop) || 0;
+    const distance = Math.max(0, navBox.top - railBox.top - paddingTop);
+    headerHeight = railBox.height;
+    maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    header.style.setProperty('--media-brand-offset', `${distance}px`);
+    header.toggleAttribute('data-media-header-ready', distance > 0);
+    if (!distance || keepVisible() || yNow() <= headerHeight) setCompact(false);
+    resetDirection();
+  }
+  function scheduleMeasure() {
+    if (active && !measureFrame) measureFrame = requestAnimationFrame(measure);
+  }
+  function updateScroll() {
+    scrollFrame = 0;
+    if (!active) return;
+    const y = yNow(), delta = y - lastY;
+    lastY = y;
+    if (keepVisible() || y <= 8) {
+      setCompact(false); travel = 0; direction = 0; return;
+    }
+    if (!delta) return;
+    const nextDirection = delta > 0 ? 1 : -1;
+    if (nextDirection !== direction) { direction = nextDirection; travel = 0; }
+    travel += Math.abs(delta);
+    if (direction === 1 && travel >= 18 && y > headerHeight) setCompact(true);
+    if (direction === -1 && travel >= 10) setCompact(false);
+  }
+  function onScroll() {
+    if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScroll);
+  }
+  function onFocus(event) {
+    if (header.contains(event.target) || editing(event.target)) {
+      setCompact(false); resetDirection();
+    }
+  }
+  function onKey(event) {
+    if (event.key === 'Tab' || ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) {
+      keyboard = true;
+      if (keepVisible()) { setCompact(false); resetDirection(); }
+    }
+  }
+  function onPointer() { keyboard = false; }
+  function onResize() {
+    // Reveal during orientation/keyboard transitions; re-measure once per frame.
+    setCompact(false); scheduleMeasure();
+  }
+  function disable() {
+    active = false;
+    cancelAnimationFrame(scrollFrame); cancelAnimationFrame(measureFrame);
+    scrollFrame = 0; measureFrame = 0;
+    observer?.disconnect(); observer = undefined;
+    window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('resize', onResize);
+    document.removeEventListener('focusin', onFocus);
+    document.removeEventListener('keydown', onKey);
+    document.removeEventListener('pointerdown', onPointer);
+    setCompact(false);
+    header.removeAttribute('data-media-header-ready');
+    header.style.removeProperty('--media-brand-offset');
+    keyboard = false; travel = 0; direction = 0;
+  }
+  function sync() {
+    if (destroyed) return;
+    if (!mobile.matches) { if (active) disable(); return; }
+    if (!active) {
+      active = true;
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onResize, { passive: true });
+      document.addEventListener('focusin', onFocus);
+      document.addEventListener('keydown', onKey);
+      document.addEventListener('pointerdown', onPointer, { passive: true });
+      if ('ResizeObserver' in window) {
+        observer = new ResizeObserver(scheduleMeasure);
+        observer.observe(header); observer.observe(nav); observer.observe(document.documentElement);
+      }
+    }
+    scheduleMeasure();
+  }
+  function onPageShow() { sync(); }
+  function destroy() {
+    if (destroyed) return;
+    disable(); destroyed = true;
+    mobile.removeEventListener('change', sync);
+    window.removeEventListener('pageshow', onPageShow);
+    window.removeEventListener('pagehide', disable);
+    window.removeEventListener('load', scheduleMeasure);
+    delete window.MediaArtHeader;
+  }
+  window.MediaArtHeader = Object.freeze({ refresh: scheduleMeasure, destroy });
+  mobile.addEventListener('change', sync);
+  window.addEventListener('pageshow', onPageShow);
+  window.addEventListener('pagehide', disable);
+  window.addEventListener('load', scheduleMeasure, { once: true });
+  document.fonts?.ready.then(scheduleMeasure);
+  sync();
 })();

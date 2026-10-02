@@ -47,7 +47,7 @@ img{display:block;max-width:100%}
 .brand{display:block;height:var(--title-h,63px);margin:0 0 34px}
 .brand-t{display:block;font-family:var(--serif);font-size:3.8rem;line-height:1;letter-spacing:-.02em;white-space:nowrap}
 
-.index{flex:1 1 auto;min-height:0;display:grid;grid-template-rows:minmax(340px,1fr) 52px 52px 42px;gap:10px}
+.index{flex:1 1 auto;min-height:0;display:grid;grid-template-rows:minmax(340px,1fr) 88px 66px;gap:10px}
 .nav{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;cursor:pointer;font-size:.95rem}
 .nav:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}
 .nav .n{font-family:var(--mono);font-size:.7rem;color:var(--mute)}
@@ -76,7 +76,7 @@ img{display:block;max-width:100%}
 .tile .tl strong{font-size:1.04rem;line-height:1.15}
 .tile .tl em{font-family:var(--serif);font-size:1.18rem;line-height:1.05;color:var(--mute)}
 
-/* 三个小模块：本周关注 / 小组件 / 期号 */
+/* 两个独立入口：媒体艺术档案 / 小组件 */
 .mini{padding:0 18px;border:1.5px solid var(--ink);border-radius:20px 5px 20px 5px;background:#fff}
 .mini strong{flex:1}
 .mini i{font-style:normal;font-size:.9rem}
@@ -91,7 +91,7 @@ img{display:block;max-width:100%}
 .stage{min-width:0;height:100%;overflow-y:auto;overflow-x:hidden;outline:none;scrollbar-width:thin;scrollbar-color:#8a8a8f transparent;padding:0 44px}
 .stage::-webkit-scrollbar{width:8px}
 .stage::-webkit-scrollbar-thumb{background:#8a8a8f;border-radius:999px}
-.view{max-width:1120px;padding:32px 0 64px}
+.view{width:100%;max-width:none;margin:0;padding:32px 0 64px}
 
 .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;padding:0 0 34px}
 .page-head h1{margin:0;font-size:clamp(2.6rem,4.3vw,4.2rem);line-height:.94;letter-spacing:-.06em;font-weight:700;display:flex;align-items:baseline;gap:.22em;flex-wrap:wrap}
@@ -466,3 +466,56 @@ img{display:block;max-width:100%}
 /* Widget text follows iOS system typography; the rest of the site keeps its web fonts. */
 .wg .ed-body,.wg .ed-column>b,.wg .ed-small-title{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","PingFang SC",sans-serif}
 .wg .ed-timer,.wg .ed-meta,.wg .ed-foot{font-family:ui-monospace,Menlo,monospace}
+
+/* Mobile uses the same three sections as the desktop rail. */
+@media(max-width:860px){.rail{flex-wrap:wrap}.rail>.index{flex:1 1 100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto;justify-content:normal}.rail .nav{width:100%;height:38px;padding:0 6px}.rail .brand{flex-basis:100%}}
+@media(min-width:861px){.group{position:relative}.group::after{content:"";position:absolute;inset:0;z-index:3;border:3px solid var(--ink);border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .18s ease}.group:hover::after,.group:focus-within::after{opacity:1}}
+
+
+/* Proven geometry correction only. Append in BOTH site-v15.css and radar-shell.css
+   (the irrelevant selector namespace is harmless), or split by namespace.
+   Outer group radius is 28px 6px 28px 6px; its border is 1.5px.
+   Absolute inset:0 uses the padding-box origin, so the overlay's outer
+   radius must be 1.5px smaller than the group's outer radius.
+   Base 1.5px + inward overlay 1.5px = 3px total hover stroke. */
+@media (min-width:861px) {
+  .group::after,
+  .radar-group::after {
+    border-width:1.5px;
+    border-radius:26.5px 4.5px 26.5px 4.5px;
+  }
+  /* The group has a single perimeter hover ring. Do not stack a clipped,
+     square inset ring on its first/last child at the same time. */
+  .group .nav:hover,
+  .radar-group .radar-nav:hover {
+    box-shadow:none;
+  }
+}
+
+/* Append to both site-v15.css and radar-shell.css. The mark is decorative;
+   existing brand links already expose the complete accessible name. */
+.brand-t::after,
+.radar-brand > span::after {
+  content: "";
+  display: inline-block;
+  width: .14em;
+  height: .14em;
+  margin-left: .075em;
+  border-radius: 50%;
+  background: var(--red, #D71921);
+  vertical-align: baseline;
+}
+@media (max-width: 860px) {
+  [data-media-header][data-media-header-ready] {
+    /* Keep both rows in normal flow. Only the paint position changes; nav
+       lands at the same 10px top inset once the brand row leaves the screen. */
+    transform: translateY(0);
+    transition: transform 180ms ease-out;
+  }
+  [data-media-header][data-media-header-ready].media-header--compact {
+    transform: translateY(calc(-1 * var(--media-brand-offset, 0px)));
+  }
+}
+@media (max-width: 860px) and (prefers-reduced-motion: reduce) {
+  [data-media-header][data-media-header-ready] { transition: none; }
+}

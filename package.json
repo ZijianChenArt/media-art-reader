@@ -1,0 +1,11 @@
+{
+  "name": "media-art-reader",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tools/test-archive.mjs"
+  },
+  "devDependencies": {
+    "pinyin-pro": "3.29.4"
+  }
+}

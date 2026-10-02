@@ -1,0 +1,36 @@
+/* Viewport-sized preview; never inherit card cropping, zoom or rounded clipping. */
+.artwork-lightbox {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  border: 0;
+  border-radius: 0;
+  background: #111;
+  color: #fff;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+.artwork-lightbox:not([open]) { display: none; }
+.artwork-lightbox[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 12px; }
+.artwork-lightbox::backdrop { background: rgba(0, 0, 0, .92); }
+.artwork-lightbox__toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; }
+.artwork-lightbox__caption { min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 14px/1.5 var(--sans, sans-serif); }
+.artwork-lightbox__close { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 7px; min-width: 80px; min-height: 44px; margin: 0; padding: 5px 14px; border: 1px solid #777; border-radius: 999px; background: #111; color: #fff; font: 500 14px/1 var(--sans, sans-serif); cursor: pointer; }
+.artwork-lightbox__close span[aria-hidden] { font-size: 27px; line-height: 1; }
+.artwork-lightbox__close:hover { background: #fff; color: #111; border-color: #fff; }
+.artwork-lightbox__close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.artwork-lightbox__stage { display: flex; position: relative; align-items: center; justify-content: center; min-width: 0; min-height: 0; width: 100%; height: 100%; }
+.artwork-lightbox .artwork-lightbox__image { display: block; flex: 0 1 auto; width: auto; height: auto; max-width: 100%; max-height: 100%; margin: 0; border: 0; border-radius: 0; object-fit: contain; object-position: 50% 50%; transform: none; }
+.artwork-lightbox__status { position: absolute; inset: auto 0 10px; margin: 0; padding: 12px; background: #111; color: #fff; text-align: center; font: 14px/1.6 var(--sans, sans-serif); }
+a.image-slide { cursor: zoom-in; }
+@media (max-width: 620px) {
+  .artwork-lightbox { gap: 8px; padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); }
+  .artwork-lightbox__caption { font-size: 12px; }
+}
