@@ -29,8 +29,8 @@
   const header = document.querySelector('[data-media-header]');
   const brand = header?.querySelector('.brand, .radar-brand');
   const nav = header?.querySelector('.index, .radar-index');
-  // Random review deliberately has no full mobile navigation.
-  if (!header || !brand || !nav || header.closest('[data-radar-page="random"]')) return;
+  // Random hides the rail with CSS; keep its controller ready for a return to Archive.
+  if (!header || !brand || !nav) return;
   if (window.MediaArtHeader) return;
 
   const mobile = window.matchMedia('(max-width: 860px)');

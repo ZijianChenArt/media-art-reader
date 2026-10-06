@@ -46,14 +46,14 @@ test('static build links and image assets resolve under Pages project and Site r
   }
  }
 });
-test('homepage archive link is not intercepted by hash routing',()=>{
+test('homepage uses a shared content-only navigation link',()=>{
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8'),script=fs.readFileSync(path.join(root,'site-v15.js'),'utf8');
- assert.match(html,/class="nav mini archive-nav" href="archive\/"/);assert.ok(script.includes("$$('.nav[data-route]').forEach(btn => btn.addEventListener"));
+ assert.match(html,/class="radar-nav radar-mini radar-archive-nav" href="archive\/"/);assert.ok(script.includes('window.MediaArtNavigation.go'));assert.match(html,/media-navigation\.js\?v=/);
 });
 
 import {createHash} from 'node:crypto';
 test('shared public asset URLs match current content fingerprints',()=>{
- for(const [page,names] of [['index.html',['site-v15.css','site-v15.js']],['archive/index.html',['radar-shell.css','radar-shell.js','archive/archive-detail.css','archive/archive-detail.js','archive/details-motion.js']]]){
+ for(const [page,names] of [['index.html',['site-v15.css','media-page-home.js','media-navigation.js']],['archive/index.html',['radar-shell.css','radar-shell.js','archive/archive-detail.css','media-page-archive.js','media-navigation.js']]]){
   const html=fs.readFileSync(path.join(root,page),'utf8');
   for(const name of names){const fingerprint=createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex').slice(0,12);assert.ok(html.includes(path.basename(name)+'?v='+fingerprint),'Stale cache fingerprint: '+name);}
  }
@@ -114,7 +114,7 @@ test('desktop navigation leaves wider group gaps while preserving the widget row
   assert.match(css,/grid-template-rows: calc\(56px \+ var\(--media-group-border\) \+ 4 \* var\(--media-entry-height\)\) var\(--media-entry-height\) 66px;/,name);
   assert.match(css,/@media \(min-width: 861px\) and \(max-height: 820px\) \{\s*\.rail > \.index, \.radar-rail > \.radar-index \{ --media-entry-min: 84px; \}/,name);
  }
- for(const name of ['site-v15.js','radar-shell.js']){
+ for(const name of ['radar-shell.js']){
   const script=fs.readFileSync(path.join(root,name),'utf8');
   assert.match(script,/indexStyle\.getPropertyValue\('--media-entry-min'\)/,name);
   assert.match(script,/Math\.max\(minimum, available \/ 5\)/,name);

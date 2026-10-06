@@ -1,3 +1,6 @@
+(() => {
+const pageScope = window.MediaArtPage?.current;
+const listen = (target, ...args) => { target?.addEventListener?.(...args); pageScope?.onCleanup(() => target?.removeEventListener?.(...args)); };
 // Read-only, delegated image preview for archive cards, random cards and detail clones.
 (() => {
   const dialog = document.createElement('dialog');
@@ -6,6 +9,7 @@
   dialog.setAttribute('aria-modal', 'true');
   dialog.innerHTML = `<div class="artwork-lightbox__toolbar">
     <p class="artwork-lightbox__caption"></p>
+    <a class="artwork-lightbox__original" target="_blank" rel="noopener noreferrer" hidden>图片来源</a>
     <button class="artwork-lightbox__close" type="button" aria-label="关闭图片预览" autofocus><span aria-hidden="true">×</span><span>关闭</span></button>
   </div>
   <div class="artwork-lightbox__stage"><img class="artwork-lightbox__image" alt="" decoding="async" draggable="false"><p class="artwork-lightbox__status" role="status" hidden></p></div>`;
@@ -13,6 +17,7 @@
 
   const image = dialog.querySelector('.artwork-lightbox__image');
   const caption = dialog.querySelector('.artwork-lightbox__caption');
+  const sourceLink = dialog.querySelector('.artwork-lightbox__original');
   const closeButton = dialog.querySelector('.artwork-lightbox__close');
   const status = dialog.querySelector('.artwork-lightbox__status');
   const lockProperties = ['overflow', 'overflow-x', 'overflow-y', 'scrollbar-gutter'];
@@ -74,6 +79,8 @@
     session = null;
     backgroundPointerDown = false;
     image.removeAttribute('src');
+    sourceLink.removeAttribute('href');
+    sourceLink.hidden = true;
     image.alt = '';
     caption.textContent = '';
     status.hidden = true;
@@ -94,7 +101,7 @@
     // Modern browsers provide focus trapping and inert background through showModal.
     if (typeof dialog.showModal !== 'function') return false;
     if (dialog.open) closePreview();
-    const source = trigger.href || original.currentSrc || original.src;
+    const source = trigger.dataset.lightboxSrc || trigger.href || original.currentSrc || original.src;
     if (!source) return false;
     const description = original.alt || '作品图片';
     session = {trigger, ...lockScroll(trigger)};
@@ -102,6 +109,10 @@
     caption.textContent = description;
     dialog.setAttribute('aria-label', `${description} · 图片预览`);
     status.hidden = true;
+    const sourcePage = trigger.dataset.imageSource;
+    if (sourcePage) sourceLink.href = sourcePage;
+    else sourceLink.removeAttribute('href');
+    sourceLink.hidden = !sourcePage;
     image.src = source;
     try {
       dialog.showModal();
@@ -113,7 +124,7 @@
     }
   }
 
-  document.addEventListener('click', event => {
+  listen(document, 'click', event => {
     if (event.defaultPrevented || event.target.closest?.('[data-gallery-step]')) return;
     const trigger = event.target.closest?.('a.image-slide');
     if (!trigger || !openPreview(trigger)) return;
@@ -151,5 +162,8 @@
   });
   image.addEventListener('load', () => { status.hidden = true; });
   // Parent detail views dispatch before restoring their own scroll lock.
-  document.addEventListener('artwork-lightbox-close', closePreview);
+  listen(document, 'artwork-lightbox-close', closePreview);
+  pageScope?.onCleanup(()=>{closePreview();dialog.remove();});
+})();
+
 })();

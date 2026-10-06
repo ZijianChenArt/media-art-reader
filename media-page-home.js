@@ -1,3 +1,7 @@
+window.MediaArtPages ||= {};
+window.MediaArtPages["home"] = function(){
+
+/* site-v15.js */
 (() => {
   const pageScope = window.MediaArtPage?.current;
   const listen = (target,...args) => {target?.addEventListener?.(...args);pageScope?.onCleanup(()=>target?.removeEventListener?.(...args));};
@@ -493,3 +497,6 @@
     .catch(() => { if(pageScope && !pageScope.active)return;$('#view').innerHTML = '<div class="view"><div class="empty">数据暂时无法读取，请稍后刷新。</div></div>'; });
 })();
 
+
+
+};

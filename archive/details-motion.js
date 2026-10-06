@@ -1,4 +1,7 @@
 (() => {
+const pageScope = window.MediaArtPage?.current;
+const listen = (target, ...args) => { target?.addEventListener?.(...args); pageScope?.onCleanup(() => target?.removeEventListener?.(...args)); };
+(() => {
  const active=new WeakMap();
  function toggle(details,summary){
   const panel=details.querySelector('.details-content');if(!panel)return;
@@ -25,10 +28,12 @@
    details.style.height='';details.style.overflow='';active.delete(details);
   };
  }
- document.addEventListener('click',event=>{
+ listen(document, 'click',event=>{
   const summary=event.target.closest?.('summary');if(!summary)return;
   const details=summary.parentElement;if(details?.tagName!=='DETAILS'||!details.closest('.card-sources'))return;
   if(event.button&&event.button!==0)return;
   event.preventDefault();toggle(details,summary);
  });
+})();
+
 })();

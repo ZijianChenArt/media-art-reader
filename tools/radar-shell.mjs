@@ -14,10 +14,10 @@ export function renderRadarShell(content, {rootHref='../', archiveHref='./', pag
       <a class="radar-nav radar-main" href="${E(rootHref)}#opportunities"><span class="radar-n">01</span><strong>国际机会精选</strong><span class="radar-c" data-radar-count="all">—</span></a>
       ${sections.map(([key,zh,en])=>`<a class="radar-nav radar-tile" href="${E(rootHref)}#opportunities/${key}"><i class="radar-g"><svg viewBox="0 0 12 12" aria-hidden="true">${icons[key]}</svg></i><span class="radar-c" data-radar-count="${key}">—</span><span class="radar-tl"><strong>${zh}</strong><em>${en}</em></span></a>`).join('')}
     </section>
-    <a class="radar-nav radar-mini radar-archive-nav is-active" href="${E(archiveHref)}" aria-current="page"><span class="radar-n">02</span><strong>媒体艺术档案</strong><i>↗</i></a>
+    <a class="radar-nav radar-mini radar-archive-nav ${page==='archive'||page==='random'?'is-active':''}" href="${E(archiveHref)}"${page==='archive'||page==='random'?' aria-current="page"':''}><span class="radar-n">02</span><strong>媒体艺术档案</strong><i>↗</i></a>
     <a class="radar-nav radar-mini" href="${E(rootHref)}#widget"><span class="radar-n">03</span><strong>小组件</strong><i>↗</i></a>
   </nav></aside>
-  <div class="radar-stage" id="radar-stage"><div class="radar-view${privateMode?' radar-private':''}">${content}</div></div></div>`;
+  <div class="radar-stage" id="radar-stage" tabindex="-1"><div class="radar-view${privateMode?' radar-private':''}">${content}</div></div></div>`;
 }
 export function renderArchiveHeading({random=false, privateMode=false, archiveHref='./', randomHref='../random/'}={}) {
   return `<header class="radar-page-head"><h1><span>${random?'随机选择':'媒体艺术档案'}</span><em>${random?'Random':'Archive'}<span class="radar-dot">.</span></em></h1><div class="radar-page-meta">${random?'':'<span>02 / Archive</span>'}${privateMode?`<a class="radar-workspace-link" href="${E(random?archiveHref:randomHref)}">${random?'返回作品库':'随机选择'} ↗</a>`:''}</div></header>`;
@@ -39,4 +39,10 @@ export function skinPrivatePage(html, {random=false, rootHref='/', archiveHref='
   const wrapped=renderRadarShell(heading+body,{rootHref,archiveHref,page:random?'random':'archive',privateMode:true});
   return html.replace(/<body[^>]*>[\s\S]*?<\/body>/i,`<body>${wrapped}<script src="${E(assetHref)}radar-shell.js" defer></script></body>`)
     .replace('</head>',`<link rel="stylesheet" href="${E(assetHref)}radar-shell.css"></head>`);
+}
+
+export function skinRadarHome(html) {
+ const start=html.indexOf('<div class="app">'), end=html.indexOf('<script src="site-v15.js');
+ if(start<0 || end<0)throw new Error('Radar home shell not found');
+ return html.slice(0,start).replace('href="#stage"','href="#radar-stage"')+renderRadarShell('<div id="view"></div>',{rootHref:'./',archiveHref:'archive/',page:'home'})+html.slice(end).replace('</head>','');
 }

@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tools/test-archive.mjs"
+    "test": "node --test tools/test-*.mjs",
+    "build:navigation": "node --input-type=module -e \"import { buildNavigation } from './tools/build-navigation.mjs'; buildNavigation('.', { pages: ['index.html', 'archive/index.html'], sourceDirectory: '.' });\""
   },
   "devDependencies": {
-    "pinyin-pro": "3.29.4"
+    "pinyin-pro": "3.29.4",
+    "linkedom": "^0.18.12"
   }
 }

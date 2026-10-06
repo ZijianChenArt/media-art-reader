@@ -1,3 +1,6 @@
+(() => {
+const pageScope = window.MediaArtPage?.current;
+const listen = (target, ...args) => { target?.addEventListener?.(...args); pageScope?.onCleanup(() => target?.removeEventListener?.(...args)); };
 /* The original artwork expands within its own row. No clone, modal or grid reorder. */
 (() => {
   'use strict';
@@ -222,7 +225,7 @@
 
   // Capture precedes details-motion.js. Native mobile/random disclosures retain
   // their existing behavior; Enter and Space use the summary's native click.
-  document.addEventListener('click', event => {
+  listen(document, 'click', event => {
     if (event.defaultPrevented || (event.button && event.button !== 0)) return;
     if (event.target.closest?.('[data-filter],.section-toggle,#clear-search,[data-remove]')) close({immediate: true, restoreFocus: false});
     const summary = event.target.closest?.('summary');
@@ -240,13 +243,13 @@
     } else if (!open(target)) return;
     event.preventDefault(); event.stopImmediatePropagation();
   }, true);
-  document.addEventListener('input', event => {
+  listen(document, 'input', event => {
     if (event.target.id === 'archive-search') close({immediate: true, restoreFocus: false});
   }, true);
-  document.addEventListener('change', event => {
+  listen(document, 'change', event => {
     if (event.target.matches?.('[data-review]')) close({immediate: true, restoreFocus: false});
   }, true);
-  document.addEventListener('keydown', event => {
+  listen(document, 'keydown', event => {
     if (event.key !== 'Escape' || event.defaultPrevented || !current || document.querySelector('dialog[open]')) return;
     event.preventDefault();
     close();
@@ -259,10 +262,13 @@
       if (current && !measure(current)) close({immediate: true});
     });
   }
-  window.addEventListener('resize', resize);
-  if (desktop.addEventListener) desktop.addEventListener('change', resize);
+  listen(window, 'resize', resize);
+  if (desktop.addEventListener) listen(desktop, 'change', resize);
   else desktop.addListener(resize);
-  window.addEventListener('popstate', () => close({immediate: true, restoreFocus: false}));
-  window.addEventListener('hashchange', () => close({immediate: true, restoreFocus: false}));
-  window.addEventListener('pagehide', () => close({immediate: true, restoreFocus: false}));
+  listen(window, 'popstate', () => close({immediate: true, restoreFocus: false}));
+  listen(window, 'hashchange', () => close({immediate: true, restoreFocus: false}));
+  listen(window, 'pagehide', () => close({immediate: true, restoreFocus: false}));
+  pageScope?.onCleanup(()=>{close({immediate:true,restoreFocus:false});window.cancelAnimationFrame?.(resizeFrame);desktop.removeListener?.(resize);});
+})();
+
 })();
