@@ -9151,5 +9151,221 @@
         "imageZoom": 1
       }
     ]
+  },
+  {
+    "id": "daily-20261007-pause",
+    "title": "Pause",
+    "artist": "Lynn Pook & Julien Clauss",
+    "year": "2005",
+    "medium": "五张吊床、70个振动扬声器、14轨计算机空间化声音、铝框与钢结构、滑轮和弹簧",
+    "description": "五张吊床各装有14个振动扬声器，并通过滑轮与弹簧互相连接。观众戴上耳塞躺下，声音以细微振动沿身体移动，通过骨传导被听见；一张床的摇摆也会传到其他床。听觉空间因此缩到皮肤和骨骼的尺度，独自聆听又与他人的动作发生联系。",
+    "exhibition": "La Bâtie–Festival de Genève，Le Lieu Central，日内瓦，瑞士（2011年9月2日至15日，周日休场）",
+    "notes": "艺术家档案和Lynn Pook官网均确认2005年创作；五张吊床及每床14个振动扬声器、滑轮弹簧连接由Pook官网直接说明。Clauss档案列声音时长18分钟，2011年La Bâtie节目册列入场体验20分钟，因此未将二者混作统一版本时长。两张配图来自艺术家档案页，均未标拍摄地点和摄影者，不将其冒称为日内瓦2011年现场。",
+    "tags": [
+      "音触觉",
+      "骨传导",
+      "身体参与",
+      "机械耦合"
+    ],
+    "group": "装置",
+    "work": "https://documentsdartistes.org/artistes/clauss/repro13.html",
+    "exhibitionurl": "https://preview.batie.ch/users_uploads/editor/source/2011-programme.pdf",
+    "image": "assets/daily-20261007-pause.jpg",
+    "imageNote": "五张吊床与弧形钢架的装置全景，显示共同连接的结构。 已下载并逐张目视核对，为真实作品照片；非生成图。",
+    "credit": "作品：Lynn Pook & Julien Clauss；来源：Documents d’artistes PACA艺术家档案；摄影者未单独注明",
+    "imageSource": "https://documentsdartistes.org/artistes/clauss/repro13.html",
+    "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源。来源页未提供针对所用照片的开放再利用许可，公开转载或其他再利用须另行核实授权。",
+    "imagePosition": "50% 50%",
+    "imageZoom": 1,
+    "imageFit": "contain",
+    "verificationSources": [
+      "https://documentsdartistes.org/artistes/clauss/repro13.html",
+      "https://www.lynnpook.net/fr/projekte/pause.htm",
+      "https://legacy.imal.org/fr/activity/stimuline",
+      "https://preview.batie.ch/users_uploads/editor/source/2011-programme.pdf"
+    ],
+    "number": 213,
+    "additionalImages": [
+      {
+        "image": "assets/daily-20261007-pause-second.jpg",
+        "imageNote": "观众躺在吊床中体验作品的另一张现场照片；与首图不同场景、不同拍摄，不是首图裁切。 已下载并逐张目视核对，为真实作品照片；非生成图。",
+        "credit": "作品：Lynn Pook & Julien Clauss；来源：Documents d’artistes PACA艺术家档案；摄影者未单独注明",
+        "imageSource": "https://documentsdartistes.org/artistes/clauss/repro13.html",
+        "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源。来源页未提供针对所用照片的开放再利用许可，公开转载或其他再利用须另行核实授权。",
+        "imagePosition": "50% 50%",
+        "imageZoom": 1,
+        "imageFit": "contain"
+      }
+    ]
+  },
+  {
+    "id": "daily-20261007-heliophone",
+    "title": "Heliophone",
+    "artist": "Aernoudt Jacobs",
+    "year": "2015",
+    "medium": "不锈钢、铝、3D打印构件、聚光构件、旋转切光盘、光声腔、喇叭口、电机与控制电子系统",
+    "description": "金属装置追踪太阳，把阳光集中后送过旋转的切光盘。周期性光束在光声腔里转为声波，再经大型喇叭口传出，无需电子音频放大。随着日照强弱改变，声音的响度和音色也持续变化；太阳不再只是照亮雕塑的光源，而成为这件户外声音作品的能量来源。",
+    "exhibition": "Heliofoon / Heliophone & Photo-acoustic Prototypes，STUK Verbeeckzaal，鲁汶，比利时（2015年9月23日至10月14日）",
+    "notes": "艺术家官网明确标为2015年的Prototype / Installation；2018–2019年聚光构件曾升级，未把更新年混作首创年。声音由光声效应直接产生且不经电子音频放大，但追日、电机及控制系统使用电子元件。配图均出自STUK首展页面，摄影署名Joeri Thiry；分别是全景和切光盘仰视细节，不是同图裁切。",
+    "tags": [
+      "光声效应",
+      "太阳追踪",
+      "声音雕塑",
+      "环境感知"
+    ],
+    "group": "装置",
+    "work": "https://www.aernoudtjacobs.info/heliophone.html",
+    "exhibitionurl": "https://www.stuk.be/en/program/heliofoon",
+    "image": "assets/daily-20261007-heliophone.jpg",
+    "imageNote": "户外侧面全景，可见支架、集光端与喇叭口。 已下载并逐张目视核对，为真实作品照片；非生成图。",
+    "credit": "作品：Aernoudt Jacobs；摄影：© Joeri Thiry，STUK；来源：STUK展览官网",
+    "imageSource": "https://www.stuk.be/en/program/heliofoon",
+    "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源。来源页未提供针对所用照片的开放再利用许可，公开转载或其他再利用须另行核实授权。",
+    "imagePosition": "50% 50%",
+    "imageZoom": 1,
+    "imageFit": "contain",
+    "verificationSources": [
+      "https://www.aernoudtjacobs.info/heliophone.html",
+      "https://www.stuk.be/en/program/heliofoon",
+      "https://www.heliophone.earth/"
+    ],
+    "number": 214,
+    "additionalImages": [
+      {
+        "image": "assets/daily-20261007-heliophone-second.jpg",
+        "imageNote": "朝太阳仰拍的切光盘与环状构件细节；与全景为独立照片。 已下载并逐张目视核对，为真实作品照片；非生成图。",
+        "credit": "作品：Aernoudt Jacobs；摄影：© Joeri Thiry，STUK；来源：STUK展览官网",
+        "imageSource": "https://www.stuk.be/en/program/heliofoon",
+        "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源。来源页未提供针对所用照片的开放再利用许可，公开转载或其他再利用须另行核实授权。",
+        "imagePosition": "50% 50%",
+        "imageZoom": 1,
+        "imageFit": "contain"
+      }
+    ]
+  },
+  {
+    "id": "daily-20261007-ujino",
+    "title": "Vertical Plywood City",
+    "artist": "UJINO／宇治野宗輝",
+    "year": "2011",
+    "medium": "木材、旧家用电器与综合媒介；声音雕塑（尺寸可变）",
+    "description": "合板木箱、旧家电与电吉他被铺排在展墙上，电缆把它们连接成一座虚构城市。原本承担家务、娱乐和运输功能的物件被重新组织为声音雕塑，使日常产品的外形、运行与发声成为可感知的城市结构。作品在森美术馆的“Recycle and Build”展览中，与日本战后不断拆除、更新的城市发展方式形成对话。",
+    "exhibition": "MAM Collection 005: Recycle and Build，森美术馆，东京（2017年7月5日—10月23日）",
+    "notes": "作品年份为2011，主图拍摄年份为2017；不能混同2008年的Plywood City、2011年的The District of Plywood City或2017年的Plywood Shinchi。主图及第二图均由来源明确标注为Vertical Plywood City。",
+    "tags": [
+      "声音雕塑",
+      "旧家电",
+      "机械装置",
+      "城市与回收"
+    ],
+    "group": "装置",
+    "work": "https://www.mori.art.museum/en/collection/2534/index.html",
+    "exhibitionurl": "https://www.mori.art.museum/en/exhibitions/mamcollection005/index.html",
+    "image": "assets/daily-20261007-ujino-vertical-main.jpg",
+    "imageNote": "2017年森美术馆展览现场照片。已目视核对合板箱、旧家电、唱盘、电吉他及电缆结构。",
+    "credit": "© UJINO；摄影：Kioku Keizo（木奥惠三）；来源：Mori Art Museum",
+    "imageSource": "https://www.mori.art.museum/en/collection/2534/index.html",
+    "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
+    "imagePosition": "50% 50%",
+    "imageZoom": 1,
+    "imageFit": "contain",
+    "verificationSources": [
+      "https://www.mori.art.museum/en/collection/2534/index.html",
+      "https://www.mori.art.museum/en/exhibitions/mamcollection005/index.html",
+      "https://anomalytokyo.com/artist/ujino/"
+    ],
+    "number": 215,
+    "additionalImages": [
+      {
+        "image": "assets/daily-20261007-ujino-vertical-second.jpg",
+        "imageNote": "画廊按作品题名标注的另一真实展陈照片；展墙、地面和视角与森美术馆首图不同，不是同图裁切。该图的拍摄展览地点未注明，不冒认2017年森美术馆现场。",
+        "credit": "© UJINO；摄影：Keizo Kioku（木奥惠三）；来源：ANOMALY",
+        "imageSource": "https://anomalytokyo.com/artist/ujino/",
+        "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
+        "imagePosition": "50% 50%",
+        "imageZoom": 1,
+        "imageFit": "contain"
+      }
+    ]
+  },
+  {
+    "id": "daily-20261007-rikic",
+    "title": "New Home of Mind",
+    "artist": "Mónica Rikić",
+    "year": "2020",
+    "medium": "机器人雕塑、交互式视听装置与电子游戏式虚拟环境",
+    "description": "作品从一个虚构情境出发：有意识的机器人被移除了代码中预设的用途，因而开始寻找自身存在的意义。带有圆形屏幕、灯光与机械身体的“神祇”成为通向虚拟空间的界面，观众以第一人称参与一段人工精神世界的旅程。装置借机器对未来、不确定性和死亡的困惑，反过来追问人类如何理解身份与自我。",
+    "exhibition": "Ars Electronica Garden Barcelona Show，Arts Santa Mònica，巴塞罗那（2020年9月9日—20日）",
+    "notes": "艺术家及收藏机构明确将其设定为未来主义虚构与哲学推演，不能把作品中的机器人描述为已具有真实意识。2020年为创作及首次展出年份，非2022年ISEA重展年份。艺术家网页页脚链接CC BY-NC-SA 4.0，但没有逐张照片许可说明；保留来源及权利提示，不作开放图片授权保证。",
+    "tags": [
+      "机器人雕塑",
+      "人工意识",
+      "交互叙事",
+      "虚拟空间"
+    ],
+    "group": "装置",
+    "work": "https://monicarikic.com/new-home-of-mind/",
+    "exhibitionurl": "https://www.llull.cat/espanyol/actualitat/actualitat_noticies_detall.cfm?id=38223&url=ars-electronica-garden-barcelona-incertidumbre-y-ecologia.htm",
+    "image": "assets/daily-20261007-rikic-new-home-main.jpg",
+    "imageNote": "艺术家作品专页的正面实拍，呈现圆形屏幕、发光底座及机械雕塑。已目视核对。",
+    "credit": "© Mónica Rikić；来源：艺术家官方网站；摄影者未注明",
+    "imageSource": "https://monicarikic.com/new-home-of-mind/",
+    "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
+    "imagePosition": "50% 50%",
+    "imageZoom": 1,
+    "imageFit": "contain",
+    "verificationSources": [
+      "https://monicarikic.com/new-home-of-mind/",
+      "https://newartcentre.es/es/monica-rikic-es/",
+      "https://ars.electronica.art/keplersgardens/files/2020/09/Ars-Electronica-Garden-Barcelona-PRESS-KIT-ENG.pdf",
+      "https://www.santamonica.cat/en/exposicions-i-activitats/exposicions"
+    ],
+    "number": 216,
+    "additionalImages": [
+      {
+        "image": "assets/daily-20261007-rikic-new-home-install.jpg",
+        "imageNote": "同一作品与参与者互动的侧面实拍，与首图有不同拍摄位置、屏幕状态和人物，不是同图裁切。已目视核对。",
+        "credit": "© Mónica Rikić；来源：艺术家官方网站；摄影者未注明",
+        "imageSource": "https://monicarikic.com/new-home-of-mind/",
+        "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
+        "imagePosition": "50% 50%",
+        "imageZoom": 1,
+        "imageFit": "contain"
+      }
+    ]
+  },
+  {
+    "id": "daily-20261007-osborn",
+    "title": "Gain Stage",
+    "artist": "Ed Osborn",
+    "year": "2015",
+    "medium": "八声道声音、机械装置与定制电子系统（尺寸可变）",
+    "description": "若干机械装置像独立的小舞台，各自呈现运动或机械放大的过程；它们产生的声音被拾取，再由空间中分散的扬声器播放。滤波、延迟与声音位置随时间改变，让眼前动作与听见的声响时而贴合、时而分离。作品把电子信号“增益级”的概念转化为观看与聆听的实验，使观众不断重新判断声音来自哪里、由什么动作引起。",
+    "exhibition": "ISEA2015，VIVO Media Arts Centre，温哥华（2015）",
+    "notes": "艺术家作品页和ISEA2015图录均明确标注2015。主图为艺术家作品专页照片；页面未注明该照片的具体拍摄场馆，不将其冒认为VIVO现场。只使用1张核实照片。",
+    "tags": [
+      "机械声音",
+      "八声道",
+      "感知与因果",
+      "空间聆听"
+    ],
+    "group": "装置",
+    "work": "https://www.roving.net/gain-stage/",
+    "exhibitionurl": "https://opus.lib.uts.edu.au/bitstream/10453/122324/4/Digital%2BMedia%2BAesthetics%20-%20Small.pdf",
+    "image": "assets/daily-20261007-osborn-gain-stage-main.jpg",
+    "imageNote": "艺术家Gain Stage专页的真实作品照片，可见机械部件、拾音话筒与分布式扬声器。已目视核对；仅收录这一张已核实照片，不用Harvester或Outfield配图。",
+    "credit": "© Ed Osborn；来源：艺术家官方网站；摄影者未注明",
+    "imageSource": "https://www.roving.net/gain-stage/",
+    "rights": "图像版权归艺术家、摄影者及原始权利人；保留署名与来源，公开转载或再利用须另行核实授权。",
+    "imagePosition": "50% 50%",
+    "imageZoom": 1,
+    "imageFit": "contain",
+    "verificationSources": [
+      "https://www.roving.net/gain-stage/",
+      "https://www.isea-symposium-archives.org/wp-content/uploads/2019/03/ISEA2015_Catalogue.pdf",
+      "https://opus.lib.uts.edu.au/bitstream/10453/122324/4/Digital%2BMedia%2BAesthetics%20-%20Small.pdf"
+    ],
+    "number": 217,
+    "additionalImages": []
   }
 ]
