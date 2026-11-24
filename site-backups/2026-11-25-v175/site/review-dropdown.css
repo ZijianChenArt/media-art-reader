@@ -1,0 +1,101 @@
+/* Rounded monochrome status picker; portaled so cards never clip its reveal. */
+.review-control.is-enhanced::before,
+.review-control.is-enhanced::after { content: none; }
+.review-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 128px;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 8px 32px 8px 27px;
+  border: 1px solid #000;
+  border-radius: 999px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+}
+.review-trigger::before,
+.review-option::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  width: 6px;
+  height: 6px;
+  box-sizing: border-box;
+  background: currentColor;
+}
+.review-trigger::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 180ms ease, margin-top 180ms ease;
+}
+.review-trigger[aria-expanded="true"]::after { transform: rotate(225deg); margin-top: 3px; }
+.review-trigger[data-state="selected"] { background: #000; color: #fff; }
+.review-trigger[data-state="rejected"]::before,
+.review-option[data-state="rejected"]::before { background: transparent; border: 1px solid currentColor; }
+.review-trigger[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.review-trigger:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+.review-options {
+  position: fixed;
+  z-index: 45;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 5px;
+  border: 1px solid #000;
+  border-radius: 18px;
+  background: #fff;
+  color: #000;
+  font-family: var(--sans, inherit);
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 4px 0 rgb(0 0 0 / .05);
+  transform-origin: top center;
+  animation: review-open 200ms cubic-bezier(.22, 1, .36, 1) both;
+}
+.review-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 30px 8px 27px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.review-option.is-active { background: #000; color: #fff; }
+.review-option[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  width: 5px;
+  height: 9px;
+  margin-top: -3px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+@keyframes review-open {
+  from { opacity: 0; transform: translateY(-7px) scaleY(.92); clip-path: inset(0 0 100% 0 round 18px); }
+  to { opacity: 1; transform: translateY(0) scaleY(1); clip-path: inset(0 0 0 0 round 18px); }
+}
+@media (max-width: 620px), (pointer: coarse) {
+  .review-trigger { min-height: 44px; min-width: 132px; }
+  .review-option { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .review-options { animation: none; }
+  .review-trigger::after { transition: none; }
+}
